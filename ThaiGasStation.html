@@ -381,7 +381,7 @@
     </div>
 
     <div class="card">
-      <div id="statusBox" class="status">พร้อมใช้งาน กด “ค้นหาปั๊มใกล้ฉัน” ได้เลย</div>
+      <div id="statusBox" class="status">พร้อมใช้งาน กำลังโหลดไฟล์สถานะ...</div>
 
       <div class="toolbar">
         <button class="btn-primary" onclick="findNearbyStations()">ค้นหาปั๊มใกล้ฉัน</button>
@@ -405,14 +405,13 @@
           <div class="mini-value" id="coordText">ยังไม่ได้ระบุ</div>
         </div>
         <div class="mini-box">
-          <div class="mini-label">สถานะข้อมูลน้ำมัน</div>
-          <div class="mini-value">ใช้ข้อมูลสถานะในไฟล์นี้ก่อน</div>
+          <div class="mini-label">แหล่งข้อมูลสถานะ</div>
+          <div class="mini-value" id="statusSourceText">status.json</div>
         </div>
       </div>
 
       <div class="footer-note">
-        ตอนนี้สถานะ “มี / หมด / ไม่ทราบ” เป็นโครงรองรับข้อมูลต่อปั๊มไว้ก่อน
-        คุณสามารถแก้ในตัวแปร <b>LOCAL_STATION_STATUS</b> ด้านล่างได้ทันที
+        หน้าเว็บนี้จะอ่านสถานะน้ำมันจากไฟล์ <b>status.json</b> ที่อยู่โฟลเดอร์เดียวกับไฟล์ HTML
       </div>
     </div>
 
@@ -434,6 +433,7 @@
     const summaryText = document.getElementById("summaryText");
     const resultList = document.getElementById("resultList");
     const countBadge = document.getElementById("countBadge");
+    const statusSourceText = document.getElementById("statusSourceText");
 
     const OVERPASS_ENDPOINTS = [
       "https://overpass-api.de/api/interpreter",
@@ -442,54 +442,7 @@
 
     let currentLat = null;
     let currentLng = null;
-
-    // ===============================
-    // แก้สถานะน้ำมันต่อปั๊มได้ตรงนี้
-    // key ใช้ชื่อปั๊มแบบพิมพ์เล็ก
-    // available | empty | unknown
-    // ===============================
-    const LOCAL_STATION_STATUS = {
-      "ptt station": {
-        updatedAt: "24/03/2026 10:20",
-        stationStatus: "open",
-        fuels: {
-          gasohol95: "available",
-          gasohol91: "available",
-          diesel: "available",
-          premiumDiesel: "unknown"
-        }
-      },
-      "bangchak": {
-        updatedAt: "24/03/2026 10:15",
-        stationStatus: "open",
-        fuels: {
-          gasohol95: "available",
-          gasohol91: "unknown",
-          diesel: "available",
-          premiumDiesel: "empty"
-        }
-      },
-      "shell": {
-        updatedAt: "24/03/2026 10:05",
-        stationStatus: "open",
-        fuels: {
-          gasohol95: "available",
-          gasohol91: "available",
-          diesel: "empty",
-          premiumDiesel: "unknown"
-        }
-      },
-      "esso": {
-        updatedAt: "24/03/2026 09:50",
-        stationStatus: "open",
-        fuels: {
-          gasohol95: "unknown",
-          gasohol91: "unknown",
-          diesel: "available",
-          premiumDiesel: "unknown"
-        }
-      }
-    };
+    let STATION_STATUS = {};
 
     function setStatus(text, type = "info") {
       statusBox.textContent = text;
@@ -558,12 +511,14 @@
       if (text.includes("ptt")) return "ptt station";
       if (text.includes("shell")) return "shell";
       if (text.includes("esso")) return "esso";
+      if (text.includes("caltex")) return "caltex";
+      if (text.includes("susco")) return "susco";
       return "";
     }
 
     function getStationFuelStatus(station) {
       const brandKey = findBrandKey(station.tags, station.name);
-      const data = LOCAL_STATION_STATUS[brandKey];
+      const data = STATION_STATUS[brandKey];
 
       if (!data) {
         return {
@@ -716,6 +671,21 @@
       });
     }
 
+    async function loadStationStatus() {
+      try {
+        const res = await fetch("./status.json", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        STATION_STATUS = await res.json();
+        statusSourceText.textContent = "โหลดจาก status.json สำเร็จ";
+        setStatus("โหลดไฟล์สถานะสำเร็จ กดค้นหาปั๊มใกล้ฉันได้เลย", "ok");
+      } catch (err) {
+        console.error("โหลด status.json ไม่สำเร็จ", err);
+        STATION_STATUS = {};
+        statusSourceText.textContent = "โหลด status.json ไม่สำเร็จ";
+        setStatus("โหลด status.json ไม่สำเร็จ แต่ยังค้นหาปั๊มได้อยู่ สถานะน้ำมันจะเป็น 'ไม่ทราบ'", "warn");
+      }
+    }
+
     async function findNearbyStations() {
       resultList.innerHTML = `<div class="empty">กำลังค้นหาปั๊มน้ำมันใกล้คุณ...</div>`;
       summaryText.textContent = "กำลังโหลดข้อมูล...";
@@ -794,6 +764,7 @@ out center tags;
     }
 
     updateCoordText();
+    loadStationStatus();
   </script>
 </body>
 </html>
