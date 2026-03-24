@@ -1,485 +1,301 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Thai Gas Station Finder</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Thai Gas Station</title>
   <style>
+    :root{
+      --bg:#f3f6fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --primary:#0f9d58;
+      --primary-dark:#0b7d46;
+      --secondary:#334155;
+      --border:#e5e7eb;
+      --ok-bg:#ecfdf5;
+      --ok-bd:#86efac;
+      --ok-tx:#166534;
+      --warn-bg:#fff7ed;
+      --warn-bd:#fdba74;
+      --warn-tx:#c2410c;
+      --info-bg:#eef6ff;
+      --info-bd:#bfdbfe;
+      --info-tx:#1d4ed8;
+    }
+
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f4f7fb;
-      color: #1f2937;
-    }
-    .container {
-      max-width: 1200px;
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: Arial, Helvetica, sans-serif; }
+    body { -webkit-font-smoothing: antialiased; }
+
+    .wrap {
+      max-width: 760px;
       margin: 0 auto;
-      padding: 18px;
+      padding: 14px;
+      padding-bottom: 28px;
     }
-    .header {
-      margin-bottom: 16px;
-    }
-    .header h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
-    }
-    .header p {
-      margin: 0;
-      font-size: 14px;
-      line-height: 1.6;
-      color: #6b7280;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 360px 1fr;
-      gap: 16px;
-    }
-    .panel {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      padding: 16px;
-    }
-    .panel h2 {
-      margin: 0 0 12px;
-      font-size: 18px;
-    }
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    button {
-      border: none;
-      border-radius: 10px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-size: 14px;
+
+    .title {
+      margin: 8px 0 6px;
+      font-size: 24px;
       font-weight: 700;
     }
-    .btn-primary {
-      background: #0f9d58;
-      color: #fff;
+
+    .subtitle {
+      margin: 0 0 14px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
     }
-    .btn-primary:hover {
-      background: #0a7d46;
+
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 14px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.05);
+      margin-bottom: 12px;
     }
-    .btn-secondary {
-      background: #334155;
-      color: #fff;
-    }
-    .btn-secondary:hover {
-      background: #1e293b;
-    }
+
     .status {
-      background: #eef6ff;
-      border: 1px solid #bfdbfe;
-      color: #1d4ed8;
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 12px 14px;
       font-size: 14px;
       line-height: 1.5;
-      margin-bottom: 12px;
       white-space: pre-wrap;
-    }
-    .status.warn {
-      background: #fff7ed;
-      border-color: #fdba74;
-      color: #c2410c;
+      background: var(--info-bg);
+      border: 1px solid var(--info-bd);
+      color: var(--info-tx);
     }
     .status.ok {
-      background: #ecfdf5;
-      border-color: #86efac;
-      color: #166534;
+      background: var(--ok-bg);
+      border-color: var(--ok-bd);
+      color: var(--ok-tx);
     }
+    .status.warn {
+      background: var(--warn-bg);
+      border-color: var(--warn-bd);
+      color: var(--warn-tx);
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      min-height: 48px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:active { background: var(--primary-dark); }
+
+    .btn-secondary {
+      background: var(--secondary);
+      color: #fff;
+    }
+
     .field {
-      margin-bottom: 10px;
+      margin-top: 12px;
     }
+
     .field label {
       display: block;
+      margin-bottom: 6px;
       font-size: 13px;
       font-weight: 700;
-      margin-bottom: 6px;
       color: #334155;
     }
-    .field input, .field select {
+
+    input, select {
       width: 100%;
-      padding: 10px 12px;
+      min-height: 46px;
       border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      font-size: 14px;
-    }
-    .coords {
-      font-family: Consolas, monospace;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
+      border-radius: 12px;
       padding: 10px 12px;
-      font-size: 13px;
-      color: #334155;
-      margin-top: 8px;
-      white-space: pre-wrap;
+      font-size: 15px;
+      background: #fff;
     }
-    .note {
-      font-size: 12px;
-      color: #6b7280;
-      line-height: 1.6;
+
+    .small {
       margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
     }
-    .results {
+
+    .summary {
+      font-size: 14px;
+      color: #475569;
+      line-height: 1.5;
+    }
+
+    .result-list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
-    .card {
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-      padding: 14px;
+
+    .station {
       background: #fff;
-      transition: 0.2s ease;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
     }
-    .card:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(0,0,0,0.06);
-    }
-    .card-top {
+
+    .station-head {
       display: flex;
       justify-content: space-between;
+      gap: 8px;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
+
     .station-name {
       font-size: 16px;
       font-weight: 700;
+      line-height: 1.4;
     }
+
     .badge {
+      white-space: nowrap;
       background: #e6fffa;
       color: #0f766e;
       border-radius: 999px;
       padding: 6px 10px;
       font-size: 12px;
       font-weight: 700;
-      white-space: nowrap;
     }
+
     .meta {
       font-size: 13px;
-      color: #6b7280;
+      color: var(--muted);
       line-height: 1.6;
-      margin-bottom: 10px;
       word-break: break-word;
     }
+
     .actions {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
+      margin-top: 12px;
     }
+
     .link-btn {
-      display: inline-block;
+      display: block;
+      text-align: center;
       text-decoration: none;
-      padding: 9px 12px;
-      border-radius: 10px;
+      background: #111827;
+      color: #fff;
+      padding: 11px 10px;
+      border-radius: 12px;
       font-size: 13px;
       font-weight: 700;
-      color: #fff;
-      background: #111827;
     }
+
     .link-btn.alt {
       background: #2563eb;
     }
-    .summary-box {
-      min-height: 140px;
-      border: 1px dashed #cbd5e1;
-      border-radius: 14px;
-      padding: 18px;
-      background:
-        radial-gradient(circle at 20% 20%, #dcfce7 0, #dcfce7 18%, transparent 19%),
-        radial-gradient(circle at 78% 35%, #dbeafe 0, #dbeafe 16%, transparent 17%),
-        linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+
+    .hidden {
+      display: none;
     }
-    .summary-box h3 {
-      margin: 0 0 10px;
-      font-size: 20px;
-    }
-    .summary-box p {
-      margin: 0 0 10px;
-      color: #475569;
-      line-height: 1.6;
-    }
-    .mini {
+
+    .footer-note {
+      margin-top: 6px;
       font-size: 12px;
-      color: #6b7280;
+      color: var(--muted);
       line-height: 1.6;
-    }
-    .debug {
-      margin-top: 12px;
-      font-size: 12px;
-      color: #475569;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 10px;
-      white-space: pre-wrap;
-    }
-    @media (max-width: 900px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>Thai Gas Station Finder</h1>
-      <p>
-        ค้นหาปั๊มน้ำมันใกล้คุณแบบสดจาก Overpass API พร้อมระบบ fallback หลาย endpoint
-        และแสดง error จริงเพื่อให้ไล่ปัญหาได้
-      </p>
+  <div class="wrap">
+    <div class="title">ปั๊มน้ำมันใกล้ฉัน</div>
+    <div class="subtitle">
+      ใช้งานง่ายสำหรับมือถือ เปิดผ่าน GitHub Pages แล้วกดปุ่มเดียวเพื่อค้นหาปั๊มใกล้คุณ
     </div>
 
-    <div class="grid">
-      <div class="panel">
-        <h2>ค้นหาสถานี</h2>
+    <div class="card">
+      <div id="statusBox" class="status">พร้อมใช้งาน กด “ค้นหาปั๊มใกล้ฉัน” ได้เลย</div>
 
-        <div id="statusBox" class="status">
-          ระบบพร้อมใช้งาน
-        </div>
-
-        <div class="toolbar">
-          <button class="btn-primary" onclick="detectLocation()">ใช้ตำแหน่งปัจจุบัน</button>
-          <button class="btn-secondary" onclick="useBangkokDefault()">ใช้พิกัดกรุงเทพ</button>
-        </div>
-
-        <div class="field">
-          <label for="latInput">Latitude</label>
-          <input id="latInput" type="text" value="13.7563" />
-        </div>
-
-        <div class="field">
-          <label for="lngInput">Longitude</label>
-          <input id="lngInput" type="text" value="100.5018" />
-        </div>
-
-        <div class="field">
-          <label for="radiusInput">รัศมีค้นหา (เมตร)</label>
-          <input id="radiusInput" type="number" value="5000" min="500" max="50000" step="500" />
-        </div>
-
-        <div class="field">
-          <label for="brandFilter">กรองแบรนด์</label>
-          <select id="brandFilter">
-            <option value="">ทั้งหมด</option>
-            <option value="ptt">PTT / PTT Station</option>
-            <option value="bangchak">Bangchak</option>
-            <option value="shell">Shell</option>
-            <option value="esso">Esso</option>
-            <option value="caltex">Caltex</option>
-            <option value="susco">Susco</option>
-            <option value="petronas">Petronas</option>
-            <option value="pure">Pure</option>
-          </select>
-        </div>
-
-        <div class="toolbar">
-          <button class="btn-primary" onclick="searchStations()">ค้นหาปั๊มใกล้ฉัน</button>
-        </div>
-
-        <div class="coords" id="coordBox">
-          current_location = 13.756300, 100.501800
-        </div>
-
-        <div class="note">
-          แนะนำให้เปิดผ่าน <b>http://localhost:8000/ThaiGasStation.html</b> ไม่ใช่เปิดไฟล์ตรงแบบ file:///...
-        </div>
-
-        <div class="debug" id="debugBox">debug: ready</div>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="findNearbyStations()">ค้นหาปั๊มใกล้ฉัน</button>
+        <button class="btn-secondary" onclick="useBangkok()">ใช้พิกัดกรุงเทพ</button>
       </div>
 
-      <div class="panel">
-        <div class="summary-box">
-          <h3>ผลการค้นหา</h3>
-          <p id="summaryText">ยังไม่มีผลลัพธ์</p>
-          <div class="mini">
-            ถ้า endpoint แรกตอบไม่ได้ ระบบจะลอง endpoint สำรองให้อัตโนมัติ
-          </div>
-        </div>
+      <div class="field">
+        <label for="radiusInput">รัศมีค้นหา</label>
+        <select id="radiusInput">
+          <option value="2000">2 กม.</option>
+          <option value="3000">3 กม.</option>
+          <option value="5000" selected>5 กม.</option>
+          <option value="10000">10 กม.</option>
+          <option value="15000">15 กม.</option>
+        </select>
+      </div>
 
-        <div style="height: 14px;"></div>
-
-        <div id="results" class="results"></div>
+      <div class="small" id="coordText">ตำแหน่ง: ยังไม่ได้ระบุ</div>
+      <div class="footer-note">
+        หมายเหตุ: เวอร์ชันนี้เน้นให้ “ค้นหาสถานีใกล้ตัว” ใช้งานง่ายบนมือถือก่อน
       </div>
     </div>
+
+    <div class="card">
+      <div class="summary" id="summaryText">ยังไม่มีผลลัพธ์</div>
+    </div>
+
+    <div id="resultList" class="result-list"></div>
   </div>
 
   <script>
+    const statusBox = document.getElementById("statusBox");
+    const radiusInput = document.getElementById("radiusInput");
+    const coordText = document.getElementById("coordText");
+    const summaryText = document.getElementById("summaryText");
+    const resultList = document.getElementById("resultList");
+
     const OVERPASS_ENDPOINTS = [
       "https://overpass-api.de/api/interpreter",
-      "https://lz4.overpass-api.de/api/interpreter",
-      "https://overpass.private.coffee/api/interpreter"
+      "https://lz4.overpass-api.de/api/interpreter"
     ];
 
-    const statusBox = document.getElementById("statusBox");
-    const latInput = document.getElementById("latInput");
-    const lngInput = document.getElementById("lngInput");
-    const radiusInput = document.getElementById("radiusInput");
-    const brandFilter = document.getElementById("brandFilter");
-    const coordBox = document.getElementById("coordBox");
-    const resultsEl = document.getElementById("results");
-    const summaryText = document.getElementById("summaryText");
-    const debugBox = document.getElementById("debugBox");
+    let currentLat = null;
+    let currentLng = null;
 
-    function setStatus(message, type = "default") {
-      statusBox.textContent = message;
+    function setStatus(text, type = "info") {
+      statusBox.textContent = text;
       statusBox.className = "status";
-      if (type === "warn") statusBox.classList.add("warn");
       if (type === "ok") statusBox.classList.add("ok");
+      if (type === "warn") statusBox.classList.add("warn");
     }
 
-    function setDebug(message) {
-      debugBox.textContent = "debug:\n" + message;
-      console.log(message);
-    }
-
-    function updateCoordBox(lat, lng) {
-      coordBox.textContent = `current_location = ${Number(lat).toFixed(6)}, ${Number(lng).toFixed(6)}`;
-    }
-
-    function useBangkokDefault() {
-      latInput.value = "13.7563";
-      lngInput.value = "100.5018";
-      updateCoordBox(latInput.value, lngInput.value);
-      setStatus("ใช้พิกัดกรุงเทพเรียบร้อยแล้ว", "ok");
-      setDebug("set default location กรุงเทพ");
-    }
-
-    function detectLocation() {
-      if (!navigator.geolocation) {
-        setStatus("เบราว์เซอร์นี้ไม่รองรับ GPS", "warn");
-        setDebug("navigator.geolocation not supported");
-        return;
+    function updateCoordText() {
+      if (Number.isFinite(currentLat) && Number.isFinite(currentLng)) {
+        coordText.textContent = `ตำแหน่ง: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+      } else {
+        coordText.textContent = "ตำแหน่ง: ยังไม่ได้ระบุ";
       }
-
-      setStatus("กำลังอ่านตำแหน่งปัจจุบัน...");
-      setDebug("requesting geolocation");
-
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          latInput.value = pos.coords.latitude;
-          lngInput.value = pos.coords.longitude;
-          updateCoordBox(latInput.value, lngInput.value);
-          setStatus("อ่านตำแหน่งสำเร็จ", "ok");
-          setDebug(`geolocation success: lat=${pos.coords.latitude}, lng=${pos.coords.longitude}`);
-        },
-        (err) => {
-          setStatus("อ่านตำแหน่งไม่สำเร็จ กรุณาอนุญาต GPS หรือกรอกพิกัดเอง", "warn");
-          setDebug(`geolocation error: code=${err.code}, message=${err.message}`);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-      );
     }
 
-    function haversineKm(lat1, lon1, lat2, lon2) {
-      const R = 6371;
-      const dLat = ((lat2 - lat1) * Math.PI) / 180;
-      const dLon = ((lon2 - lon1) * Math.PI) / 180;
-
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
-
-    function normalizeText(value) {
-      return String(value || "").trim().toLowerCase();
-    }
-
-    function matchBrand(station, filterValue) {
-      if (!filterValue) return true;
-
-      const text = [
-        station.name,
-        station.brand,
-        station.operator,
-        station.tags?.brand,
-        station.tags?.operator
-      ].map(normalizeText).join(" | ");
-
-      if (filterValue === "ptt") {
-        return text.includes("ptt");
-      }
-      return text.includes(filterValue);
-    }
-
-    function googleSearchMapLink(name, lat, lng) {
-      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}@${lat},${lng}`;
-    }
-
-    function googleDirectionLink(fromLat, fromLng, toLat, toLng) {
-      return `https://www.google.com/maps/dir/?api=1&origin=${fromLat},${fromLng}&destination=${toLat},${toLng}&travelmode=driving`;
-    }
-
-    function renderResults(stations, originLat, originLng) {
-      resultsEl.innerHTML = "";
-
-      if (!stations.length) {
-        summaryText.textContent = "ไม่พบปั๊มน้ำมันในรัศมีที่กำหนด";
-        resultsEl.innerHTML = `
-          <div class="card">
-            <div class="station-name">ไม่พบข้อมูล</div>
-            <div class="meta">ลองเพิ่มรัศมีค้นหา เช่น 10000 หรือ 15000 เมตร</div>
-          </div>
-        `;
-        return;
-      }
-
-      summaryText.textContent = `พบ ${stations.length} สถานีในรัศมีที่กำหนด`;
-
-      stations.forEach((station) => {
-        const card = document.createElement("div");
-        card.className = "card";
-
-        const brandText = station.brand || station.operator || station.tags?.brand || "-";
-        const addressText = station.address || "-";
-
-        card.innerHTML = `
-          <div class="card-top">
-            <div class="station-name">${escapeHtml(station.name || "Unknown Station")}</div>
-            <div class="badge">${station.distanceKm.toFixed(2)} กม.</div>
-          </div>
-
-          <div class="meta">
-            แบรนด์/ผู้ให้บริการ: ${escapeHtml(brandText)}<br>
-            ที่อยู่: ${escapeHtml(addressText)}<br>
-            พิกัด: ${station.lat.toFixed(6)}, ${station.lng.toFixed(6)}<br>
-            เวลาเปิด: ${escapeHtml(station.openingHours || "-")}<br>
-            โทร: ${escapeHtml(station.phone || "-")}
-          </div>
-
-          <div class="actions">
-            <a class="link-btn" target="_blank" rel="noopener noreferrer"
-              href="${googleSearchMapLink(station.name || "Fuel Station", station.lat, station.lng)}">
-              เปิดแผนที่
-            </a>
-            <a class="link-btn alt" target="_blank" rel="noopener noreferrer"
-              href="${googleDirectionLink(originLat, originLng, station.lat, station.lng)}">
-              นำทาง
-            </a>
-          </div>
-        `;
-
-        resultsEl.appendChild(card);
-      });
+    function useBangkok() {
+      currentLat = 13.7563;
+      currentLng = 100.5018;
+      updateCoordText();
+      setStatus("ใช้พิกัดกรุงเทพแล้ว กดค้นหาได้เลย", "ok");
     }
 
     function escapeHtml(value) {
@@ -491,105 +307,151 @@
         .replaceAll("'", "&#039;");
     }
 
-    async function fetchWithTimeout(url, options = {}, timeoutMs = 25000) {
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLon = ((lon2 - lon1) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function mapsLink(name, lat, lng) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}@${lat},${lng}`;
+    }
+
+    function dirLink(fromLat, fromLng, toLat, toLng) {
+      return `https://www.google.com/maps/dir/?api=1&origin=${fromLat},${fromLng}&destination=${toLat},${toLng}&travelmode=driving`;
+    }
+
+    function normalizeBrandText(tags) {
+      return tags.brand || tags.operator || tags.name || "-";
+    }
+
+    function renderStations(stations) {
+      resultList.innerHTML = "";
+
+      if (!stations.length) {
+        summaryText.textContent = "ไม่พบปั๊มน้ำมันในรัศมีที่เลือก ลองเพิ่มเป็น 10 หรือ 15 กม.";
+        return;
+      }
+
+      summaryText.textContent = `พบ ${stations.length} สถานี`;
+
+      stations.forEach((s) => {
+        const brandText = normalizeBrandText(s.tags || {});
+        const addressText = s.address || "-";
+
+        const el = document.createElement("div");
+        el.className = "station";
+        el.innerHTML = `
+          <div class="station-head">
+            <div class="station-name">${escapeHtml(s.name)}</div>
+            <div class="badge">${s.distanceKm.toFixed(2)} กม.</div>
+          </div>
+          <div class="meta">
+            แบรนด์: ${escapeHtml(brandText)}<br>
+            ที่อยู่: ${escapeHtml(addressText)}<br>
+            พิกัด: ${s.lat.toFixed(6)}, ${s.lng.toFixed(6)}
+          </div>
+          <div class="actions">
+            <a class="link-btn" href="${mapsLink(s.name, s.lat, s.lng)}" target="_blank" rel="noopener noreferrer">เปิดแผนที่</a>
+            <a class="link-btn alt" href="${dirLink(currentLat, currentLng, s.lat, s.lng)}" target="_blank" rel="noopener noreferrer">นำทาง</a>
+          </div>
+        `;
+        resultList.appendChild(el);
+      });
+    }
+
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
-
       try {
-        const response = await fetch(url, {
-          ...options,
-          signal: controller.signal
-        });
+        const res = await fetch(url, { ...options, signal: controller.signal });
         clearTimeout(timer);
-        return response;
+        return res;
       } catch (err) {
         clearTimeout(timer);
         throw err;
       }
     }
 
-    async function queryOverpassWithFallback(queryText) {
-      let lastError = null;
-      let debugMessages = [];
+    async function overpassQuery(query) {
+      let lastErr = null;
 
       for (const endpoint of OVERPASS_ENDPOINTS) {
         try {
-          debugMessages.push(`trying endpoint: ${endpoint}`);
-
-          const response = await fetchWithTimeout(endpoint, {
+          const res = await fetchWithTimeout(endpoint, {
             method: "POST",
-            headers: {
-              "Content-Type": "text/plain;charset=UTF-8"
-            },
-            body: queryText
-          }, 25000);
+            headers: { "Content-Type": "text/plain;charset=UTF-8" },
+            body: query
+          }, 20000);
 
-          debugMessages.push(`status from ${endpoint}: ${response.status}`);
-
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status} from ${endpoint}`);
-          }
-
-          const data = await response.json();
-          debugMessages.push(`success from ${endpoint}, elements=${Array.isArray(data.elements) ? data.elements.length : 0}`);
-          setDebug(debugMessages.join("\n"));
-          return data;
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return await res.json();
         } catch (err) {
-          lastError = err;
-          debugMessages.push(`failed ${endpoint}: ${err.name || "Error"} - ${err.message}`);
+          lastErr = err;
         }
       }
 
-      setDebug(debugMessages.join("\n"));
-      throw lastError || new Error("All Overpass endpoints failed");
+      throw lastErr || new Error("Overpass unavailable");
     }
 
-    async function searchStations() {
-      const lat = Number(latInput.value);
-      const lng = Number(lngInput.value);
-      const radius = Number(radiusInput.value);
-      const brand = brandFilter.value;
+    async function getCurrentPositionMobile() {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error("เบราว์เซอร์ไม่รองรับ GPS"));
+          return;
+        }
 
-      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-        setStatus("กรุณากรอก latitude / longitude ให้ถูกต้อง", "warn");
-        setDebug("invalid lat/lng input");
-        return;
-      }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve(pos),
+          (err) => reject(err),
+          {
+            enableHighAccuracy: true,
+            timeout: 12000,
+            maximumAge: 0
+          }
+        );
+      });
+    }
 
-      if (!Number.isFinite(radius) || radius <= 0) {
-        setStatus("กรุณากรอกรัศมีให้ถูกต้อง", "warn");
-        setDebug("invalid radius");
-        return;
-      }
-
-      if (location.protocol === "file:") {
-        setStatus("คุณกำลังเปิดไฟล์แบบ file:///... แนะนำให้เปิดผ่าน http://localhost:8000/ThaiGasStation.html", "warn");
-        setDebug("running via file:// protocol");
-      } else {
-        setStatus("กำลังโหลดข้อมูลปั๊มน้ำมันจาก Overpass API...");
-      }
-
-      updateCoordBox(lat, lng);
+    async function findNearbyStations() {
+      resultList.innerHTML = "";
       summaryText.textContent = "กำลังค้นหา...";
-      resultsEl.innerHTML = "";
 
-      const query = `
-[out:json][timeout:25];
+      try {
+        setStatus("กำลังอ่านตำแหน่งปัจจุบัน...", "info");
+
+        const pos = await getCurrentPositionMobile();
+        currentLat = pos.coords.latitude;
+        currentLng = pos.coords.longitude;
+        updateCoordText();
+
+        setStatus("กำลังค้นหาปั๊มน้ำมันใกล้คุณ...", "info");
+
+        const radius = Number(radiusInput.value || 5000);
+
+        const query = `
+[out:json][timeout:20];
 (
-  node["amenity"="fuel"](around:${radius},${lat},${lng});
-  way["amenity"="fuel"](around:${radius},${lat},${lng});
-  relation["amenity"="fuel"](around:${radius},${lat},${lng});
+  node["amenity"="fuel"](around:${radius},${currentLat},${currentLng});
+  way["amenity"="fuel"](around:${radius},${currentLat},${currentLng});
+  relation["amenity"="fuel"](around:${radius},${currentLat},${currentLng});
 );
 out center tags;
 `;
 
-      try {
-        const data = await queryOverpassWithFallback(query);
+        const data = await overpassQuery(query);
         const elements = Array.isArray(data.elements) ? data.elements : [];
 
-        let stations = elements.map((el) => {
-          const stationLat = el.lat ?? el.center?.lat;
-          const stationLng = el.lon ?? el.center?.lon;
+        const stations = elements.map((el) => {
+          const lat = Number(el.lat ?? el.center?.lat);
+          const lng = Number(el.lon ?? el.center?.lon);
           const tags = el.tags || {};
 
           const address = [
@@ -602,59 +464,37 @@ out center tags;
 
           return {
             id: `${el.type}-${el.id}`,
-            name: tags.name || tags.brand || "Unknown Station",
-            brand: tags.brand || "",
-            operator: tags.operator || "",
+            name: tags.name || tags.brand || "สถานีบริการน้ำมัน",
+            lat,
+            lng,
+            tags,
             address,
-            openingHours: tags.opening_hours || "",
-            phone: tags.phone || "",
-            website: tags.website || "",
-            lat: Number(stationLat),
-            lng: Number(stationLng),
-            tags
+            distanceKm: haversineKm(currentLat, currentLng, lat, lng)
           };
-        }).filter((s) =>
-          Number.isFinite(s.lat) &&
-          Number.isFinite(s.lng) &&
-          matchBrand(s, brand)
-        );
-
-        stations = stations.map((s) => ({
-          ...s,
-          distanceKm: haversineKm(lat, lng, s.lat, s.lng)
-        }));
+        }).filter(s => Number.isFinite(s.lat) && Number.isFinite(s.lng));
 
         stations.sort((a, b) => a.distanceKm - b.distanceKm);
 
         setStatus(`โหลดสำเร็จ พบ ${stations.length} สถานี`, "ok");
-        renderResults(stations, lat, lng);
-      } catch (error) {
-        console.error(error);
-        setStatus(
-          "โหลดข้อมูลล้มเหลว\n" +
-          `สาเหตุ: ${error.name || "Error"} - ${error.message}\n` +
-          "ให้ลอง 3 อย่างนี้:\n" +
-          "1) เปิดผ่าน http://localhost:8000\n" +
-          "2) ลดรัศมีเหลือ 3000 หรือ 5000\n" +
-          "3) กดใหม่อีกครั้ง",
-          "warn"
-        );
+        renderStations(stations);
+      } catch (err) {
+        console.error(err);
 
-        summaryText.textContent = "เกิดข้อผิดพลาดในการโหลดข้อมูล";
-        resultsEl.innerHTML = `
-          <div class="card">
-            <div class="station-name">โหลดข้อมูลไม่สำเร็จ</div>
-            <div class="meta">
-              error: ${escapeHtml(error.message || "unknown error")}<br><br>
-              ให้เปิด F12 > Console แล้วดูข้อความใน debug ด้านซ้ายล่างด้วย
-            </div>
-          </div>
-        `;
+        if (err.code === 1) {
+          setStatus("ยังไม่ได้อนุญาตตำแหน่ง GPS กรุณาอนุญาต Location แล้วกดใหม่", "warn");
+        } else if (err.code === 2) {
+          setStatus("ไม่สามารถอ่านตำแหน่งปัจจุบันได้", "warn");
+        } else if (err.code === 3) {
+          setStatus("อ่านตำแหน่งหมดเวลา ลองใหม่อีกครั้ง", "warn");
+        } else {
+          setStatus("โหลดข้อมูลล้มเหลว ลองใหม่อีกครั้ง หรือกดใช้พิกัดกรุงเทพก่อน", "warn");
+        }
+
+        summaryText.textContent = "ยังโหลดผลลัพธ์ไม่ได้";
       }
     }
 
-    updateCoordBox(latInput.value, lngInput.value);
-    setDebug("page loaded");
+    updateCoordText();
   </script>
 </body>
 </html>
