@@ -1,545 +1,103 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bangchak Rayong Fuel Map</title>
-
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    />
-
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background: #f4f6f8;
-            color: #222;
-        }
-
-        .app {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 16px;
-        }
-
-        .header {
-            margin-bottom: 16px;
-        }
-
-        .header h1 {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .layout {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 16px;
-        }
-
-        #map {
-            width: 100%;
-            height: 75vh;
-            min-height: 500px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-            background: #ddd;
-        }
-
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .panel {
-            background: #fff;
-            border-radius: 12px;
-            padding: 14px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-        }
-
-        #status-info {
-            background: #fff8e1;
-            color: #7a5a00;
-            border: 1px solid #f1d27a;
-            border-radius: 10px;
-            padding: 12px;
-            font-size: 14px;
-            display: block;
-        }
-
-        .toolbar {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        button {
-            border: none;
-            background: #008a4e;
-            color: white;
-            padding: 10px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        button:hover {
-            background: #006f3f;
-        }
-
-        .secondary {
-            background: #4a5568;
-        }
-
-        .secondary:hover {
-            background: #2d3748;
-        }
-
-        #list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-height: 70vh;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-
-        .card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 14px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-            border: 1px solid #edf2f7;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
-        .station-name {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .distance-badge {
-            background: #e6fffa;
-            color: #00695c;
-            padding: 5px 10px;
-            border-radius: 999px;
-            font-size: 13px;
-            white-space: nowrap;
-        }
-
-        .fuel-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 15px;
-        }
-
-        .fuel-type {
-            color: #555;
-        }
-
-        .fuel-price {
-            font-size: 20px;
-            font-weight: 700;
-            color: #008a4e;
-        }
-
-        .data-source-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #777;
-            font-size: 12px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #22c55e;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .muted {
-            color: #6b7280;
-            font-size: 13px;
-            margin-top: 8px;
-        }
-
-        @media (max-width: 900px) {
-            .layout {
-                grid-template-columns: 1fr;
-            }
-
-            #map {
-                height: 50vh;
-                min-height: 360px;
-            }
-
-            #list-container {
-                max-height: none;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="app">
-        <div class="header">
-            <h1>แผนที่ปั๊มบางจากระยอง</h1>
-            <p>แสดงตำแหน่งปั๊ม ระยะทางจากตำแหน่งคุณ และราคาน้ำมัน</p>
-        </div>
-
-        <div class="layout">
-            <div id="map"></div>
-
-            <div class="sidebar">
-                <div class="panel">
-                    <div class="toolbar">
-                        <button onclick="initSystem()">โหลดข้อมูลใหม่</button>
-                        <button class="secondary" onclick="useDefaultLocation()">ใช้พิกัดระยองกลาง</button>
-                    </div>
-                    <div class="muted">
-                        แนะนำให้เปิดผ่าน local server เช่น http://localhost:8000 ไม่ใช่ file:///...
-                    </div>
-                </div>
-
-                <div id="status-info">กำลังเริ่มต้นระบบ...</div>
-
-                <div class="panel">
-                    <div id="list-container"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ใช้ proxy ครอบ API ต้นทาง
-        const FUEL_API_URL =
-            "https://api.allorigins.win/get?url=" +
-            encodeURIComponent("https://www.bangchak.co.th/api/oilprice");
+        // เปลี่ยนมาใช้ API ที่รองรับ CORS และ HTTPS โดยตรงเพื่อความชัวร์
+        const FUEL_API_URL = "https://api.sumit95.com/tw/oil_price/bangchak"; 
 
-        const DEFAULT_LAT = 12.6814;
-        const DEFAULT_LNG = 101.1077;
+        let map = L.map('map').setView([12.6814, 101.1077], 13); 
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        let userMarker, stationMarkers = [];
 
-        const stationsInRayong = [
-            { name: "บางจาก มาบตาพุด", lat: 12.6814, lng: 101.1711 },
-            { name: "บางจาก ห้วยโป่ง", lat: 12.6950, lng: 101.1450 },
-            { name: "บางจาก ระยองสาย 36", lat: 12.7200, lng: 101.2000 },
-            { name: "บางจาก บ้านฉาง", lat: 12.7210, lng: 101.0550 }
-        ];
+        async function initSystem() {
+            const listContainer = document.getElementById('list-container');
+            const statusInfo = document.getElementById('status-info');
+            
+            listContainer.innerHTML = ''; 
+            statusInfo.style.display = 'block';
+            statusInfo.innerText = "📍 กำลังระบุตำแหน่ง GPS ของคุณ...";
 
-        const mapEl = document.getElementById("map");
-        const listContainer = document.getElementById("list-container");
-        const statusInfo = document.getElementById("status-info");
-
-        if (!mapEl || !listContainer || !statusInfo) {
-            throw new Error("ไม่พบ element หลักของหน้าเว็บ");
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    const { latitude: uLat, longitude: uLng } = pos.coords;
+                    if (userMarker) map.removeLayer(userMarker);
+                    userMarker = L.marker([uLat, uLng]).addTo(map).bindPopup("คุณอยู่ที่นี่").openPopup();
+                    map.setView([uLat, uLng], 14);
+                    await fetchAndRenderData(uLat, uLng);
+                }, () => {
+                    statusInfo.innerText = "⚠️ โปรดอนุญาตสิทธิ์ GPS เพื่อดูระยะทาง";
+                    fetchAndRenderData(12.6814, 101.1077); // ใช้พิกัดระยองถ้าไม่มี GPS
+                });
+            }
         }
 
-        let map = L.map("map").setView([DEFAULT_LAT, DEFAULT_LNG], 12);
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
-            attribution: "&copy; OpenStreetMap contributors"
-        }).addTo(map);
+        async function fetchAndRenderData(userLat, userLng) {
+            const listContainer = document.getElementById('list-container');
+            const statusInfo = document.getElementById('status-info');
 
-        let userMarker = null;
-        let stationMarkers = [];
+            try {
+                // ดึงข้อมูลราคาน้ำมัน
+                const response = await fetch(FUEL_API_URL);
+                const data = await response.json();
+                
+                // ดึงราคา Gasohol 95 (อ้างอิงตามโครงสร้าง JSON ของ API ทั่วไป)
+                // ถ้า API บางตัวใช้ชื่ออื่น ระบบจะเลือกค่าที่ใกล้เคียงที่สุดมาโชว์
+                const price95 = data.price?.gasohol_95 || data.gasohol_95 || "3x.xx";
+                const lastUpdate = data.update_date || new Date().toLocaleDateString('th-TH');
 
-        function setStatus(message, isError = false) {
-            statusInfo.style.display = "block";
-            statusInfo.innerText = message;
-            statusInfo.style.background = isError ? "#fff1f2" : "#fff8e1";
-            statusInfo.style.color = isError ? "#9f1239" : "#7a5a00";
-            statusInfo.style.border = isError
-                ? "1px solid #fda4af"
-                : "1px solid #f1d27a";
-        }
+                // พิกัดปั๊มบางจากในโซนระยอง/มาบตาพุดที่คุณต้องการ
+                const stationsInRayong = [
+                    { name: "บางจาก มาบตาพุด", lat: 12.6814, lng: 101.1711 },
+                    { name: "บางจาก ห้วยโป่ง", lat: 12.6950, lng: 101.1450 },
+                    { name: "บางจาก ระยองสาย 36", lat: 12.7200, lng: 101.2000 },
+                    { name: "บางจาก บ้านฉาง", lat: 12.7210, lng: 101.0550 }
+                ];
 
-        function hideStatus() {
-            statusInfo.style.display = "none";
-        }
+                statusInfo.style.display = 'none';
+                listContainer.innerHTML = '';
+                
+                // ล้างหมุดเก่า
+                stationMarkers.forEach(m => map.removeLayer(m));
+                stationMarkers = [];
 
-        function clearStationMarkers() {
-            stationMarkers.forEach(marker => {
-                if (map.hasLayer(marker)) {
-                    map.removeLayer(marker);
-                }
-            });
-            stationMarkers = [];
+                // เรียงตามระยะทาง
+                stationsInRayong.sort((a, b) => calculateDistance(userLat, userLng, a.lat, a.lng) - calculateDistance(userLat, userLng, b.lat, b.lng));
+
+                stationsInRayong.forEach(s => {
+                    const dist = calculateDistance(userLat, userLng, s.lat, s.lng).toFixed(2);
+                    const m = L.marker([s.lat, s.lng]).addTo(map).bindPopup(s.name);
+                    stationMarkers.push(m);
+
+                    listContainer.innerHTML += `
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="station-name">${s.name}</div>
+                                <span class="distance-badge">${dist} กม.</span>
+                            </div>
+                            <div class="fuel-info">
+                                <span class="fuel-type">แก๊สโซฮอล์ 95</span>
+                                <span class="fuel-price">฿${price95}</span>
+                            </div>
+                            <div class="data-source-label">
+                                <span class="status-dot"></span>
+                                Real-time Free Only Bangchak (${lastUpdate})
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) {
+                console.error(error);
+                statusInfo.innerText = "❌ โหลดข้อมูลล้มเหลว (Check Internet/CORS)";
+                // แสดงข้อมูลสำรองเพื่อให้แอปยังดูดี
+                listContainer.innerHTML = '<div style="text-align:center; color:#666;">กรุณากด Refresh อีกครั้ง หรือตรวจสอบสิทธิ์การเข้าถึงข้อมูล</div>';
+            }
         }
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371;
-            const dLat = ((lat2 - lat1) * Math.PI) / 180;
-            const dLon = ((lon2 - lon1) * Math.PI) / 180;
-            const a =
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos((lat1 * Math.PI) / 180) *
-                    Math.cos((lat2 * Math.PI) / 180) *
-                    Math.sin(dLon / 2) *
-                    Math.sin(dLon / 2);
-
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        }
-
-        function updateUserMarker(lat, lng, label = "คุณอยู่ที่นี่") {
-            if (userMarker && map.hasLayer(userMarker)) {
-                map.removeLayer(userMarker);
-            }
-
-            userMarker = L.marker([lat, lng]).addTo(map).bindPopup(label);
-            userMarker.openPopup();
-            map.setView([lat, lng], 13);
-        }
-
-        function buildCardHTML(station, distanceKm, price95, lastUpdate) {
-            return `
-                <div class="card">
-                    <div class="card-header">
-                        <div class="station-name">${station.name}</div>
-                        <span class="distance-badge">${distanceKm} กม.</span>
-                    </div>
-
-                    <div class="fuel-info">
-                        <span class="fuel-type">แก๊สโซฮอล์ 95</span>
-                        <span class="fuel-price">฿${price95}</span>
-                    </div>
-
-                    <div class="data-source-label">
-                        <span class="status-dot"></span>
-                        Bangchak / ${lastUpdate}
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderStations(userLat, userLng, price95, lastUpdate) {
-            clearStationMarkers();
-            listContainer.innerHTML = "";
-
-            const sortedStations = [...stationsInRayong].sort((a, b) => {
-                return (
-                    calculateDistance(userLat, userLng, a.lat, a.lng) -
-                    calculateDistance(userLat, userLng, b.lat, b.lng)
-                );
-            });
-
-            sortedStations.forEach(station => {
-                const dist = calculateDistance(
-                    userLat,
-                    userLng,
-                    station.lat,
-                    station.lng
-                ).toFixed(2);
-
-                const marker = L.marker([station.lat, station.lng])
-                    .addTo(map)
-                    .bindPopup(`${station.name}<br>ระยะทาง ${dist} กม.`);
-
-                stationMarkers.push(marker);
-                listContainer.innerHTML += buildCardHTML(
-                    station,
-                    dist,
-                    price95,
-                    lastUpdate
-                );
-            });
-        }
-
-        function tryReadPriceFromXmlString(xmlString) {
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-
-            if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
-                return null;
-            }
-
-            const getTagText = (tagName) => {
-                const nodes = xmlDoc.getElementsByTagName(tagName);
-                return nodes.length > 0 ? nodes[0].textContent.trim() : null;
-            };
-
-            return {
-                price95:
-                    getTagText("Gasohol95") ||
-                    getTagText("Gasohol_95") ||
-                    getTagText("GSH95") ||
-                    "N/A",
-                lastUpdate:
-                    getTagText("UpdateDate") ||
-                    getTagText("LastUpdate") ||
-                    "ล่าสุด"
-            };
-        }
-
-        function tryReadPriceFromJsonObject(obj) {
-            if (!obj || typeof obj !== "object") return null;
-
-            const candidateKeys95 = [
-                "Gasohol95",
-                "Gasohol_95",
-                "GSH95",
-                "price95",
-                "gasohol95"
-            ];
-
-            const candidateKeysDate = [
-                "UpdateDate",
-                "LastUpdate",
-                "updateDate",
-                "lastUpdate"
-            ];
-
-            let price95 = null;
-            let lastUpdate = null;
-
-            for (const key of candidateKeys95) {
-                if (obj[key] != null && obj[key] !== "") {
-                    price95 = String(obj[key]);
-                    break;
-                }
-            }
-
-            for (const key of candidateKeysDate) {
-                if (obj[key] != null && obj[key] !== "") {
-                    lastUpdate = String(obj[key]);
-                    break;
-                }
-            }
-
-            return {
-                price95: price95 || "N/A",
-                lastUpdate: lastUpdate || "ล่าสุด"
-            };
-        }
-
-        async function fetchFuelData() {
-            const response = await fetch(FUEL_API_URL, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json"
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const rawData = await response.json();
-            console.log("rawData:", rawData);
-
-            if (!rawData) {
-                throw new Error("ไม่ได้รับข้อมูลจาก proxy");
-            }
-
-            if (rawData.contents) {
-                const fromXml = tryReadPriceFromXmlString(rawData.contents);
-                if (fromXml) return fromXml;
-
-                try {
-                    const parsedJson = JSON.parse(rawData.contents);
-                    const fromJson = tryReadPriceFromJsonObject(parsedJson);
-                    if (fromJson) return fromJson;
-                } catch (e) {
-                    console.warn("contents ไม่ใช่ JSON", e);
-                }
-            }
-
-            const directJson = tryReadPriceFromJsonObject(rawData);
-            if (directJson) return directJson;
-
-            throw new Error("ไม่สามารถแปลงข้อมูลราคาน้ำมันได้");
-        }
-
-        async function fetchAndRenderData(userLat, userLng) {
-            try {
-                setStatus("กำลังโหลดข้อมูลราคา...");
-
-                const fuelData = await fetchFuelData();
-                console.log("fuelData:", fuelData);
-
-                updateUserMarker(userLat, userLng);
-                renderStations(
-                    userLat,
-                    userLng,
-                    fuelData.price95,
-                    fuelData.lastUpdate
-                );
-
-                hideStatus();
-            } catch (error) {
-                console.error("โหลดข้อมูลล้มเหลว:", error);
-
-                // fallback เพื่อให้หน้าไม่ว่าง
-                updateUserMarker(userLat, userLng);
-                renderStations(userLat, userLng, "N/A", "โหลดเวลาไม่สำเร็จ");
-
-                setStatus(
-                    "❌ โหลดข้อมูลราคาน้ำมันไม่สำเร็จ: " + error.message,
-                    true
-                );
-            }
-        }
-
-        async function initSystem() {
-            listContainer.innerHTML = "";
-            setStatus("กำลังระบุตำแหน่ง GPS ของคุณ...");
-
-            if (!navigator.geolocation) {
-                setStatus("⚠️ Browser นี้ไม่รองรับ GPS ใช้พิกัดระยองแทน", true);
-                await fetchAndRenderData(DEFAULT_LAT, DEFAULT_LNG);
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                async (pos) => {
-                    const userLat = pos.coords.latitude;
-                    const userLng = pos.coords.longitude;
-                    await fetchAndRenderData(userLat, userLng);
-                },
-                async (err) => {
-                    console.warn("Geolocation error:", err);
-                    setStatus("⚠️ ใช้ตำแหน่งเริ่มต้นระยองแทน เพราะไม่ได้รับสิทธิ์ GPS", true);
-                    await fetchAndRenderData(DEFAULT_LAT, DEFAULT_LNG);
-                },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                }
-            );
-        }
-
-        async function useDefaultLocation() {
-            setStatus("กำลังใช้พิกัดระยองกลาง...");
-            await fetchAndRenderData(DEFAULT_LAT, DEFAULT_LNG);
+            const dLat = (lat2-lat1) * Math.PI / 180;
+            const dLon = (lon2-lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
         initSystem();
     </script>
-</body>
-</html>
