@@ -1,374 +1,563 @@
-require("dotenv").config();
-
-const express = require("express");
-const axios = require("axios");
-const cors = require("cors");
-const path = require("path");
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "";
-
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
-
-// -------------------------------
-// Utility
-// -------------------------------
-function haversineKm(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
-function safeNum(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : null;
-}
-
-function dedupeStations(stations) {
-  const map = new Map();
-
-  for (const s of stations) {
-    const name = (s.name || "").trim().toLowerCase();
-    const lat = safeNum(s.lat);
-    const lng = safeNum(s.lng);
-
-    if (lat == null || lng == null) continue;
-
-    const key = `${name}|${lat.toFixed(4)}|${lng.toFixed(4)}`;
-    if (!map.has(key)) {
-      map.set(key, s);
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thai Gas Station Finder</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f7fb;
+      color: #1f2937;
     }
-  }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+    .header {
+      margin-bottom: 16px;
+    }
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+    .header p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #6b7280;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 16px;
+    }
+    .panel {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      padding: 16px;
+    }
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .btn-primary {
+      background: #0f9d58;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #0a7d46;
+    }
+    .btn-secondary {
+      background: #334155;
+      color: #fff;
+    }
+    .btn-secondary:hover {
+      background: #1e293b;
+    }
+    .status {
+      background: #eef6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .status.warn {
+      background: #fff7ed;
+      border-color: #fdba74;
+      color: #c2410c;
+    }
+    .status.ok {
+      background: #ecfdf5;
+      border-color: #86efac;
+      color: #166534;
+    }
+    .field {
+      margin-bottom: 10px;
+    }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #334155;
+    }
+    .field input, .field select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+    .coords {
+      font-family: Consolas, monospace;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #334155;
+      margin-top: 8px;
+    }
+    .note {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-top: 10px;
+    }
+    .results {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px;
+      background: #fff;
+      transition: 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .station-name {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .badge {
+      background: #e6fffa;
+      color: #0f766e;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .meta {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 10px;
+      word-break: break-word;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .link-btn {
+      display: inline-block;
+      text-decoration: none;
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      background: #111827;
+    }
+    .link-btn.alt {
+      background: #2563eb;
+    }
+    .summary-box {
+      min-height: 140px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 18px;
+      background:
+        radial-gradient(circle at 20% 20%, #dcfce7 0, #dcfce7 18%, transparent 19%),
+        radial-gradient(circle at 78% 35%, #dbeafe 0, #dbeafe 16%, transparent 17%),
+        linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+    }
+    .summary-box h3 {
+      margin: 0 0 10px;
+      font-size: 20px;
+    }
+    .summary-box p {
+      margin: 0 0 10px;
+      color: #475569;
+      line-height: 1.6;
+    }
+    .mini {
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Thai Gas Station Finder</h1>
+      <p>
+        ค้นหาปั๊มน้ำมันใกล้คุณจากข้อมูลสดของ OpenStreetMap ผ่าน Overpass API
+        โดยไม่ต้องมี backend และใช้แค่ไฟล์ HTML ไฟล์เดียว
+      </p>
+    </div>
 
-  return Array.from(map.values());
-}
+    <div class="grid">
+      <div class="panel">
+        <h2>ค้นหาสถานี</h2>
 
-// -------------------------------
-// Overpass: Thailand all fuel stations
-// -------------------------------
-async function fetchThailandFuelStationsFromOSM() {
-  const query = `
-    [out:json][timeout:120];
-    area["ISO3166-1"="TH"][admin_level=2]->.th;
-    (
-      node["amenity"="fuel"](area.th);
-      way["amenity"="fuel"](area.th);
-      relation["amenity"="fuel"](area.th);
-    );
-    out center tags;
-  `;
+        <div id="statusBox" class="status">
+          ระบบพร้อมใช้งาน กด “ใช้ตำแหน่งปัจจุบัน” หรือกรอกพิกัดเองแล้วค้นหา
+        </div>
 
-  const url = "https://overpass-api.de/api/interpreter";
+        <div class="toolbar">
+          <button class="btn-primary" onclick="detectLocation()">ใช้ตำแหน่งปัจจุบัน</button>
+          <button class="btn-secondary" onclick="useBangkokDefault()">ใช้พิกัดกรุงเทพ</button>
+        </div>
 
-  const response = await axios.post(url, query, {
-    headers: {
-      "Content-Type": "text/plain"
-    },
-    timeout: 180000
-  });
+        <div class="field">
+          <label for="latInput">Latitude</label>
+          <input id="latInput" type="text" value="13.7563" />
+        </div>
 
-  const elements = response.data?.elements || [];
+        <div class="field">
+          <label for="lngInput">Longitude</label>
+          <input id="lngInput" type="text" value="100.5018" />
+        </div>
 
-  const stations = elements
-    .map((el) => {
-      const lat = el.lat ?? el.center?.lat;
-      const lng = el.lon ?? el.center?.lon;
+        <div class="field">
+          <label for="radiusInput">รัศมีค้นหา (เมตร)</label>
+          <input id="radiusInput" type="number" value="5000" min="500" max="50000" step="500" />
+        </div>
 
-      return {
-        source: "osm",
-        osmType: el.type,
-        osmId: el.id,
-        name: el.tags?.name || "Unknown Station",
-        brand: el.tags?.brand || "",
-        operator: el.tags?.operator || "",
-        address:
-          [
-            el.tags?.["addr:housenumber"],
-            el.tags?.["addr:street"],
-            el.tags?.["addr:subdistrict"],
-            el.tags?.["addr:district"],
-            el.tags?.["addr:province"]
-          ]
-            .filter(Boolean)
-            .join(" ") || "",
-        lat,
-        lng,
-        openingHours: el.tags?.opening_hours || "",
-        phone: el.tags?.phone || "",
-        website: el.tags?.website || "",
-        rawTags: el.tags || {}
-      };
-    })
-    .filter((s) => safeNum(s.lat) != null && safeNum(s.lng) != null);
+        <div class="field">
+          <label for="brandFilter">กรองแบรนด์</label>
+          <select id="brandFilter">
+            <option value="">ทั้งหมด</option>
+            <option value="ptt">PTT / PTT Station</option>
+            <option value="bangchak">Bangchak</option>
+            <option value="shell">Shell</option>
+            <option value="esso">Esso</option>
+            <option value="caltex">Caltex</option>
+            <option value="susco">Susco</option>
+            <option value="petronas">Petronas</option>
+            <option value="pure">Pure</option>
+          </select>
+        </div>
 
-  return dedupeStations(stations);
-}
+        <div class="toolbar">
+          <button class="btn-primary" onclick="searchStations()">ค้นหาปั๊มใกล้ฉัน</button>
+        </div>
 
-// -------------------------------
-// Google Places Nearby Search
-// -------------------------------
-async function fetchNearbyGoogleStations(lat, lng, radius = 5000, maxResultCount = 20) {
-  if (!GOOGLE_API_KEY) {
-    return [];
-  }
+        <div class="coords" id="coordBox">
+          current_location = 13.756300, 100.501800
+        </div>
 
-  const url = "https://places.googleapis.com/v1/places:searchNearby";
+        <div class="note">
+          หมายเหตุ: เวอร์ชันไฟล์เดียวนี้ดึง “ตำแหน่งสถานีแบบสด” ได้จริง แต่ยังไม่ใช่ราคาน้ำมันรายสถานีแบบ real-time ทุกปั๊มทั่วประเทศ
+        </div>
+      </div>
 
-  const body = {
-    includedTypes: ["gas_station"],
-    maxResultCount,
-    locationRestriction: {
-      circle: {
-        center: {
-          latitude: lat,
-          longitude: lng
+      <div class="panel">
+        <div class="summary-box">
+          <h3>ผลการค้นหา</h3>
+          <p id="summaryText">ยังไม่มีผลลัพธ์</p>
+          <div class="mini">
+            ถ้าอินเทอร์เน็ตใช้งานได้ ระบบจะค้นหาจาก Overpass API แบบสด ณ เวลาที่กดค้นหา
+          </div>
+        </div>
+
+        <div style="height: 14px;"></div>
+
+        <div id="results" class="results"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const statusBox = document.getElementById("statusBox");
+    const latInput = document.getElementById("latInput");
+    const lngInput = document.getElementById("lngInput");
+    const radiusInput = document.getElementById("radiusInput");
+    const brandFilter = document.getElementById("brandFilter");
+    const coordBox = document.getElementById("coordBox");
+    const resultsEl = document.getElementById("results");
+    const summaryText = document.getElementById("summaryText");
+
+    function setStatus(message, type = "default") {
+      statusBox.textContent = message;
+      statusBox.className = "status";
+      if (type === "warn") statusBox.classList.add("warn");
+      if (type === "ok") statusBox.classList.add("ok");
+    }
+
+    function updateCoordBox(lat, lng) {
+      coordBox.textContent = `current_location = ${Number(lat).toFixed(6)}, ${Number(lng).toFixed(6)}`;
+    }
+
+    function useBangkokDefault() {
+      latInput.value = "13.7563";
+      lngInput.value = "100.5018";
+      updateCoordBox(latInput.value, lngInput.value);
+      setStatus("ใช้พิกัดกรุงเทพเรียบร้อยแล้ว", "ok");
+    }
+
+    function detectLocation() {
+      if (!navigator.geolocation) {
+        setStatus("เบราว์เซอร์นี้ไม่รองรับ GPS", "warn");
+        return;
+      }
+
+      setStatus("กำลังอ่านตำแหน่งปัจจุบัน...");
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          latInput.value = pos.coords.latitude;
+          lngInput.value = pos.coords.longitude;
+          updateCoordBox(latInput.value, lngInput.value);
+          setStatus("อ่านตำแหน่งสำเร็จ", "ok");
         },
-        radius
+        () => {
+          setStatus("อ่านตำแหน่งไม่สำเร็จ กรุณาอนุญาต GPS หรือกรอกพิกัดเอง", "warn");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLon = ((lon2 - lon1) * Math.PI) / 180;
+
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function normalizeText(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
+    function matchBrand(station, filterValue) {
+      if (!filterValue) return true;
+
+      const text = [
+        station.name,
+        station.brand,
+        station.operator,
+        station.tags?.brand,
+        station.tags?.operator
+      ].map(normalizeText).join(" | ");
+
+      if (filterValue === "ptt") {
+        return text.includes("ptt");
       }
+      return text.includes(filterValue);
     }
-  };
 
-  const response = await axios.post(url, body, {
-    headers: {
-      "Content-Type": "application/json",
-      "X-Goog-Api-Key": GOOGLE_API_KEY,
-      "X-Goog-FieldMask":
-        "places.id,places.displayName,places.formattedAddress,places.location,places.primaryType"
-    },
-    timeout: 30000
-  });
+    function googleSearchMapLink(name, lat, lng) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}@${lat},${lng}`;
+    }
 
-  const places = response.data?.places || [];
+    function googleDirectionLink(fromLat, fromLng, toLat, toLng) {
+      return `https://www.google.com/maps/dir/?api=1&origin=${fromLat},${fromLng}&destination=${toLat},${toLng}&travelmode=driving`;
+    }
 
-  return places
-    .map((p) => ({
-      source: "google",
-      googlePlaceId: p.id,
-      name: p.displayName?.text || "Unknown Station",
-      address: p.formattedAddress || "",
-      lat: p.location?.latitude,
-      lng: p.location?.longitude,
-      primaryType: p.primaryType || ""
-    }))
-    .filter((s) => safeNum(s.lat) != null && safeNum(s.lng) != null);
-}
+    function renderResults(stations, originLat, originLng) {
+      resultsEl.innerHTML = "";
 
-// -------------------------------
-// Google Place Details
-// -------------------------------
-async function fetchGooglePlaceDetails(placeId) {
-  if (!GOOGLE_API_KEY || !placeId) {
-    return null;
-  }
+      if (!stations.length) {
+        summaryText.textContent = "ไม่พบปั๊มน้ำมันในรัศมีที่กำหนด";
+        resultsEl.innerHTML = `
+          <div class="card">
+            <div class="station-name">ไม่พบข้อมูล</div>
+            <div class="meta">ลองเพิ่มรัศมีค้นหา เช่น 10000 หรือ 15000 เมตร</div>
+          </div>
+        `;
+        return;
+      }
 
-  const url = `https://places.googleapis.com/v1/places/${placeId}`;
+      summaryText.textContent = `พบ ${stations.length} สถานีในรัศมีที่กำหนด`;
 
-  const response = await axios.get(url, {
-    headers: {
-      "X-Goog-Api-Key": GOOGLE_API_KEY,
-      "X-Goog-FieldMask":
-        "id,displayName,formattedAddress,location,fuelOptions,regularOpeningHours,nationalPhoneNumber,websiteUri"
-    },
-    timeout: 30000
-  });
+      stations.forEach((station) => {
+        const card = document.createElement("div");
+        card.className = "card";
 
-  const p = response.data || {};
+        const brandText = station.brand || station.operator || station.tags?.brand || "-";
+        const addressText = station.address || "-";
 
-  return {
-    source: "google",
-    googlePlaceId: p.id,
-    name: p.displayName?.text || "Unknown Station",
-    address: p.formattedAddress || "",
-    lat: p.location?.latitude,
-    lng: p.location?.longitude,
-    fuelOptions: p.fuelOptions || null,
-    regularOpeningHours: p.regularOpeningHours || null,
-    nationalPhoneNumber: p.nationalPhoneNumber || "",
-    websiteUri: p.websiteUri || ""
-  };
-}
+        card.innerHTML = `
+          <div class="card-top">
+            <div class="station-name">${station.name || "Unknown Station"}</div>
+            <div class="badge">${station.distanceKm.toFixed(2)} กม.</div>
+          </div>
 
-// -------------------------------
-// API: health
-// -------------------------------
-app.get("/api/health", (req, res) => {
-  res.json({
-    ok: true,
-    service: "fuel-th-app",
-    googleConfigured: !!GOOGLE_API_KEY,
-    timestamp: new Date().toISOString()
-  });
-});
+          <div class="meta">
+            แบรนด์/ผู้ให้บริการ: ${brandText}<br>
+            ที่อยู่: ${addressText}<br>
+            พิกัด: ${station.lat.toFixed(6)}, ${station.lng.toFixed(6)}<br>
+            เวลาเปิด: ${station.openingHours || "-"}<br>
+            โทร: ${station.phone || "-"}
+          </div>
 
-// -------------------------------
-// API: stations/all-th
-// ดึงปั๊มทั้งประเทศไทยจาก OSM
-// -------------------------------
-app.get("/api/stations/all-th", async (req, res) => {
-  try {
-    const stations = await fetchThailandFuelStationsFromOSM();
+          <div class="actions">
+            <a class="link-btn" target="_blank" rel="noopener noreferrer"
+              href="${googleSearchMapLink(station.name || "Fuel Station", station.lat, station.lng)}">
+              เปิดแผนที่
+            </a>
+            <a class="link-btn alt" target="_blank" rel="noopener noreferrer"
+              href="${googleDirectionLink(originLat, originLng, station.lat, station.lng)}">
+              นำทาง
+            </a>
+          </div>
+        `;
 
-    res.json({
-      ok: true,
-      count: stations.length,
-      source: "osm-overpass",
-      stations
-    });
-  } catch (error) {
-    console.error("all-th error:", error.message);
-    res.status(500).json({
-      ok: false,
-      error: "Failed to fetch Thailand fuel stations",
-      detail: error.message
-    });
-  }
-});
-
-// -------------------------------
-// API: stations/nearby
-// query:
-//   lat=13.75
-//   lng=100.50
-//   radius=5000
-//   limit=20
-// -------------------------------
-app.get("/api/stations/nearby", async (req, res) => {
-  try {
-    const lat = safeNum(req.query.lat);
-    const lng = safeNum(req.query.lng);
-    const radius = safeNum(req.query.radius) || 5000;
-    const limit = safeNum(req.query.limit) || 20;
-
-    if (lat == null || lng == null) {
-      return res.status(400).json({
-        ok: false,
-        error: "lat and lng are required"
+        resultsEl.appendChild(card);
       });
     }
 
-    const googleStations = await fetchNearbyGoogleStations(lat, lng, radius, limit);
+    async function searchStations() {
+      const lat = Number(latInput.value);
+      const lng = Number(lngInput.value);
+      const radius = Number(radiusInput.value);
+      const brand = brandFilter.value;
 
-    const withDistance = googleStations
-      .map((s) => ({
-        ...s,
-        distanceKm: haversineKm(lat, lng, s.lat, s.lng)
-      }))
-      .sort((a, b) => a.distanceKm - b.distanceKm);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        setStatus("กรุณากรอก latitude / longitude ให้ถูกต้อง", "warn");
+        return;
+      }
 
-    res.json({
-      ok: true,
-      count: withDistance.length,
-      source: "google-places",
-      stations: withDistance
-    });
-  } catch (error) {
-    console.error("nearby error:", error.response?.data || error.message);
-    res.status(500).json({
-      ok: false,
-      error: "Failed to fetch nearby stations",
-      detail: error.response?.data || error.message
-    });
-  }
-});
+      if (!Number.isFinite(radius) || radius <= 0) {
+        setStatus("กรุณากรอกรัศมีให้ถูกต้อง", "warn");
+        return;
+      }
 
-// -------------------------------
-// API: stations/details/:placeId
-// -------------------------------
-app.get("/api/stations/details/:placeId", async (req, res) => {
-  try {
-    const placeId = req.params.placeId;
-    const details = await fetchGooglePlaceDetails(placeId);
+      updateCoordBox(lat, lng);
+      setStatus("กำลังโหลดข้อมูลปั๊มน้ำมันจาก Overpass API...");
+      summaryText.textContent = "กำลังค้นหา...";
+      resultsEl.innerHTML = "";
 
-    if (!details) {
-      return res.status(404).json({
-        ok: false,
-        error: "Place not found or Google API not configured"
-      });
-    }
+      const query = `
+[out:json][timeout:25];
+(
+  node["amenity"="fuel"](around:${radius},${lat},${lng});
+  way["amenity"="fuel"](around:${radius},${lat},${lng});
+  relation["amenity"="fuel"](around:${radius},${lat},${lng});
+);
+out center tags;
+`;
 
-    res.json({
-      ok: true,
-      source: "google-place-details",
-      place: details
-    });
-  } catch (error) {
-    console.error("details error:", error.response?.data || error.message);
-    res.status(500).json({
-      ok: false,
-      error: "Failed to fetch place details",
-      detail: error.response?.data || error.message
-    });
-  }
-});
-
-// -------------------------------
-// API: aggregate/nearby-with-details
-// nearby + details พร้อม fuelOptions ถ้ามี
-// -------------------------------
-app.get("/api/aggregate/nearby-with-details", async (req, res) => {
-  try {
-    const lat = safeNum(req.query.lat);
-    const lng = safeNum(req.query.lng);
-    const radius = safeNum(req.query.radius) || 5000;
-    const limit = safeNum(req.query.limit) || 10;
-
-    if (lat == null || lng == null) {
-      return res.status(400).json({
-        ok: false,
-        error: "lat and lng are required"
-      });
-    }
-
-    const nearby = await fetchNearbyGoogleStations(lat, lng, radius, limit);
-
-    const detailed = [];
-    for (const station of nearby) {
       try {
-        const details = await fetchGooglePlaceDetails(station.googlePlaceId);
-        detailed.push({
-          ...station,
-          distanceKm: haversineKm(lat, lng, station.lat, station.lng),
-          details
+        const response = await fetch("https://overpass-api.de/api/interpreter", {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain"
+          },
+          body: query
         });
-      } catch (e) {
-        detailed.push({
-          ...station,
-          distanceKm: haversineKm(lat, lng, station.lat, station.lng),
-          details: null,
-          detailError: e.message
-        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        const elements = Array.isArray(data.elements) ? data.elements : [];
+
+        let stations = elements.map((el) => {
+          const stationLat = el.lat ?? el.center?.lat;
+          const stationLng = el.lon ?? el.center?.lon;
+
+          const tags = el.tags || {};
+          const address = [
+            tags["addr:housenumber"],
+            tags["addr:street"],
+            tags["addr:subdistrict"],
+            tags["addr:district"],
+            tags["addr:province"]
+          ].filter(Boolean).join(" ");
+
+          return {
+            id: `${el.type}-${el.id}`,
+            name: tags.name || tags.brand || "Unknown Station",
+            brand: tags.brand || "",
+            operator: tags.operator || "",
+            address: address,
+            openingHours: tags.opening_hours || "",
+            phone: tags.phone || "",
+            website: tags.website || "",
+            lat: Number(stationLat),
+            lng: Number(stationLng),
+            tags
+          };
+        }).filter((s) =>
+          Number.isFinite(s.lat) &&
+          Number.isFinite(s.lng) &&
+          matchBrand(s, brand)
+        );
+
+        stations = stations.map((s) => ({
+          ...s,
+          distanceKm: haversineKm(lat, lng, s.lat, s.lng)
+        }));
+
+        stations.sort((a, b) => a.distanceKm - b.distanceKm);
+
+        setStatus(`โหลดสำเร็จ พบ ${stations.length} สถานี`, "ok");
+        renderResults(stations, lat, lng);
+      } catch (error) {
+        console.error(error);
+        setStatus("โหลดข้อมูลล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ตหรือทดลองใหม่อีกครั้ง", "warn");
+        summaryText.textContent = "เกิดข้อผิดพลาดในการโหลดข้อมูล";
+        resultsEl.innerHTML = `
+          <div class="card">
+            <div class="station-name">โหลดข้อมูลไม่สำเร็จ</div>
+            <div class="meta">
+              สาเหตุที่พบบ่อย:<br>
+              - อินเทอร์เน็ตไม่เสถียร<br>
+              - Overpass API ตอบช้า<br>
+              - รัศมีค้นหากว้างเกินไป
+            </div>
+          </div>
+        `;
       }
     }
 
-    detailed.sort((a, b) => a.distanceKm - b.distanceKm);
-
-    res.json({
-      ok: true,
-      count: detailed.length,
-      stations: detailed
-    });
-  } catch (error) {
-    console.error("aggregate error:", error.response?.data || error.message);
-    res.status(500).json({
-      ok: false,
-      error: "Failed to aggregate nearby stations",
-      detail: error.response?.data || error.message
-    });
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+    updateCoordBox(latInput.value, lngInput.value);
+  </script>
+</body>
+</html>
