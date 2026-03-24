@@ -1,66 +1,8 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบเช็คปั๊มน้ำมัน Real-time (BETA)</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        :root { --main-blue: #0277bd; --bg-gray: #f5f7f9; --text-dark: #2c3e50; }
-        body { font-family: 'Tahoma', sans-serif; margin: 0; background: var(--bg-gray); color: var(--text-dark); }
-        
-        /* App Header UI */
-        .app-header { background: white; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .app-title { font-size: 1.3em; font-weight: bold; color: var(--main-blue); margin: 0; }
-        .app-author { font-size: 0.85em; color: #7f8c8d; margin: 3px 0 10px 0; }
-        .info-banner { background: #fff9c4; color: #f57f17; padding: 10px; border-radius: 8px; font-size: 0.8em; margin: 0 auto; max-width: 500px; line-height: 1.4; border: 1px solid #fff176; }
-
-        #map { height: 35vh; width: 100%; border-bottom: 2px solid #ddd; }
-        
-        .container { padding: 15px; max-width: 600px; margin: auto; }
-        
-        /* Fuel Station Card UI */
-        .card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 3px 6px rgba(0,0,0,0.08); border-left: 6px solid var(--main-blue); transition: transform 0.2s; }
-        .card:active { transform: scale(0.98); }
-        .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px; }
-        .station-name { font-weight: bold; color: var(--text-dark); font-size: 1.1em; line-height: 1.2; }
-        .distance-badge { background: #f44336; color: white; padding: 4px 8px; border-radius: 20px; font-weight: bold; font-size: 0.8em; white-space: nowrap; margin-left: 10px; }
-        
-        .fuel-info { background: #e3f2fd; padding: 10px; border-radius: 8px; display: inline-flex; align-items: center; }
-        .fuel-type { font-size: 0.9em; color: var(--main-blue); margin-right: 10px; }
-        .fuel-price { font-size: 1.1em; font-weight: bold; color: var(--text-dark); }
-        
-        .data-source-label { font-size: 0.75em; color: #2ecc71; margin-top: 10px; font-style: italic; display: flex; align-items: center; }
-        .status-dot { height: 8px; width: 8px; background-color: #2ecc71; border-radius: 50%; display: inline-block; margin-right: 6px; }
-
-        .loader { text-align: center; padding: 30px; font-style: italic; color: #666; }
-        .btn-refresh { background: var(--main-blue); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1em; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    </style>
-</head>
-<body>
-
-    <div class="app-header">
-        <h1 class="app-title">⛽ ระบบเช็คปั๊มน้ำมัน (BETA)</h1>
-        <p class="app-author">เขียนโดย KittipanS.</p>
-        <div class="info-banner">
-            ⚠️ <strong>แจ้งเพื่อทราบ:</strong> ในเวอร์ชัน BETA นี้ ระบบสามารถดึงข้อมูลแบบ Real-time (Free Only) ของ <strong>Bangchak (บางจาก)</strong> ได้เท่านั้นครับ
-        </div>
-        <button class="btn-refresh" onclick="initSystem()">🔄 อัปเดตตำแหน่งและสถานะล่าสุด</button>
-    </div>
-
-    <div id="map"></div>
-
-    <div class="container">
-        <div id="status-info" class="loader">กำลังระบุตำแหน่ง GPS ของคุณ...</div>
-        <div id="list-container"></div>
-    </div>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // ใช้ Proxy ของ Cors-anywhere หรือ Allorigins ที่เสถียรกว่า
+        // ใช้ Proxy เพื่อดึงข้อมูลจริงจาก Bangchak API
         const FUEL_API_URL = "https://api.allorigins.win/get?url=" + encodeURIComponent("https://www.bangchak.co.th/api/oilprice");
 
-        // พิกัดเริ่มต้น (ถ้า GPS ไม่ทำงาน) มาบตาพุด ระยอง
         let map = L.map('map').setView([12.6814, 101.1077], 13); 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
         let userMarker, stationMarkers = [];
@@ -69,85 +11,64 @@
             const listContainer = document.getElementById('list-container');
             const statusInfo = document.getElementById('status-info');
             
-            listContainer.innerHTML = ''; // ล้างข้อมูลเก่า
+            listContainer.innerHTML = ''; 
             statusInfo.style.display = 'block';
             statusInfo.innerText = "กำลังระบุตำแหน่ง GPS ของคุณ...";
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(async (pos) => {
                     const { latitude: uLat, longitude: uLng } = pos.coords;
-                    
-                    // ปักหมุดตำแหน่งผู้ใช้บนแผนที่
                     if (userMarker) map.removeLayer(userMarker);
                     userMarker = L.marker([uLat, uLng]).addTo(map).bindPopup("คุณอยู่ที่นี่").openPopup();
                     map.setView([uLat, uLng], 14);
-
                     await fetchAndRenderData(uLat, uLng);
                 }, () => {
-                    statusInfo.innerText = "❌ ไม่สามารถเข้าถึง GPS ได้ กรุณาอนุญาตสิทธิ์และลองใหม่";
-                    // ถ้า GPS ไม่ทำงาน ก็ยังโหลดข้อมูลโดยเทียบระยะจากจุดเริ่มต้น (ระยอง)
-                    fetchAndRenderData(12.6814, 101.1077);
+                    statusInfo.innerText = "⚠️ กรุณาเปิด GPS เพื่อคำนวณระยะทาง";
+                    fetchAndRenderData(12.6814, 101.1077); // ใช้พิกัดระยองเป็นหลักถ้าไม่มี GPS
                 });
-            } else {
-                statusInfo.innerText = "❌ เบราว์เซอร์ของคุณไม่รองรับ GPS";
             }
         }
 
         async function fetchAndRenderData(userLat, userLng) {
             const listContainer = document.getElementById('list-container');
             const statusInfo = document.getElementById('status-info');
-            statusInfo.innerText = "กำลังดึงข้อมูลราคาน้ำมันล่าสุดจาก Direct Source...";
 
             try {
-                // 1. ดึงข้อมูลจริงจาก API (บางจาก)
                 const response = await fetch(FUEL_API_URL);
-                if (!response.ok) throw new Error('Network response was not ok');
                 const rawData = await response.json();
-
-                // 2. แปลง XML เป็น XML Document Object เพื่อดึงข้อมูลรายตัว
+                
+                // แปลง String เป็น XML
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(rawData.contents, "text/xml");
                 
-                // ดึงข้อมูลประเภทน้ำมันที่ต้องการ (เช่น Gasohol 95)
-                const fuelDataGasohol95 = xmlDoc.getElementsByTagName("Gasohol95")[0]?.childNodes[0]?.nodeValue;
-                const price95 = fuelDataGasohol95 ? fuelDataGasohol95 : "N/A";
-                const lastUpdate = xmlDoc.getElementsByTagName("Update")[0]?.childNodes[0]?.nodeValue || "-";
+                // ดึงราคาน้ำมัน (ตรวจสอบชื่อ Tag จาก API บางจากจริง)
+                // ปกติ Tag จะเป็น <Gasohol95>, <Gasohol91>, <Diesel>
+                const getPrice = (tagName) => {
+                    const nodes = xmlDoc.getElementsByTagName(tagName);
+                    return nodes.length > 0 ? nodes[0].textContent : "N/A";
+                };
 
-                // 3. เตรียมพิกัดปั๊มน้ำมันจริงในพื้นที่ระยอง/มาบตาพุด
+                const price95 = getPrice("Gasohol95");
+                const lastUpdate = xmlDoc.getElementsByTagName("UpdateDate")[0]?.textContent || "ล่าสุด";
+
                 const stationsInRayong = [
                     { name: "บางจาก มาบตาพุด", lat: 12.6814, lng: 101.1711 },
                     { name: "บางจาก ห้วยโป่ง", lat: 12.6950, lng: 101.1450 },
                     { name: "บางจาก ระยองสาย 36", lat: 12.7200, lng: 101.2000 },
-                    { name: "บางจาก เพ", lat: 12.6280, lng: 101.4420 },
                     { name: "บางจาก บ้านฉาง", lat: 12.7210, lng: 101.0550 }
                 ];
 
-                // 4. แสดงผลข้อมูล
-                statusInfo.style.display = 'none'; // ซ่อน Loader
+                statusInfo.style.display = 'none';
                 listContainer.innerHTML = '';
-                stationMarkers.forEach(m => map.removeLayer(m)); // ล้างหมุดปั๊มเก่า
-                stationMarkers = [];
+                stationMarkers.forEach(m => map.removeLayer(m));
 
-                if (stationsInRayong.length === 0) {
-                    listContainer.innerHTML = '<div class="loader">ไม่พบปั๊มน้ำมันบางจากในพื้นที่นี้</div>';
-                    return;
-                }
-
-                // เรียงลำดับตามระยะทางจากใกล้ไปไกล
-                stationsInRayong.sort((a, b) => {
-                    const distA = calculateDistance(userLat, userLng, a.lat, a.lng);
-                    const distB = calculateDistance(userLat, userLng, b.lat, b.lng);
-                    return distA - distB;
-                });
+                stationsInRayong.sort((a, b) => calculateDistance(userLat, userLng, a.lat, a.lng) - calculateDistance(userLat, userLng, b.lat, b.lng));
 
                 stationsInRayong.forEach(s => {
                     const dist = calculateDistance(userLat, userLng, s.lat, s.lng).toFixed(2);
-                    
-                    // ปักหมุดปั๊มในแผนที่
-                    const m = L.marker([s.lat, s.lng]).addTo(map).bindPopup(`${s.name}`);
+                    const m = L.marker([s.lat, s.lng]).addTo(map).bindPopup(s.name);
                     stationMarkers.push(m);
 
-                    // สร้าง Card UI แสดงผล
                     listContainer.innerHTML += `
                         <div class="card">
                             <div class="card-header">
@@ -165,24 +86,18 @@
                         </div>
                     `;
                 });
-
             } catch (error) {
-                console.error('Fetch Error:', error);
-                statusInfo.innerHTML = "❌ โหลดข้อมูลล้มเหลว (ตรวจสอบการเชื่อมต่ออินเทอร์เน็ต)";
+                statusInfo.innerText = "❌ โหลดข้อมูลล้มเหลว ลองกด Refresh อีกครั้ง";
             }
         }
 
-        // สูตรคำนวณระยะทาง (Haversine Formula) กม.
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // รัศมีโลก
+            const R = 6371;
             const dLat = (lat2-lat1) * Math.PI / 180;
             const dLon = (lon2-lon1) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2) * Math.sin(dLon/2);
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
 
-        // เริ่มต้นการทำงานทันที
         initSystem();
     </script>
-</body>
-</html>
