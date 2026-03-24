@@ -1,0 +1,62 @@
+{
+  "ptt station": {
+    "updatedAt": "24/03/2026 10:20",
+    "stationStatus": "open",
+    "fuels": {
+      "gasohol95": "available",
+      "gasohol91": "available",
+      "diesel": "available",
+      "premiumDiesel": "unknown"
+    }
+  },
+  "bangchak": {
+    "updatedAt": "24/03/2026 10:15",
+    "stationStatus": "open",
+    "fuels": {
+      "gasohol95": "available",
+      "gasohol91": "unknown",
+      "diesel": "available",
+      "premiumDiesel": "empty"
+    }
+  },
+  "shell": {
+    "updatedAt": "24/03/2026 10:05",
+    "stationStatus": "open",
+    "fuels": {
+      "gasohol95": "available",
+      "gasohol91": "available",
+      "diesel": "empty",
+      "premiumDiesel": "unknown"
+    }
+  },
+  "esso": {
+    "updatedAt": "24/03/2026 09:50",
+    "stationStatus": "open",
+    "fuels": {
+      "gasohol95": "unknown",
+      "gasohol91": "unknown",
+      "diesel": "available",
+      "premiumDiesel": "unknown"
+    }
+  },
+  "caltex": {
+    "updatedAt": "24/03/2026 09:40",
+    "stationStatus": "open",
+    "fuels": {
+      "gasohol95": "available",
+      "gasohol91": "available",
+      "diesel": "unknown",
+      "premiumDiesel": "unknown"
+    }
+  },
+  "susco": {
+    "updatedAt": "24/03/2026 09:35",
+    "stationStatus": "open",
+    "fuels": {
+      "gasohol95": "unknown",
+      "gasohol91": "unknown",
+      "diesel": "available",
+      "premiumDiesel": "unknown"
+    }
+  }
+}
