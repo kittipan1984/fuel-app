@@ -1,62 +1,46 @@
 {
-  "ptt station": {
+  "บางจาก มาบตาพุด": {
     "updatedAt": "24/03/2026 10:20",
     "stationStatus": "open",
     "fuels": {
       "gasohol95": "available",
       "gasohol91": "available",
-      "diesel": "available",
-      "premiumDiesel": "unknown"
+      "dieselB7": "available",
+      "dieselB10": "empty",
+      "diesel": "unknown"
     }
   },
-  "bangchak": {
+  "บางจาก ห้วยโป่ง": {
     "updatedAt": "24/03/2026 10:15",
     "stationStatus": "open",
     "fuels": {
       "gasohol95": "available",
       "gasohol91": "unknown",
-      "diesel": "available",
-      "premiumDiesel": "empty"
+      "dieselB7": "available",
+      "dieselB10": "unknown",
+      "diesel": "unknown"
     }
   },
-  "shell": {
+  "PTT Station ระยองสาย 36": {
+    "updatedAt": "24/03/2026 10:10",
+    "stationStatus": "open",
+    "fuels": {
+      "gasohol95": "available",
+      "gasohol91": "available",
+      "dieselB7": "available",
+      "dieselB10": "available",
+      "diesel": "unknown"
+    }
+  },
+  "Shell บ้านฉาง": {
     "updatedAt": "24/03/2026 10:05",
     "stationStatus": "open",
     "fuels": {
       "gasohol95": "available",
       "gasohol91": "available",
-      "diesel": "empty",
-      "premiumDiesel": "unknown"
-    }
-  },
-  "esso": {
-    "updatedAt": "24/03/2026 09:50",
-    "stationStatus": "open",
-    "fuels": {
-      "gasohol95": "unknown",
-      "gasohol91": "unknown",
-      "diesel": "available",
-      "premiumDiesel": "unknown"
-    }
-  },
-  "caltex": {
-    "updatedAt": "24/03/2026 09:40",
-    "stationStatus": "open",
-    "fuels": {
-      "gasohol95": "available",
-      "gasohol91": "available",
-      "diesel": "unknown",
-      "premiumDiesel": "unknown"
-    }
-  },
-  "susco": {
-    "updatedAt": "24/03/2026 09:35",
-    "stationStatus": "open",
-    "fuels": {
-      "gasohol95": "unknown",
-      "gasohol91": "unknown",
-      "diesel": "available",
-      "premiumDiesel": "unknown"
+      "dieselB7": "empty",
+      "dieselB10": "unknown",
+      "diesel": "unknown"
     }
   }
 }
