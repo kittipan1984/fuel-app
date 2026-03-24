@@ -82,6 +82,7 @@
       font-size: 14px;
       line-height: 1.5;
       margin-bottom: 12px;
+      white-space: pre-wrap;
     }
     .status.warn {
       background: #fff7ed;
@@ -119,6 +120,7 @@
       font-size: 13px;
       color: #334155;
       margin-top: 8px;
+      white-space: pre-wrap;
     }
     .note {
       font-size: 12px;
@@ -211,6 +213,16 @@
       color: #6b7280;
       line-height: 1.6;
     }
+    .debug {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #475569;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px;
+      white-space: pre-wrap;
+    }
     @media (max-width: 900px) {
       .grid {
         grid-template-columns: 1fr;
@@ -223,8 +235,8 @@
     <div class="header">
       <h1>Thai Gas Station Finder</h1>
       <p>
-        ค้นหาปั๊มน้ำมันใกล้คุณจากข้อมูลสดของ OpenStreetMap ผ่าน Overpass API
-        โดยไม่ต้องมี backend และใช้แค่ไฟล์ HTML ไฟล์เดียว
+        ค้นหาปั๊มน้ำมันใกล้คุณแบบสดจาก Overpass API พร้อมระบบ fallback หลาย endpoint
+        และแสดง error จริงเพื่อให้ไล่ปัญหาได้
       </p>
     </div>
 
@@ -233,7 +245,7 @@
         <h2>ค้นหาสถานี</h2>
 
         <div id="statusBox" class="status">
-          ระบบพร้อมใช้งาน กด “ใช้ตำแหน่งปัจจุบัน” หรือกรอกพิกัดเองแล้วค้นหา
+          ระบบพร้อมใช้งาน
         </div>
 
         <div class="toolbar">
@@ -280,8 +292,10 @@
         </div>
 
         <div class="note">
-          หมายเหตุ: เวอร์ชันไฟล์เดียวนี้ดึง “ตำแหน่งสถานีแบบสด” ได้จริง แต่ยังไม่ใช่ราคาน้ำมันรายสถานีแบบ real-time ทุกปั๊มทั่วประเทศ
+          แนะนำให้เปิดผ่าน <b>http://localhost:8000/ThaiGasStation.html</b> ไม่ใช่เปิดไฟล์ตรงแบบ file:///...
         </div>
+
+        <div class="debug" id="debugBox">debug: ready</div>
       </div>
 
       <div class="panel">
@@ -289,7 +303,7 @@
           <h3>ผลการค้นหา</h3>
           <p id="summaryText">ยังไม่มีผลลัพธ์</p>
           <div class="mini">
-            ถ้าอินเทอร์เน็ตใช้งานได้ ระบบจะค้นหาจาก Overpass API แบบสด ณ เวลาที่กดค้นหา
+            ถ้า endpoint แรกตอบไม่ได้ ระบบจะลอง endpoint สำรองให้อัตโนมัติ
           </div>
         </div>
 
@@ -301,6 +315,12 @@
   </div>
 
   <script>
+    const OVERPASS_ENDPOINTS = [
+      "https://overpass-api.de/api/interpreter",
+      "https://lz4.overpass-api.de/api/interpreter",
+      "https://overpass.private.coffee/api/interpreter"
+    ];
+
     const statusBox = document.getElementById("statusBox");
     const latInput = document.getElementById("latInput");
     const lngInput = document.getElementById("lngInput");
@@ -309,12 +329,18 @@
     const coordBox = document.getElementById("coordBox");
     const resultsEl = document.getElementById("results");
     const summaryText = document.getElementById("summaryText");
+    const debugBox = document.getElementById("debugBox");
 
     function setStatus(message, type = "default") {
       statusBox.textContent = message;
       statusBox.className = "status";
       if (type === "warn") statusBox.classList.add("warn");
       if (type === "ok") statusBox.classList.add("ok");
+    }
+
+    function setDebug(message) {
+      debugBox.textContent = "debug:\n" + message;
+      console.log(message);
     }
 
     function updateCoordBox(lat, lng) {
@@ -326,15 +352,18 @@
       lngInput.value = "100.5018";
       updateCoordBox(latInput.value, lngInput.value);
       setStatus("ใช้พิกัดกรุงเทพเรียบร้อยแล้ว", "ok");
+      setDebug("set default location กรุงเทพ");
     }
 
     function detectLocation() {
       if (!navigator.geolocation) {
         setStatus("เบราว์เซอร์นี้ไม่รองรับ GPS", "warn");
+        setDebug("navigator.geolocation not supported");
         return;
       }
 
       setStatus("กำลังอ่านตำแหน่งปัจจุบัน...");
+      setDebug("requesting geolocation");
 
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -342,9 +371,11 @@
           lngInput.value = pos.coords.longitude;
           updateCoordBox(latInput.value, lngInput.value);
           setStatus("อ่านตำแหน่งสำเร็จ", "ok");
+          setDebug(`geolocation success: lat=${pos.coords.latitude}, lng=${pos.coords.longitude}`);
         },
-        () => {
+        (err) => {
           setStatus("อ่านตำแหน่งไม่สำเร็จ กรุณาอนุญาต GPS หรือกรอกพิกัดเอง", "warn");
+          setDebug(`geolocation error: code=${err.code}, message=${err.message}`);
         },
         {
           enableHighAccuracy: true,
@@ -423,16 +454,16 @@
 
         card.innerHTML = `
           <div class="card-top">
-            <div class="station-name">${station.name || "Unknown Station"}</div>
+            <div class="station-name">${escapeHtml(station.name || "Unknown Station")}</div>
             <div class="badge">${station.distanceKm.toFixed(2)} กม.</div>
           </div>
 
           <div class="meta">
-            แบรนด์/ผู้ให้บริการ: ${brandText}<br>
-            ที่อยู่: ${addressText}<br>
+            แบรนด์/ผู้ให้บริการ: ${escapeHtml(brandText)}<br>
+            ที่อยู่: ${escapeHtml(addressText)}<br>
             พิกัด: ${station.lat.toFixed(6)}, ${station.lng.toFixed(6)}<br>
-            เวลาเปิด: ${station.openingHours || "-"}<br>
-            โทร: ${station.phone || "-"}
+            เวลาเปิด: ${escapeHtml(station.openingHours || "-")}<br>
+            โทร: ${escapeHtml(station.phone || "-")}
           </div>
 
           <div class="actions">
@@ -451,6 +482,68 @@
       });
     }
 
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 25000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+      try {
+        const response = await fetch(url, {
+          ...options,
+          signal: controller.signal
+        });
+        clearTimeout(timer);
+        return response;
+      } catch (err) {
+        clearTimeout(timer);
+        throw err;
+      }
+    }
+
+    async function queryOverpassWithFallback(queryText) {
+      let lastError = null;
+      let debugMessages = [];
+
+      for (const endpoint of OVERPASS_ENDPOINTS) {
+        try {
+          debugMessages.push(`trying endpoint: ${endpoint}`);
+
+          const response = await fetchWithTimeout(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain;charset=UTF-8"
+            },
+            body: queryText
+          }, 25000);
+
+          debugMessages.push(`status from ${endpoint}: ${response.status}`);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status} from ${endpoint}`);
+          }
+
+          const data = await response.json();
+          debugMessages.push(`success from ${endpoint}, elements=${Array.isArray(data.elements) ? data.elements.length : 0}`);
+          setDebug(debugMessages.join("\n"));
+          return data;
+        } catch (err) {
+          lastError = err;
+          debugMessages.push(`failed ${endpoint}: ${err.name || "Error"} - ${err.message}`);
+        }
+      }
+
+      setDebug(debugMessages.join("\n"));
+      throw lastError || new Error("All Overpass endpoints failed");
+    }
+
     async function searchStations() {
       const lat = Number(latInput.value);
       const lng = Number(lngInput.value);
@@ -459,16 +552,24 @@
 
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
         setStatus("กรุณากรอก latitude / longitude ให้ถูกต้อง", "warn");
+        setDebug("invalid lat/lng input");
         return;
       }
 
       if (!Number.isFinite(radius) || radius <= 0) {
         setStatus("กรุณากรอกรัศมีให้ถูกต้อง", "warn");
+        setDebug("invalid radius");
         return;
       }
 
+      if (location.protocol === "file:") {
+        setStatus("คุณกำลังเปิดไฟล์แบบ file:///... แนะนำให้เปิดผ่าน http://localhost:8000/ThaiGasStation.html", "warn");
+        setDebug("running via file:// protocol");
+      } else {
+        setStatus("กำลังโหลดข้อมูลปั๊มน้ำมันจาก Overpass API...");
+      }
+
       updateCoordBox(lat, lng);
-      setStatus("กำลังโหลดข้อมูลปั๊มน้ำมันจาก Overpass API...");
       summaryText.textContent = "กำลังค้นหา...";
       resultsEl.innerHTML = "";
 
@@ -483,26 +584,14 @@ out center tags;
 `;
 
       try {
-        const response = await fetch("https://overpass-api.de/api/interpreter", {
-          method: "POST",
-          headers: {
-            "Content-Type": "text/plain"
-          },
-          body: query
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
-
-        const data = await response.json();
+        const data = await queryOverpassWithFallback(query);
         const elements = Array.isArray(data.elements) ? data.elements : [];
 
         let stations = elements.map((el) => {
           const stationLat = el.lat ?? el.center?.lat;
           const stationLng = el.lon ?? el.center?.lon;
-
           const tags = el.tags || {};
+
           const address = [
             tags["addr:housenumber"],
             tags["addr:street"],
@@ -516,7 +605,7 @@ out center tags;
             name: tags.name || tags.brand || "Unknown Station",
             brand: tags.brand || "",
             operator: tags.operator || "",
-            address: address,
+            address,
             openingHours: tags.opening_hours || "",
             phone: tags.phone || "",
             website: tags.website || "",
@@ -541,16 +630,23 @@ out center tags;
         renderResults(stations, lat, lng);
       } catch (error) {
         console.error(error);
-        setStatus("โหลดข้อมูลล้มเหลว กรุณาตรวจสอบอินเทอร์เน็ตหรือทดลองใหม่อีกครั้ง", "warn");
+        setStatus(
+          "โหลดข้อมูลล้มเหลว\n" +
+          `สาเหตุ: ${error.name || "Error"} - ${error.message}\n` +
+          "ให้ลอง 3 อย่างนี้:\n" +
+          "1) เปิดผ่าน http://localhost:8000\n" +
+          "2) ลดรัศมีเหลือ 3000 หรือ 5000\n" +
+          "3) กดใหม่อีกครั้ง",
+          "warn"
+        );
+
         summaryText.textContent = "เกิดข้อผิดพลาดในการโหลดข้อมูล";
         resultsEl.innerHTML = `
           <div class="card">
             <div class="station-name">โหลดข้อมูลไม่สำเร็จ</div>
             <div class="meta">
-              สาเหตุที่พบบ่อย:<br>
-              - อินเทอร์เน็ตไม่เสถียร<br>
-              - Overpass API ตอบช้า<br>
-              - รัศมีค้นหากว้างเกินไป
+              error: ${escapeHtml(error.message || "unknown error")}<br><br>
+              ให้เปิด F12 > Console แล้วดูข้อความใน debug ด้านซ้ายล่างด้วย
             </div>
           </div>
         `;
@@ -558,6 +654,7 @@ out center tags;
     }
 
     updateCoordBox(latInput.value, lngInput.value);
+    setDebug("page loaded");
   </script>
 </body>
 </html>
