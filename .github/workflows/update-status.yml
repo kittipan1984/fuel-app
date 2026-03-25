@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Generate status.json from base + crowdsource
+      - name: Generate status.json from Google Form
         env:
           APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwGtU2fRx6Mblya9JwFY_C3cfbZgJJHynlMKa_XDdptvy9ObsVufhqHOE4JpDAwYRbS/exec"
         run: |
@@ -24,84 +24,75 @@ jobs:
           import json
           import urllib.request
           from pathlib import Path
+          import os
 
-          fuel_path = Path("fuel-status-source.json")
-          out_path = Path("status.json")
-
-          base = json.loads(fuel_path.read_text(encoding="utf-8"))
+          base = json.loads(Path("fuel-status-source.json").read_text(encoding="utf-8"))
           stations = base.get("stations", [])
 
-          url = __import__("os").environ.get("APPS_SCRIPT_URL", "").strip()
-          crowd_rows = []
+          url = os.environ.get("APPS_SCRIPT_URL", "")
+          rows = []
 
           if url:
               with urllib.request.urlopen(url, timeout=30) as resp:
-                  crowd_rows = json.loads(resp.read().decode("utf-8"))
+                  rows = json.loads(resp.read().decode("utf-8"))
 
           latest = {}
-          for row in crowd_rows:
-              key = str(row.get("station_key", "")).strip().lower()
-              ts = str(row.get("Timestamp", row.get("timestamp", ""))).strip()
-              if not key:
-                  continue
-              prev = latest.get(key)
-              if not prev or ts >= str(prev.get("Timestamp", prev.get("timestamp", ""))):
-                  latest[key] = row
+
+          for r in rows:
+              key = str(r.get("station_key","")).lower().strip()
+              ts = str(r.get("Timestamp", r.get("timestamp","")))
+              if not key: continue
+
+              if key not in latest or ts >= latest[key].get("Timestamp",""):
+                  latest[key] = r
 
           merged = []
-          for station in stations:
-              station_key = str(station.get("stationKey", "")).strip().lower()
-              crowd = latest.get(station_key)
-              merged_station = dict(station)
+
+          for s in stations:
+              key = s.get("stationKey","").lower()
+              crowd = latest.get(key)
+
+              new = dict(s)
 
               if crowd:
-                  merged_station["updatedAt"] = (
-                      crowd.get("Timestamp")
-                      or crowd.get("timestamp")
-                      or station.get("updatedAt")
-                  )
-                  merged_station["fuels"] = {
-                      "gasohol95": str(crowd.get("gasohol95", "")).strip() or station["fuels"].get("gasohol95", "unknown"),
-                      "gasohol91": str(crowd.get("gasohol91", "")).strip() or station["fuels"].get("gasohol91", "unknown"),
-                      "dieselB7": str(crowd.get("dieselB7", "")).strip() or station["fuels"].get("dieselB7", "unknown"),
-                      "dieselB10": str(crowd.get("dieselB10", "")).strip() or station["fuels"].get("dieselB10", "unknown"),
-                      "diesel": str(crowd.get("diesel", "")).strip() or station["fuels"].get("diesel", "unknown")
+                  new["fuels"] = {
+                      "gasohol95": crowd.get("gasohol95","unknown"),
+                      "gasohol91": crowd.get("gasohol91","unknown"),
+                      "dieselB7": crowd.get("dieselB7","unknown"),
+                      "dieselB10": crowd.get("dieselB10","unknown"),
+                      "diesel": crowd.get("diesel","unknown")
                   }
-                  merged_station["crowdsource"] = {
-                      "enabled": True,
-                      "reporter": str(crowd.get("reporter", "")).strip(),
+
+                  new["updatedAt"] = crowd.get("Timestamp","")
+
+                  new["crowd"] = {
+                      "by": crowd.get("reporter",""),
                       "source": "google-form"
                   }
-              else:
-                  merged_station["crowdsource"] = {
-                      "enabled": False,
-                      "reporter": "",
-                      "source": "fuel-status-source.json"
-                  }
 
-              merged.append(merged_station)
+              merged.append(new)
 
           result = {
-              "meta": {
-                  "updatedBy": base.get("updatedBy", "NaraMawin"),
-                  "generatedBy": "GitHub Actions",
-                  "version": "pro-plus-crowdsource",
-                  "schedule": "every ~5 minutes"
+              "meta":{
+                  "system":"Fuel Finder PRO+",
+                  "owner":"NaraMawin",
+                  "update":"auto 5 min"
               },
               "stations": merged
           }
 
-          out_path.write_text(
-              json.dumps(result, ensure_ascii=False, indent=2),
+          Path("status.json").write_text(
+              json.dumps(result, indent=2, ensure_ascii=False),
               encoding="utf-8"
           )
-          print("status.json updated")
+
+          print("DONE")
           PY
 
-      - name: Commit and push if changed
+      - name: Commit & push
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "bot"
+          git config user.email "bot@github.com"
           git add status.json
-          git diff --cached --quiet || git commit -m "Auto update status.json"
+          git diff --cached --quiet || git commit -m "auto update"
           git push
