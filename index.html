@@ -59,9 +59,21 @@
       background:linear-gradient(135deg,#0f172a,#1e293b 45%,#0f766e 100%);
       color:#fff;
       border-radius:0 0 28px 28px;
-      padding:20px 18px 18px;
+      padding:18px 18px 18px;
       box-shadow:0 14px 34px rgba(15,23,42,.22);
       margin:-16px -16px 14px;
+    }
+
+    .hero-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+
+    .hero-left{
+      min-width:0;
+      flex:1;
     }
 
     .hero-title{
@@ -98,6 +110,19 @@
       border-radius:16px;
       font-size:12px;
       font-weight:800;
+    }
+
+    .hero-avatar{
+      width:78px;
+      height:78px;
+      border-radius:50%;
+      border:3px solid rgba(255,255,255,.75);
+      box-shadow:0 8px 18px rgba(0,0,0,.22);
+      overflow:hidden;
+      flex:0 0 auto;
+      background:#fff url("./child-header.png") no-repeat center center;
+      background-size:190%;
+      background-position:58% 26%;
     }
 
     .card{
@@ -142,7 +167,7 @@
 
     .controls2{
       display:grid;
-      grid-template-columns:1fr 1fr 1fr;
+      grid-template-columns:1fr 1fr 1fr 1fr;
       gap:10px;
       margin-top:10px;
     }
@@ -164,14 +189,25 @@
     .btn-find{ background:linear-gradient(135deg,var(--green),var(--green-dark)); }
     .btn-bkk{ background:linear-gradient(135deg,#475569,var(--slate)); }
     .btn-refresh{ background:linear-gradient(135deg,#3b82f6,var(--blue)); }
-    .btn-report{
+
+    .btn-report,
+    .btn-message{
       display:flex;
       align-items:center;
       justify-content:center;
       text-decoration:none;
       color:#fff;
-      background:linear-gradient(135deg,#7c3aed,var(--purple));
       padding:12px 14px;
+      cursor:pointer;
+    }
+
+    .btn-report{
+      background:linear-gradient(135deg,#7c3aed,var(--purple));
+    }
+
+    .btn-message{
+      background:linear-gradient(135deg,#0ea5e9,#2563eb);
+      border:none;
     }
 
     select{
@@ -412,6 +448,86 @@
       background:#fbfdff;
     }
 
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:2000;
+    }
+
+    .modal.show{
+      display:flex;
+    }
+
+    .modal-card{
+      width:min(520px, 100%);
+      background:#fff;
+      border-radius:22px;
+      box-shadow:0 24px 60px rgba(0,0,0,.25);
+      padding:18px;
+    }
+
+    .modal-title{
+      font-size:20px;
+      font-weight:900;
+      margin:0 0 6px;
+      color:#0f172a;
+    }
+
+    .modal-sub{
+      font-size:13px;
+      color:#64748b;
+      margin:0 0 12px;
+      line-height:1.5;
+    }
+
+    .field{
+      margin-top:10px;
+    }
+
+    .field label{
+      display:block;
+      font-size:13px;
+      font-weight:800;
+      margin-bottom:6px;
+      color:#334155;
+    }
+
+    .field input,
+    .field textarea{
+      width:100%;
+      border:1px solid #d9e2ec;
+      border-radius:14px;
+      padding:12px;
+      font-size:14px;
+      outline:none;
+      font-family:Arial,Helvetica,sans-serif;
+    }
+
+    .field textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    .modal-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .btn-cancel{
+      background:linear-gradient(135deg,#64748b,#475569);
+    }
+
+    .btn-send{
+      background:linear-gradient(135deg,#16a34a,#059669);
+    }
+
     @media (min-width:720px){
       .fuel-grid{
         grid-template-columns:repeat(3,minmax(0,1fr));
@@ -426,16 +542,26 @@
       #map{
         height:340px;
       }
+
+      .hero-avatar{
+        width:64px;
+        height:64px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="hero">
-      <h1 class="hero-title">⛽ Fuel Station Finder</h1>
-      <p class="hero-sub">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมแผนที่จริง และเปิดรับการรายงานสถานะจากผู้ใช้</p>
-      <div class="owner">By NaraMawin</div>
-      <div class="hero-badge">PRO+ / CROWD SOURCE MODE</div>
+      <div class="hero-top">
+        <div class="hero-left">
+          <h1 class="hero-title">⛽ Fuel Station Finder</h1>
+          <p class="hero-sub">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมแผนที่จริง และเปิดรับการรายงานสถานะจากผู้ใช้</p>
+          <div class="owner">By NaraMawin</div>
+          <div class="hero-badge">PRO+ / CROWD SOURCE MODE</div>
+        </div>
+        <div class="hero-avatar" aria-label="Header avatar"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -465,6 +591,7 @@
         <button class="btn-bkk" id="bkkBtn">ใช้พิกัดกรุงเทพ</button>
         <button class="btn-refresh" id="reloadStatusBtn">รีโหลด status.json</button>
         <a class="btn-report action-link" id="reportLink" href="#" target="_blank" rel="noopener noreferrer">รายงานสถานะ</a>
+        <button class="btn-message" id="messageBtn">ส่งข้อความถึงฉัน</button>
       </div>
 
       <div class="row">
@@ -498,8 +625,31 @@
     <div id="resultList" class="result-list"></div>
   </div>
 
+  <div class="modal" id="messageModal">
+    <div class="modal-card">
+      <h3 class="modal-title">ส่งข้อความถึงฉัน</h3>
+      <p class="modal-sub">พิมพ์ข้อความสั้น ๆ แล้วกดส่ง ข้อความจะถูกส่งไปที่ Telegram ของคุณผ่าน Apps Script</p>
+
+      <div class="field">
+        <label for="senderName">ชื่อผู้ส่ง</label>
+        <input id="senderName" type="text" placeholder="เช่น ผู้ใช้งานเว็บ" />
+      </div>
+
+      <div class="field">
+        <label for="messageText">ข้อความ</label>
+        <textarea id="messageText" placeholder="พิมพ์ข้อความที่ต้องการส่ง"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" id="cancelMessageBtn">ยกเลิก</button>
+        <button class="btn-send" id="sendMessageBtn">ส่งข้อความ</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdApv6W6uAEWHzuFlkFkOG80iLIYSwPiveJwuCifxYvCkiAEg/viewform?usp=publish-editor";
+    const MESSAGE_API_URL = "https://script.google.com/macros/s/AKfycbwGtU2fRx6Mblya9JwFY_C3cfbZgJJHynlMKa_XDdptvy9ObsVufhqHOE4JpDAwYRbS/exec";
 
     const statusBox = document.getElementById("statusBox");
     const coordText = document.getElementById("coordText");
@@ -514,6 +664,13 @@
     const bkkBtn = document.getElementById("bkkBtn");
     const reloadStatusBtn = document.getElementById("reloadStatusBtn");
     const reportLink = document.getElementById("reportLink");
+
+    const messageBtn = document.getElementById("messageBtn");
+    const messageModal = document.getElementById("messageModal");
+    const cancelMessageBtn = document.getElementById("cancelMessageBtn");
+    const sendMessageBtn = document.getElementById("sendMessageBtn");
+    const senderNameInput = document.getElementById("senderName");
+    const messageTextInput = document.getElementById("messageText");
 
     reportLink.href = GOOGLE_FORM_URL;
 
@@ -1010,6 +1167,56 @@ out center tags;
       }
     }
 
+    function openMessageModal() {
+      messageModal.classList.add("show");
+    }
+
+    function closeMessageModal() {
+      messageModal.classList.remove("show");
+      senderNameInput.value = "";
+      messageTextInput.value = "";
+    }
+
+    async function sendMessageToTelegram() {
+      const sender = senderNameInput.value.trim() || "Anonymous";
+      const text = messageTextInput.value.trim();
+
+      if (!text) {
+        alert("กรุณาพิมพ์ข้อความก่อนส่ง");
+        return;
+      }
+
+      try {
+        sendMessageBtn.disabled = true;
+        sendMessageBtn.textContent = "กำลังส่ง...";
+
+        const res = await fetch(MESSAGE_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sender,
+            message: text,
+            page: location.href
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          throw new Error(data.error || "ส่งข้อความไม่สำเร็จ");
+        }
+
+        alert("ส่งข้อความสำเร็จ");
+        closeMessageModal();
+      } catch (err) {
+        console.error(err);
+        alert("ส่งข้อความไม่สำเร็จ: " + err.message);
+      } finally {
+        sendMessageBtn.disabled = false;
+        sendMessageBtn.textContent = "ส่งข้อความ";
+      }
+    }
+
     findBtn.addEventListener("click", findNearbyStations);
     bkkBtn.addEventListener("click", useBangkok);
     reloadStatusBtn.addEventListener("click", async () => {
@@ -1029,6 +1236,13 @@ out center tags;
         if (currentLat && currentLng) addUserMarker(currentLat, currentLng);
         addStationMarkers(lastStations);
       }
+    });
+
+    messageBtn.addEventListener("click", openMessageModal);
+    cancelMessageBtn.addEventListener("click", closeMessageModal);
+    sendMessageBtn.addEventListener("click", sendMessageToTelegram);
+    messageModal.addEventListener("click", (e) => {
+      if (e.target === messageModal) closeMessageModal();
     });
 
     initMap();
