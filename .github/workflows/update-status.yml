@@ -31,7 +31,8 @@ jobs:
               "meta": {
                   "updatedBy": src.get("updatedBy", "NaraMawin"),
                   "generatedBy": "GitHub Actions",
-                  "version": "pro-plus"
+                  "version": "pro-plus",
+                  "schedule": "every ~5 minutes"
               },
               "stations": src.get("stations", [])
           }
