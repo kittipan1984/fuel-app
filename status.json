@@ -4,5 +4,94 @@
     "generatedBy": "GitHub Actions",
     "version": "pro-plus"
   },
-  "stations": []
+  "stations": [
+    {
+      "matchKeys": [
+        "บางจาก",
+        "bangchak",
+        "bcp"
+      ],
+      "updatedAt": "2026-03-25 10:20",
+      "fuels": {
+        "gasohol95": "available",
+        "gasohol91": "available",
+        "dieselB7": "available",
+        "dieselB10": "empty",
+        "diesel": "unknown"
+      }
+    },
+    {
+      "matchKeys": [
+        "ปตท",
+        "ptt",
+        "ptt station",
+        "pttstation"
+      ],
+      "updatedAt": "2026-03-25 10:15",
+      "fuels": {
+        "gasohol95": "available",
+        "gasohol91": "available",
+        "dieselB7": "available",
+        "dieselB10": "available",
+        "diesel": "available"
+      }
+    },
+    {
+      "matchKeys": [
+        "เชลล์",
+        "shell"
+      ],
+      "updatedAt": "2026-03-25 10:10",
+      "fuels": {
+        "gasohol95": "available",
+        "gasohol91": "unknown",
+        "dieselB7": "empty",
+        "dieselB10": "unknown",
+        "diesel": "unknown"
+      }
+    },
+    {
+      "matchKeys": [
+        "คาลเท็กซ์",
+        "caltex"
+      ],
+      "updatedAt": "2026-03-25 10:05",
+      "fuels": {
+        "gasohol95": "available",
+        "gasohol91": "available",
+        "dieselB7": "available",
+        "dieselB10": "unknown",
+        "diesel": "available"
+      }
+    },
+    {
+      "matchKeys": [
+        "pt",
+        "pt station",
+        "ptg"
+      ],
+      "updatedAt": "2026-03-25 10:00",
+      "fuels": {
+        "gasohol95": "available",
+        "gasohol91": "available",
+        "dieselB7": "available",
+        "dieselB10": "available",
+        "diesel": "available"
+      }
+    },
+    {
+      "matchKeys": [
+        "susco",
+        "ซัสโก้"
+      ],
+      "updatedAt": "2026-03-25 09:55",
+      "fuels": {
+        "gasohol95": "unknown",
+        "gasohol91": "unknown",
+        "dieselB7": "available",
+        "dieselB10": "unknown",
+        "diesel": "available"
+      }
+    }
+  ]
 }
