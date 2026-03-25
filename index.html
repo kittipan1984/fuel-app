@@ -731,7 +731,9 @@
           },
           crowdsource: {
             enabled: !!crowd.enabled,
-            reporter: crowd.reporter || "",
+            reporters: Array.isArray(crowd.reporters) ? crowd.reporters : [],
+            sampleSize: Number(crowd.sampleSize || 0),
+            confidence: Number(crowd.confidence || 0),
             source: crowd.source || ""
           }
         };
@@ -750,7 +752,9 @@
         },
         crowdsource: {
           enabled: false,
-          reporter: "",
+          reporters: [],
+          sampleSize: 0,
+          confidence: 0,
           source: ""
         }
       };
@@ -807,6 +811,11 @@
 
         const crowdEnabled = !!s.statusInfo.crowdsource.enabled;
         const crowdLabel = crowdEnabled ? "Crowdsource" : "Default";
+        const confidence = Number(s.statusInfo.crowdsource.confidence || 0);
+        const sampleSize = Number(s.statusInfo.crowdsource.sampleSize || 0);
+        const reporters = Array.isArray(s.statusInfo.crowdsource.reporters)
+          ? s.statusInfo.crowdsource.reporters.join(", ")
+          : "";
 
         const el = document.createElement("div");
         el.className = "station";
@@ -837,7 +846,9 @@
           <div class="updated">
             อัปเดตล่าสุด: ${escapeHtml(s.statusInfo.updatedAt)}<br>
             ${escapeHtml(matchedText)}<br>
-            แหล่งข้อมูล: ${escapeHtml(s.statusInfo.crowdsource.source || "-")} ${s.statusInfo.crowdsource.reporter ? "| ผู้รายงาน: " + escapeHtml(s.statusInfo.crowdsource.reporter) : ""}
+            แหล่งข้อมูล: ${escapeHtml(s.statusInfo.crowdsource.source || "-")}<br>
+            จำนวนรายงาน: ${sampleSize} | ความน่าเชื่อถือ: ${confidence}%<br>
+            ผู้รายงาน: ${escapeHtml(reporters || "-")}
           </div>
 
           <div class="actions">
