@@ -3,17 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>NaraMawin Fuel Finder Pro+</title>
+  <title>NaraMawin Fuel Finder Pro+ Crowdsource</title>
 
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin=""
   />
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""
   ></script>
 
@@ -29,6 +27,7 @@
       --green-dark:#059669;
       --blue:#2563eb;
       --slate:#334155;
+      --purple:#7c3aed;
       --ok-tx:#166534;
       --empty-tx:#b91c1c;
       --unknown-tx:#475569;
@@ -84,7 +83,6 @@
       display:inline-block;
       font-size:22px;
       font-weight:900;
-      letter-spacing:.04em;
       background:linear-gradient(90deg,#22c55e,#67e8f9,#f8fafc);
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
@@ -142,7 +140,14 @@
       margin-top:12px;
     }
 
-    button,select{
+    .controls2{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    button,select,a.action-link{
       min-height:48px;
       border-radius:15px;
       font-size:14px;
@@ -159,6 +164,15 @@
     .btn-find{ background:linear-gradient(135deg,var(--green),var(--green-dark)); }
     .btn-bkk{ background:linear-gradient(135deg,#475569,var(--slate)); }
     .btn-refresh{ background:linear-gradient(135deg,#3b82f6,var(--blue)); }
+    .btn-report{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      color:#fff;
+      background:linear-gradient(135deg,#7c3aed,var(--purple));
+      padding:12px 14px;
+    }
 
     select{
       width:100%;
@@ -274,7 +288,7 @@
       margin-bottom:10px;
     }
 
-    .brand-badge{
+    .brand-badge,.source-badge{
       font-size:12px;
       font-weight:900;
       border-radius:999px;
@@ -289,6 +303,9 @@
     .brand-pt{background:#f97316}
     .brand-susco{background:#7c3aed}
     .brand-other{background:#64748b}
+
+    .source-crowd{background:#7c3aed}
+    .source-default{background:#64748b}
 
     .meta{
       font-size:13px;
@@ -395,11 +412,6 @@
       background:#fbfdff;
     }
 
-    .leaflet-popup-content{
-      line-height:1.5;
-      font-size:13px;
-    }
-
     @media (min-width:720px){
       .fuel-grid{
         grid-template-columns:repeat(3,minmax(0,1fr));
@@ -407,7 +419,7 @@
     }
 
     @media (max-width:680px){
-      .controls,.row{
+      .controls,.controls2,.row{
         grid-template-columns:1fr;
       }
 
@@ -421,9 +433,9 @@
   <div class="wrap">
     <div class="hero">
       <h1 class="hero-title">⛽ Fuel Station Finder</h1>
-      <p class="hero-sub">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมแผนที่จริง, marker และสถานะน้ำมันจาก GitHub Action</p>
+      <p class="hero-sub">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมแผนที่จริง และเปิดรับการรายงานสถานะจากผู้ใช้</p>
       <div class="owner">By NaraMawin</div>
-      <div class="hero-badge">PRO+ / MAP MODE</div>
+      <div class="hero-badge">PRO+ / CROWD SOURCE MODE</div>
     </div>
 
     <div class="card">
@@ -449,10 +461,10 @@
         </select>
       </div>
 
-      <div class="controls" style="margin-top:10px;">
+      <div class="controls2">
         <button class="btn-bkk" id="bkkBtn">ใช้พิกัดกรุงเทพ</button>
         <button class="btn-refresh" id="reloadStatusBtn">รีโหลด status.json</button>
-        <div></div>
+        <a class="btn-report action-link" id="reportLink" href="#" target="_blank" rel="noopener noreferrer">รายงานสถานะ</a>
       </div>
 
       <div class="row">
@@ -487,6 +499,8 @@
   </div>
 
   <script>
+    const GOOGLE_FORM_URL = "#";
+
     const statusBox = document.getElementById("statusBox");
     const coordText = document.getElementById("coordText");
     const statusSourceText = document.getElementById("statusSourceText");
@@ -499,6 +513,9 @@
     const findBtn = document.getElementById("findBtn");
     const bkkBtn = document.getElementById("bkkBtn");
     const reloadStatusBtn = document.getElementById("reloadStatusBtn");
+    const reportLink = document.getElementById("reportLink");
+
+    reportLink.href = GOOGLE_FORM_URL;
 
     const OVERPASS_ENDPOINTS = [
       "https://overpass-api.de/api/interpreter",
@@ -515,7 +532,6 @@
 
     function initMap() {
       map = L.map("map", { zoomControl: true }).setView([13.7563, 100.5018], 12);
-
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
         attribution: "&copy; OpenStreetMap contributors"
@@ -562,9 +578,7 @@
 
       if (filtered.length > 0) {
         const bounds = L.latLngBounds(filtered.map(s => [s.lat, s.lng]));
-        if (currentLat && currentLng) {
-          bounds.extend([currentLat, currentLng]);
-        }
+        if (currentLat && currentLng) bounds.extend([currentLat, currentLng]);
         map.fitBounds(bounds.pad(0.15));
       } else if (currentLat && currentLng) {
         map.setView([currentLat, currentLng], 13);
@@ -703,6 +717,7 @@
 
       if (best && bestScore >= 30) {
         const fuels = best.fuels || {};
+        const crowd = best.crowdsource || {};
         return {
           matchedKey: bestKey,
           matchScore: bestScore,
@@ -713,6 +728,11 @@
             dieselB7: fuels.dieselB7 || "unknown",
             dieselB10: fuels.dieselB10 || "unknown",
             diesel: fuels.diesel || "unknown"
+          },
+          crowdsource: {
+            enabled: !!crowd.enabled,
+            reporter: crowd.reporter || "",
+            source: crowd.source || ""
           }
         };
       }
@@ -727,6 +747,11 @@
           dieselB7: "unknown",
           dieselB10: "unknown",
           diesel: "unknown"
+        },
+        crowdsource: {
+          enabled: false,
+          reporter: "",
+          source: ""
         }
       };
     }
@@ -780,6 +805,9 @@
           ? `จับคู่กับ: ${s.statusInfo.matchedKey} | score: ${s.statusInfo.matchScore}`
           : `ไม่ match | ชื่อที่เจอ: ${s.name}`;
 
+        const crowdEnabled = !!s.statusInfo.crowdsource.enabled;
+        const crowdLabel = crowdEnabled ? "Crowdsource" : "Default";
+
         const el = document.createElement("div");
         el.className = "station";
         el.innerHTML = `
@@ -790,6 +818,7 @@
 
           <div class="brand-row">
             <div class="brand-badge brand-${s.brandKey}">${escapeHtml(brandText)}</div>
+            <div class="source-badge ${crowdEnabled ? "source-crowd" : "source-default"}">${crowdLabel}</div>
           </div>
 
           <div class="meta">
@@ -807,7 +836,8 @@
 
           <div class="updated">
             อัปเดตล่าสุด: ${escapeHtml(s.statusInfo.updatedAt)}<br>
-            ${escapeHtml(matchedText)}
+            ${escapeHtml(matchedText)}<br>
+            แหล่งข้อมูล: ${escapeHtml(s.statusInfo.crowdsource.source || "-")} ${s.statusInfo.crowdsource.reporter ? "| ผู้รายงาน: " + escapeHtml(s.statusInfo.crowdsource.reporter) : ""}
           </div>
 
           <div class="actions">
