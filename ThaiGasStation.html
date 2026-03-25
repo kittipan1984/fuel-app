@@ -66,8 +66,9 @@
     .owner{
       margin-top:12px;
       display:inline-block;
-      font-size:20px;
+      font-size:24px;
       font-weight:900;
+      letter-spacing:.04em;
       background:linear-gradient(90deg,#22c55e,#67e8f9,#f8fafc);
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
@@ -139,17 +140,9 @@
       padding:12px 14px;
     }
 
-    .btn-find{
-      background:linear-gradient(135deg,var(--green),var(--green-dark));
-    }
-
-    .btn-bkk{
-      background:linear-gradient(135deg,#475569,var(--slate));
-    }
-
-    .btn-refresh{
-      background:linear-gradient(135deg,#3b82f6,var(--blue));
-    }
+    .btn-find{ background:linear-gradient(135deg,var(--green),var(--green-dark)); }
+    .btn-bkk{ background:linear-gradient(135deg,#475569,var(--slate)); }
+    .btn-refresh{ background:linear-gradient(135deg,#3b82f6,var(--blue)); }
 
     select{
       width:100%;
@@ -563,39 +556,62 @@
       return tags.brand || tags.operator || name || "Other";
     }
 
+    function scoreMatch(stationName, matchKey) {
+      const s = normalizeText(stationName);
+      const k = normalizeText(matchKey);
+
+      if (!s || !k) return 0;
+      if (s === k) return 100;
+      if (s.includes(k)) return 90;
+      if (k.includes(s)) return 80;
+
+      let score = 0;
+      const sPrefix = s.slice(0, Math.max(2, Math.floor(s.length * 0.6)));
+      const kPrefix = k.slice(0, Math.max(2, Math.floor(k.length * 0.6)));
+
+      if (s.includes(kPrefix)) score += 30;
+      if (k.includes(sPrefix)) score += 20;
+
+      return score;
+    }
+
     function getStationFuelStatus(station) {
-      const stationName = normalizeText(station.name);
       const items = Array.isArray(STATUS_DOC.stations) ? STATUS_DOC.stations : [];
+      let best = null;
+      let bestScore = 0;
+      let bestKey = "";
 
       for (const item of items) {
         const keys = Array.isArray(item.matchKeys) ? item.matchKeys : [];
-
         for (const key of keys) {
-          const jsonKey = normalizeText(key);
-          if (!jsonKey) continue;
-
-          if (
-            stationName.includes(jsonKey) ||
-            jsonKey.includes(stationName)
-          ) {
-            const fuels = item.fuels || {};
-            return {
-              matchedKey: key,
-              updatedAt: item.updatedAt || "มีข้อมูล",
-              fuels: {
-                gasohol95: fuels.gasohol95 || "unknown",
-                gasohol91: fuels.gasohol91 || "unknown",
-                dieselB7: fuels.dieselB7 || "unknown",
-                dieselB10: fuels.dieselB10 || "unknown",
-                diesel: fuels.diesel || "unknown"
-              }
-            };
+          const score = scoreMatch(station.name, key);
+          if (score > bestScore) {
+            bestScore = score;
+            best = item;
+            bestKey = key;
           }
         }
       }
 
+      if (best && bestScore >= 30) {
+        const fuels = best.fuels || {};
+        return {
+          matchedKey: bestKey,
+          matchScore: bestScore,
+          updatedAt: best.updatedAt || "มีข้อมูล",
+          fuels: {
+            gasohol95: fuels.gasohol95 || "unknown",
+            gasohol91: fuels.gasohol91 || "unknown",
+            dieselB7: fuels.dieselB7 || "unknown",
+            dieselB10: fuels.dieselB10 || "unknown",
+            diesel: fuels.diesel || "unknown"
+          }
+        };
+      }
+
       return {
         matchedKey: "",
+        matchScore: 0,
         updatedAt: "ยังไม่มีข้อมูล",
         fuels: {
           gasohol95: "unknown",
@@ -654,7 +670,7 @@
         const brandText = brandLabel(s.brandKey, s.name, s.tags);
         const addressText = s.address || "-";
         const matchedText = s.statusInfo.matchedKey
-          ? `จับคู่กับ: ${s.statusInfo.matchedKey}`
+          ? `จับคู่กับ: ${s.statusInfo.matchedKey} | score: ${s.statusInfo.matchScore}`
           : `ไม่ match | ชื่อที่เจอ: ${s.name}`;
 
         const el = document.createElement("div");
