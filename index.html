@@ -1190,32 +1190,65 @@ out center tags;
         sendMessageBtn.disabled = true;
         sendMessageBtn.textContent = "กำลังส่ง...";
 
-        const res = await fetch(MESSAGE_API_URL, {
+        await fetch(MESSAGE_API_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          mode: "no-cors",   // 🔥 ตัวนี้สำคัญสุด
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
           body: JSON.stringify({
-            sender,
+            sender: sender,
             message: text,
             page: location.href
           })
         });
 
-        const data = await res.json();
-
-        if (!res.ok || !data.ok) {
-          throw new Error(data.error || "ส่งข้อความไม่สำเร็จ");
-        }
-
-        alert("ส่งข้อความสำเร็จ");
+        alert("ส่งแล้ว! เช็ค Telegram 📩");
         closeMessageModal();
+
       } catch (err) {
         console.error(err);
-        alert("ส่งข้อความไม่สำเร็จ: " + err.message);
+        alert("ส่งไม่สำเร็จ: " + err.message);
       } finally {
         sendMessageBtn.disabled = false;
         sendMessageBtn.textContent = "ส่งข้อความ";
-      }
-    }
+async function sendMessageToTelegram() {
+  const sender = senderNameInput.value.trim() || "Anonymous";
+  const text = messageTextInput.value.trim();
+
+  if (!text) {
+    alert("กรุณาพิมพ์ข้อความก่อนส่ง");
+    return;
+  }
+
+  try {
+    sendMessageBtn.disabled = true;
+    sendMessageBtn.textContent = "กำลังส่ง...";
+
+    await fetch(MESSAGE_API_URL, {
+      method: "POST",
+      mode: "no-cors",   // 🔥 ตัวนี้สำคัญสุด
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify({
+        sender: sender,
+        message: text,
+        page: location.href
+      })
+    });
+
+    alert("ส่งแล้ว! เช็ค Telegram 📩");
+    closeMessageModal();
+
+  } catch (err) {
+    console.error(err);
+    alert("ส่งไม่สำเร็จ: " + err.message);
+  } finally {
+    sendMessageBtn.disabled = false;
+    sendMessageBtn.textContent = "ส่งข้อความ";
+  }
+}
 
     findBtn.addEventListener("click", findNearbyStations);
     bkkBtn.addEventListener("click", useBangkok);
