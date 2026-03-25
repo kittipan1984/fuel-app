@@ -1,0 +1,54 @@
+name: Update fuel status json
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "3,8,13,18,23,28,33,38,43,48,53,58 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Generate status.json
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          src_path = Path("fuel-status-source.json")
+          out_path = Path("status.json")
+
+          src = json.loads(src_path.read_text(encoding="utf-8"))
+
+          result = {
+              "meta": {
+                  "updatedBy": src.get("updatedBy", "NaraMawin"),
+                  "generatedBy": "GitHub Actions",
+                  "version": "pro-plus",
+                  "schedule": "every ~5 minutes"
+              },
+              "stations": src.get("stations", [])
+          }
+
+          out_path.write_text(
+              json.dumps(result, ensure_ascii=False, indent=2),
+              encoding="utf-8"
+          )
+
+          print("status.json updated")
+          PY
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add status.json
+          git diff --cached --quiet || git commit -m "Auto update status.json"
+          git push
