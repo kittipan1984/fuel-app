@@ -3,25 +3,20 @@ name: Update fuel status json
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "3,8,13,18,23,28,33,38,43,48,53,58 * * * *"
 
 permissions:
   contents: write
 
 jobs:
-  build-status-json:
+  build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Generate status.json from fuel-status-source.json
+      - name: Generate status.json
         run: |
           python - <<'PY'
           import json
@@ -32,22 +27,20 @@ jobs:
 
           src = json.loads(src_path.read_text(encoding="utf-8"))
 
-          stations = src.get("stations", [])
-          updated_by = src.get("updatedBy", "unknown")
-
           result = {
               "meta": {
-                  "updatedBy": updated_by,
+                  "updatedBy": src.get("updatedBy", "NaraMawin"),
                   "generatedBy": "GitHub Actions",
                   "version": "pro-plus"
               },
-              "stations": stations
+              "stations": src.get("stations", [])
           }
 
           out_path.write_text(
               json.dumps(result, ensure_ascii=False, indent=2),
               encoding="utf-8"
           )
+
           print("status.json updated")
           PY
 
