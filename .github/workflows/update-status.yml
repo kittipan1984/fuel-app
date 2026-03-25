@@ -16,53 +16,61 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Generate status.json
+      - name: Generate status.json from base + crowdsource
+        env:
+          APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwGtU2fRx6Mblya9JwFY_C3cfbZgJJHynlMKa_XDdptvy9ObsVufhqHOE4JpDAwYRbS/exec"
         run: |
           python - <<'PY'
-          import csv
           import json
+          import urllib.request
           from pathlib import Path
 
           fuel_path = Path("fuel-status-source.json")
-          crowd_path = Path("crowdsource-source.csv")
           out_path = Path("status.json")
 
           base = json.loads(fuel_path.read_text(encoding="utf-8"))
           stations = base.get("stations", [])
 
-          crowd_latest = {}
+          url = __import__("os").environ.get("APPS_SCRIPT_URL", "").strip()
+          crowd_rows = []
 
-          if crowd_path.exists():
-              with crowd_path.open("r", encoding="utf-8-sig", newline="") as f:
-                  reader = csv.DictReader(f)
-                  for row in reader:
-                      key = (row.get("station_key") or "").strip().lower()
-                      ts = (row.get("timestamp") or "").strip()
-                      if not key:
-                          continue
-                      existing = crowd_latest.get(key)
-                      if not existing or ts >= existing.get("timestamp", ""):
-                          crowd_latest[key] = row
+          if url:
+              with urllib.request.urlopen(url, timeout=30) as resp:
+                  crowd_rows = json.loads(resp.read().decode("utf-8"))
+
+          latest = {}
+          for row in crowd_rows:
+              key = str(row.get("station_key", "")).strip().lower()
+              ts = str(row.get("Timestamp", row.get("timestamp", ""))).strip()
+              if not key:
+                  continue
+              prev = latest.get(key)
+              if not prev or ts >= str(prev.get("Timestamp", prev.get("timestamp", ""))):
+                  latest[key] = row
 
           merged = []
           for station in stations:
-              station_key = (station.get("stationKey") or "").strip().lower()
-              crowd = crowd_latest.get(station_key)
+              station_key = str(station.get("stationKey", "")).strip().lower()
+              crowd = latest.get(station_key)
               merged_station = dict(station)
 
               if crowd:
-                  merged_station["updatedAt"] = crowd.get("timestamp") or station.get("updatedAt")
+                  merged_station["updatedAt"] = (
+                      crowd.get("Timestamp")
+                      or crowd.get("timestamp")
+                      or station.get("updatedAt")
+                  )
                   merged_station["fuels"] = {
-                      "gasohol95": crowd.get("gasohol95") or station["fuels"].get("gasohol95", "unknown"),
-                      "gasohol91": crowd.get("gasohol91") or station["fuels"].get("gasohol91", "unknown"),
-                      "dieselB7": crowd.get("dieselB7") or station["fuels"].get("dieselB7", "unknown"),
-                      "dieselB10": crowd.get("dieselB10") or station["fuels"].get("dieselB10", "unknown"),
-                      "diesel": crowd.get("diesel") or station["fuels"].get("diesel", "unknown")
+                      "gasohol95": str(crowd.get("gasohol95", "")).strip() or station["fuels"].get("gasohol95", "unknown"),
+                      "gasohol91": str(crowd.get("gasohol91", "")).strip() or station["fuels"].get("gasohol91", "unknown"),
+                      "dieselB7": str(crowd.get("dieselB7", "")).strip() or station["fuels"].get("dieselB7", "unknown"),
+                      "dieselB10": str(crowd.get("dieselB10", "")).strip() or station["fuels"].get("dieselB10", "unknown"),
+                      "diesel": str(crowd.get("diesel", "")).strip() or station["fuels"].get("diesel", "unknown")
                   }
                   merged_station["crowdsource"] = {
                       "enabled": True,
-                      "reporter": crowd.get("reporter", ""),
-                      "source": "crowdsource-source.csv"
+                      "reporter": str(crowd.get("reporter", "")).strip(),
+                      "source": "google-form"
                   }
               else:
                   merged_station["crowdsource"] = {
@@ -87,7 +95,6 @@ jobs:
               json.dumps(result, ensure_ascii=False, indent=2),
               encoding="utf-8"
           )
-
           print("status.json updated")
           PY
 
