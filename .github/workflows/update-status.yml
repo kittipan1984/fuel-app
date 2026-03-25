@@ -25,58 +25,100 @@ jobs:
           import urllib.request
           from pathlib import Path
           import os
+          from collections import Counter
+
+          VALID = {"available", "empty", "unknown"}
+
+          def clean_status(v):
+              s = str(v or "").strip().lower()
+              return s if s in VALID else "unknown"
+
+          def parse_ts(row):
+              return str(row.get("Timestamp", row.get("timestamp", ""))).strip()
+
+          def majority(rows, field, fallback):
+              vals = [clean_status(r.get(field)) for r in rows]
+              vals = [v for v in vals if v in VALID]
+              if not vals:
+                  return fallback
+              c = Counter(vals)
+              top = c.most_common()
+              if len(top) >= 2 and top[0][1] == top[1][1]:
+                  return fallback
+              return top[0][0]
 
           base = json.loads(Path("fuel-status-source.json").read_text(encoding="utf-8"))
           stations = base.get("stations", [])
 
-          url = os.environ.get("APPS_SCRIPT_URL", "")
+          url = os.environ.get("APPS_SCRIPT_URL", "").strip()
           rows = []
 
           if url:
               with urllib.request.urlopen(url, timeout=30) as resp:
                   rows = json.loads(resp.read().decode("utf-8"))
 
-          latest = {}
-
+          grouped = {}
           for r in rows:
-              key = str(r.get("station_key","")).lower().strip()
-              ts = str(r.get("Timestamp", r.get("timestamp","")))
-              if not key: continue
+              key = str(r.get("station_key", "")).strip().lower()
+              if not key:
+                  continue
+              grouped.setdefault(key, []).append(r)
 
-              if key not in latest or ts >= latest[key].get("Timestamp",""):
-                  latest[key] = r
+          for key in grouped:
+              grouped[key].sort(key=parse_ts, reverse=True)
 
           merged = []
 
           for s in stations:
-              key = s.get("stationKey","").lower()
-              crowd = latest.get(key)
+              station_key = str(s.get("stationKey", "")).strip().lower()
+              base_fuels = dict(s.get("fuels", {}))
+              reports = grouped.get(station_key, [])[:5]
 
-              new = dict(s)
+              new_station = dict(s)
 
-              if crowd:
-                  new["fuels"] = {
-                      "gasohol95": crowd.get("gasohol95","unknown"),
-                      "gasohol91": crowd.get("gasohol91","unknown"),
-                      "dieselB7": crowd.get("dieselB7","unknown"),
-                      "dieselB10": crowd.get("dieselB10","unknown"),
-                      "diesel": crowd.get("diesel","unknown")
+              if reports:
+                  fuels = {
+                      "gasohol95": majority(reports, "gasohol95", base_fuels.get("gasohol95", "unknown")),
+                      "gasohol91": majority(reports, "gasohol91", base_fuels.get("gasohol91", "unknown")),
+                      "dieselB7": majority(reports, "dieselB7", base_fuels.get("dieselB7", "unknown")),
+                      "dieselB10": majority(reports, "dieselB10", base_fuels.get("dieselB10", "unknown")),
+                      "diesel": majority(reports, "diesel", base_fuels.get("diesel", "unknown"))
                   }
 
-                  new["updatedAt"] = crowd.get("Timestamp","")
+                  reporters = []
+                  for r in reports:
+                      rep = str(r.get("reporter", "")).strip()
+                      if rep and rep not in reporters:
+                          reporters.append(rep)
 
-                  new["crowd"] = {
-                      "by": crowd.get("reporter",""),
-                      "source": "google-form"
+                  confidence = min(100, 40 + len(reports) * 12)
+
+                  new_station["fuels"] = fuels
+                  new_station["updatedAt"] = parse_ts(reports[0]) or s.get("updatedAt", "")
+                  new_station["crowdsource"] = {
+                      "enabled": True,
+                      "source": "google-form",
+                      "reporters": reporters,
+                      "sampleSize": len(reports),
+                      "confidence": confidence
+                  }
+              else:
+                  new_station["crowdsource"] = {
+                      "enabled": False,
+                      "source": "fuel-status-source.json",
+                      "reporters": [],
+                      "sampleSize": 0,
+                      "confidence": 0
                   }
 
-              merged.append(new)
+              merged.append(new_station)
 
           result = {
-              "meta":{
-                  "system":"Fuel Finder PRO+",
-                  "owner":"NaraMawin",
-                  "update":"auto 5 min"
+              "meta": {
+                  "system": "Fuel Finder PRO+",
+                  "owner": "NaraMawin",
+                  "update": "auto 5 min",
+                  "mode": "majority-vote"
               },
               "stations": merged
           }
