@@ -1,12 +1,13 @@
 {
   "meta": {
-    "updatedBy": "NaraMawin",
-    "generatedBy": "GitHub Actions",
-    "version": "pro-plus",
-    "schedule": "every ~5 minutes"
+    "system": "Fuel Finder PRO+",
+    "owner": "NaraMawin",
+    "update": "auto 5 min",
+    "mode": "majority-vote"
   },
   "stations": [
     {
+      "stationKey": "bangchak",
       "matchKeys": [
         "บางจาก",
         "bangchak",
@@ -19,9 +20,17 @@
         "dieselB7": "available",
         "dieselB10": "empty",
         "diesel": "unknown"
+      },
+      "crowdsource": {
+        "enabled": false,
+        "source": "fuel-status-source.json",
+        "reporters": [],
+        "sampleSize": 0,
+        "confidence": 0
       }
     },
     {
+      "stationKey": "ptt",
       "matchKeys": [
         "ปตท",
         "ptt",
@@ -35,9 +44,17 @@
         "dieselB7": "available",
         "dieselB10": "available",
         "diesel": "available"
+      },
+      "crowdsource": {
+        "enabled": false,
+        "source": "fuel-status-source.json",
+        "reporters": [],
+        "sampleSize": 0,
+        "confidence": 0
       }
     },
     {
+      "stationKey": "shell",
       "matchKeys": [
         "เชลล์",
         "shell"
@@ -49,9 +66,17 @@
         "dieselB7": "empty",
         "dieselB10": "unknown",
         "diesel": "unknown"
+      },
+      "crowdsource": {
+        "enabled": false,
+        "source": "fuel-status-source.json",
+        "reporters": [],
+        "sampleSize": 0,
+        "confidence": 0
       }
     },
     {
+      "stationKey": "caltex",
       "matchKeys": [
         "คาลเท็กซ์",
         "caltex"
@@ -63,9 +88,17 @@
         "dieselB7": "available",
         "dieselB10": "unknown",
         "diesel": "available"
+      },
+      "crowdsource": {
+        "enabled": false,
+        "source": "fuel-status-source.json",
+        "reporters": [],
+        "sampleSize": 0,
+        "confidence": 0
       }
     },
     {
+      "stationKey": "pt",
       "matchKeys": [
         "pt",
         "pt station",
@@ -78,9 +111,17 @@
         "dieselB7": "available",
         "dieselB10": "available",
         "diesel": "available"
+      },
+      "crowdsource": {
+        "enabled": false,
+        "source": "fuel-status-source.json",
+        "reporters": [],
+        "sampleSize": 0,
+        "confidence": 0
       }
     },
     {
+      "stationKey": "susco",
       "matchKeys": [
         "susco",
         "ซัสโก้"
@@ -92,6 +133,13 @@
         "dieselB7": "available",
         "dieselB10": "unknown",
         "diesel": "available"
+      },
+      "crowdsource": {
+        "enabled": false,
+        "source": "fuel-status-source.json",
+        "reporters": [],
+        "sampleSize": 0,
+        "confidence": 0
       }
     }
   ]
