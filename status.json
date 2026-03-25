@@ -1,7 +1,6 @@
 {
   "บางจาก มาบตาพุด": {
     "updatedAt": "24/03/2026 10:20",
-    "stationStatus": "open",
     "fuels": {
       "gasohol95": "available",
       "gasohol91": "available",
@@ -12,7 +11,6 @@
   },
   "บางจาก ห้วยโป่ง": {
     "updatedAt": "24/03/2026 10:15",
-    "stationStatus": "open",
     "fuels": {
       "gasohol95": "available",
       "gasohol91": "unknown",
@@ -21,9 +19,8 @@
       "diesel": "unknown"
     }
   },
-  "PTT Station ระยองสาย 36": {
+  "บางจาก ระยองสาย 36": {
     "updatedAt": "24/03/2026 10:10",
-    "stationStatus": "open",
     "fuels": {
       "gasohol95": "available",
       "gasohol91": "available",
@@ -32,9 +29,8 @@
       "diesel": "unknown"
     }
   },
-  "Shell บ้านฉาง": {
+  "บางจาก บ้านฉาง": {
     "updatedAt": "24/03/2026 10:05",
-    "stationStatus": "open",
     "fuels": {
       "gasohol95": "available",
       "gasohol91": "available",
