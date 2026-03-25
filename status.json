@@ -1,5 +1,5 @@
 {
-  "บางจาก มาบตาพุด": {
+  "บางจาก": {
     "updatedAt": "24/03/2026 10:20",
     "fuels": {
       "gasohol95": "available",
@@ -9,34 +9,84 @@
       "diesel": "unknown"
     }
   },
-  "บางจาก ห้วยโป่ง": {
-    "updatedAt": "24/03/2026 10:15",
+  "bangchak": {
+    "updatedAt": "24/03/2026 10:20",
     "fuels": {
       "gasohol95": "available",
-      "gasohol91": "unknown",
+      "gasohol91": "available",
       "dieselB7": "available",
-      "dieselB10": "unknown",
+      "dieselB10": "empty",
       "diesel": "unknown"
     }
   },
-  "บางจาก ระยองสาย 36": {
-    "updatedAt": "24/03/2026 10:10",
+  "PTT": {
+    "updatedAt": "24/03/2026 10:15",
     "fuels": {
       "gasohol95": "available",
       "gasohol91": "available",
       "dieselB7": "available",
       "dieselB10": "available",
+      "diesel": "available"
+    }
+  },
+  "PTT Station": {
+    "updatedAt": "24/03/2026 10:15",
+    "fuels": {
+      "gasohol95": "available",
+      "gasohol91": "available",
+      "dieselB7": "available",
+      "dieselB10": "available",
+      "diesel": "available"
+    }
+  },
+  "Shell": {
+    "updatedAt": "24/03/2026 10:10",
+    "fuels": {
+      "gasohol95": "available",
+      "gasohol91": "unknown",
+      "dieselB7": "empty",
+      "dieselB10": "unknown",
       "diesel": "unknown"
     }
   },
-  "บางจาก บ้านฉาง": {
+  "Caltex": {
     "updatedAt": "24/03/2026 10:05",
     "fuels": {
       "gasohol95": "available",
       "gasohol91": "available",
-      "dieselB7": "empty",
+      "dieselB7": "available",
       "dieselB10": "unknown",
-      "diesel": "unknown"
+      "diesel": "available"
+    }
+  },
+  "PT": {
+    "updatedAt": "24/03/2026 10:00",
+    "fuels": {
+      "gasohol95": "available",
+      "gasohol91": "available",
+      "dieselB7": "available",
+      "dieselB10": "available",
+      "diesel": "available"
+    }
+  },
+  "PT Station": {
+    "updatedAt": "24/03/2026 10:00",
+    "fuels": {
+      "gasohol95": "available",
+      "gasohol91": "available",
+      "dieselB7": "available",
+      "dieselB10": "available",
+      "diesel": "available"
+    }
+  },
+  "Susco": {
+    "updatedAt": "24/03/2026 09:55",
+    "fuels": {
+      "gasohol95": "unknown",
+      "gasohol91": "unknown",
+      "dieselB7": "available",
+      "dieselB10": "unknown",
+      "diesel": "available"
     }
   }
 }
