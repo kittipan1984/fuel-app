@@ -1,146 +1,60 @@
 {
   "meta": {
-    "updatedBy": "NaraMawin",
-    "generatedBy": "GitHub Actions",
-    "version": "pro-final",
-    "schedule": "every ~5 minutes",
-    "mode": "majority-vote"
+    "source": "generated from fuel-status-source.json + crowdsource-source.csv",
+    "version": "1.0.0",
+    "lastUpdatedBkk": "2026-03-26 19:30 BKK",
+    "notes": "Static demo schema for No1 App"
   },
   "stations": [
     {
-      "stationKey": "bangchak",
-      "matchKeys": [
-        "บางจาก",
-        "bangchak",
-        "bcp"
-      ],
-      "updatedAt": "2026-03-25 10:20",
+      "name": "PTT Bangkok Central",
+      "matchKeys": ["PTT Bangkok Central", "ปตท กรุงเทพ", "PTT"],
       "fuels": {
         "gasohol95": "available",
         "gasohol91": "available",
         "dieselB7": "available",
-        "dieselB10": "empty",
-        "diesel": "unknown"
+        "dieselB10": "low",
+        "diesel": "available"
       },
       "crowdsource": {
-        "enabled": false,
-        "source": "fuel-status-source.json",
-        "reporters": [],
-        "sampleSize": 0,
-        "confidence": 0
+        "enabled": true,
+        "confidence": 92,
+        "sampleSize": 11,
+        "reporters": ["UserA", "UserB", "UserC"]
       }
     },
     {
-      "stationKey": "ptt",
-      "matchKeys": [
-        "ปตท",
-        "ptt",
-        "ptt station",
-        "pttstation"
-      ],
-      "updatedAt": "2026-03-25 10:15",
+      "name": "Bangchak Rama 9",
+      "matchKeys": ["Bangchak Rama 9", "บางจาก พระราม9", "Bangchak"],
       "fuels": {
         "gasohol95": "available",
-        "gasohol91": "available",
+        "gasohol91": "low",
         "dieselB7": "available",
         "dieselB10": "available",
         "diesel": "available"
       },
       "crowdsource": {
-        "enabled": false,
-        "source": "fuel-status-source.json",
-        "reporters": [],
-        "sampleSize": 0,
-        "confidence": 0
+        "enabled": true,
+        "confidence": 80,
+        "sampleSize": 5,
+        "reporters": ["UserD", "UserE"]
       }
     },
     {
-      "stationKey": "shell",
-      "matchKeys": [
-        "เชลล์",
-        "shell"
-      ],
-      "updatedAt": "2026-03-25 10:10",
+      "name": "Shell Pattaya South",
+      "matchKeys": ["Shell Pattaya South", "เชลล์ พัทยาใต้", "Shell"],
       "fuels": {
-        "gasohol95": "available",
-        "gasohol91": "unknown",
-        "dieselB7": "empty",
-        "dieselB10": "unknown",
-        "diesel": "unknown"
-      },
-      "crowdsource": {
-        "enabled": false,
-        "source": "fuel-status-source.json",
-        "reporters": [],
-        "sampleSize": 0,
-        "confidence": 0
-      }
-    },
-    {
-      "stationKey": "caltex",
-      "matchKeys": [
-        "คาลเท็กซ์",
-        "caltex"
-      ],
-      "updatedAt": "2026-03-25 10:05",
-      "fuels": {
-        "gasohol95": "available",
-        "gasohol91": "available",
+        "gasohol95": "low",
+        "gasohol91": "out",
         "dieselB7": "available",
         "dieselB10": "unknown",
         "diesel": "available"
       },
       "crowdsource": {
         "enabled": false,
-        "source": "fuel-status-source.json",
-        "reporters": [],
+        "confidence": 0,
         "sampleSize": 0,
-        "confidence": 0
-      }
-    },
-    {
-      "stationKey": "pt",
-      "matchKeys": [
-        "pt",
-        "pt station",
-        "ptg"
-      ],
-      "updatedAt": "2026-03-25 10:00",
-      "fuels": {
-        "gasohol95": "available",
-        "gasohol91": "available",
-        "dieselB7": "available",
-        "dieselB10": "available",
-        "diesel": "available"
-      },
-      "crowdsource": {
-        "enabled": false,
-        "source": "fuel-status-source.json",
-        "reporters": [],
-        "sampleSize": 0,
-        "confidence": 0
-      }
-    },
-    {
-      "stationKey": "susco",
-      "matchKeys": [
-        "susco",
-        "ซัสโก้"
-      ],
-      "updatedAt": "2026-03-25 09:55",
-      "fuels": {
-        "gasohol95": "unknown",
-        "gasohol91": "unknown",
-        "dieselB7": "available",
-        "dieselB10": "unknown",
-        "diesel": "available"
-      },
-      "crowdsource": {
-        "enabled": false,
-        "source": "fuel-status-source.json",
-        "reporters": [],
-        "sampleSize": 0,
-        "confidence": 0
+        "reporters": []
       }
     }
   ]
