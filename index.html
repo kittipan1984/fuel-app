@@ -1,53 +1,37 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>NaraMawin Fuel Finder PRO</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>No1 App</title>
 
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     crossorigin=""
   />
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    crossorigin=""
-  ></script>
 
   <style>
     :root{
-      --bg:#eef3f8;
+      --bg:#f4f7fb;
       --card:#ffffff;
-      --text:#122033;
+      --line:#dbe4ef;
+      --text:#0f172a;
       --muted:#64748b;
-      --line:#dbe4ee;
-      --shadow:0 10px 28px rgba(15,23,42,.08);
-      --green:#10b981;
-      --green-dark:#059669;
       --blue:#2563eb;
       --blue-dark:#1d4ed8;
-      --purple:#7c3aed;
-      --purple-dark:#6d28d9;
-      --slate:#475569;
-      --header1:#0f172a;
-      --header2:#0f766e;
-      --ok:#166534;
-      --warn:#c2410c;
-      --unknown:#475569;
-      --empty:#b91c1c;
+      --green:#16a34a;
+      --amber:#d97706;
+      --red:#dc2626;
+      --shadow:0 12px 28px rgba(15,23,42,.08);
+      --radius:18px;
     }
 
     *{box-sizing:border-box}
-
-    html,body{
-      margin:0;
-      padding:0;
-      font-family:Arial,Helvetica,sans-serif;
-      background:
-        radial-gradient(circle at top left, #dbeafe 0%, transparent 20%),
-        radial-gradient(circle at top right, #dcfce7 0%, transparent 18%),
-        var(--bg);
+    html,body{margin:0;padding:0}
+    body{
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
       color:var(--text);
     }
 
@@ -55,204 +39,244 @@
       max-width:1180px;
       margin:0 auto;
       padding:16px;
-      padding-bottom:40px;
     }
 
     .hero{
-      position:sticky;
-      top:0;
-      z-index:1000;
-      margin:-16px -16px 16px;
-      padding:18px 18px 16px;
-      color:#fff;
-      background:linear-gradient(135deg,var(--header1),var(--header2));
-      box-shadow:0 16px 34px rgba(15,23,42,.22);
+      background:linear-gradient(135deg,#0f172a,#1e3a8a);
+      color:white;
+      border-radius:24px;
+      padding:18px;
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+      overflow:hidden;
+    }
+
+    .hero-top{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      flex-wrap:wrap;
+    }
+
+    .hero-img{
+      width:120px;
+      max-width:100%;
+      height:auto;
+      border-radius:16px;
+      background:white;
+      padding:8px;
+      flex:0 0 auto;
+    }
+
+    .hero-text{
+      min-width:260px;
+      flex:1;
     }
 
     .hero-title{
-      margin:0;
-      font-size:26px;
+      margin:0 0 6px;
+      font-size:28px;
       font-weight:900;
-      letter-spacing:-.02em;
+      line-height:1.15;
     }
 
     .hero-sub{
-      margin-top:8px;
+      margin:0;
+      color:#dbeafe;
+      line-height:1.6;
       font-size:14px;
-      line-height:1.55;
-      color:rgba(255,255,255,.88);
     }
 
-    .hero-by{
-      margin-top:8px;
-      font-size:14px;
-      font-weight:700;
-      color:#fff;
+    .grid{
+      display:grid;
+      gap:16px;
+    }
+
+    .grid-2{
+      grid-template-columns:1.1fr .9fr;
+    }
+
+    .grid-3{
+      grid-template-columns:repeat(3,minmax(0,1fr));
     }
 
     .card{
-      background:rgba(255,255,255,.96);
-      border:1px solid rgba(255,255,255,.75);
-      border-radius:20px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:18px;
       box-shadow:var(--shadow);
-      padding:16px;
-      margin-top:14px;
+    }
+
+    .card-title{
+      margin:0 0 12px;
+      font-size:20px;
+      font-weight:900;
     }
 
     .status{
-      border-radius:14px;
       padding:12px 14px;
+      border-radius:14px;
       font-size:14px;
-      line-height:1.55;
-      background:#eef6ff;
-      border:1px solid #bfdbfe;
-      color:#1d4ed8;
-      white-space:pre-wrap;
+      font-weight:700;
+      margin-bottom:14px;
+      border:1px solid var(--line);
+      background:#f8fafc;
+      color:#334155;
     }
 
     .status.ok{
       background:#ecfdf5;
-      border-color:#86efac;
-      color:var(--ok);
+      border-color:#bbf7d0;
+      color:#166534;
     }
 
     .status.warn{
       background:#fff7ed;
-      border-color:#fdba74;
-      color:var(--warn);
+      border-color:#fed7aa;
+      color:#9a3412;
+    }
+
+    .status.error{
+      background:#fef2f2;
+      border-color:#fecaca;
+      color:#991b1b;
+    }
+
+    .stat-grid{
+      display:grid;
+      gap:12px;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+    }
+
+    .stat{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      background:#fbfdff;
+    }
+
+    .stat-label{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
+    .stat-value{
+      font-size:24px;
+      font-weight:900;
     }
 
     .controls{
       display:grid;
-      grid-template-columns:1.2fr 1fr 1fr;
       gap:10px;
+      grid-template-columns:1fr auto auto auto;
       margin-top:12px;
     }
 
     .controls2{
       display:grid;
-      grid-template-columns:1fr 1fr 1fr 1fr;
       gap:10px;
-      margin-top:10px;
+      grid-template-columns:1fr 1fr 1fr;
+      margin-top:12px;
     }
 
-    button, select, a.action-link{
-      min-height:48px;
-      border-radius:14px;
-      font-size:14px;
-      font-weight:800;
+    input, select, textarea, button{
+      font:inherit;
+    }
+
+    .input, .select, textarea{
+      width:100%;
+      border:1px solid #cbd5e1;
+      border-radius:12px;
+      padding:11px 12px;
+      background:white;
+      color:var(--text);
     }
 
     button{
       border:none;
+      border-radius:12px;
+      padding:11px 14px;
+      font-weight:800;
       cursor:pointer;
-      color:#fff;
-      padding:12px 14px;
+      transition:.18s ease;
     }
 
-    select{
-      width:100%;
-      border:1px solid #d9e2ec;
-      background:#fff;
-      color:var(--text);
-      padding:10px 12px;
-      outline:none;
+    button:hover{
+      transform:translateY(-1px);
     }
 
-    .btn-find{background:linear-gradient(135deg,var(--green),var(--green-dark))}
-    .btn-bkk{background:linear-gradient(135deg,#64748b,var(--slate))}
-    .btn-refresh{background:linear-gradient(135deg,var(--blue),var(--blue-dark))}
-    .btn-report{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-decoration:none;
-      color:#fff;
-      padding:12px 14px;
-      background:linear-gradient(135deg,var(--purple),var(--purple-dark));
-    }
-    .btn-message{
-      background:linear-gradient(135deg,#0ea5e9,var(--blue));
+    .btn-primary{
+      background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+      color:white;
     }
 
-    .row{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:12px;
+    .btn-ghost{
+      background:#e2e8f0;
+      color:#0f172a;
     }
 
-    .mini{
-      background:#f8fafc;
-      border:1px solid #e2e8f0;
-      border-radius:14px;
-      padding:12px;
+    .btn-green{
+      background:linear-gradient(135deg,#16a34a,#059669);
+      color:white;
     }
 
-    .mini-label{
+    .small{
+      font-size:13px;
       color:var(--muted);
-      font-size:12px;
-      margin-bottom:4px;
-    }
-
-    .mini-value{
-      font-size:14px;
-      font-weight:800;
-      line-height:1.5;
-      word-break:break-word;
-    }
-
-    .section-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      margin-bottom:10px;
-    }
-
-    .section-title{
-      font-size:18px;
-      font-weight:900;
-    }
-
-    .pill{
-      background:#eef2ff;
-      color:#4338ca;
-      border-radius:999px;
-      padding:8px 11px;
-      font-size:12px;
-      font-weight:800;
-      white-space:nowrap;
+      line-height:1.6;
     }
 
     #map{
       width:100%;
       height:420px;
       border-radius:18px;
-      overflow:hidden;
       border:1px solid var(--line);
+      overflow:hidden;
+      background:#e5eef9;
     }
 
-    .result-list{
+    .result-head{
       display:flex;
-      flex-direction:column;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#f8fafc;
+      color:#334155;
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .station-list{
+      display:grid;
       gap:12px;
     }
 
     .station{
-      background:#fff;
       border:1px solid var(--line);
       border-radius:18px;
-      padding:15px;
-      box-shadow:0 6px 16px rgba(15,23,42,.04);
+      padding:14px;
+      background:#fcfdff;
     }
 
     .station-top{
       display:flex;
       justify-content:space-between;
+      gap:12px;
       align-items:flex-start;
-      gap:10px;
-      margin-bottom:10px;
+      margin-bottom:8px;
     }
 
     .station-name{
@@ -263,123 +287,104 @@
 
     .distance{
       white-space:nowrap;
+      font-size:13px;
+      color:#0f172a;
+      background:#e0ecff;
       border-radius:999px;
-      padding:7px 10px;
-      font-size:12px;
-      font-weight:900;
-      color:#0f766e;
-      background:linear-gradient(135deg,#ecfeff,#dcfce7);
-      border:1px solid #bae6fd;
+      padding:6px 10px;
+      font-weight:800;
     }
 
     .brand-row{
       display:flex;
       gap:8px;
-      align-items:center;
       flex-wrap:wrap;
-      margin-bottom:10px;
+      margin-bottom:8px;
     }
 
-    .brand-badge,.source-badge{
-      font-size:12px;
-      font-weight:900;
+    .brand-badge, .source-badge{
+      display:inline-flex;
+      align-items:center;
       border-radius:999px;
       padding:6px 10px;
-      color:#fff;
+      font-size:12px;
+      font-weight:800;
+      border:1px solid var(--line);
     }
 
-    .brand-ptt{background:#2563eb}
-    .brand-bangchak{background:#16a34a}
-    .brand-shell{background:#dc2626}
-    .brand-caltex{background:#0ea5e9}
-    .brand-pt{background:#f97316}
-    .brand-susco{background:#7c3aed}
-    .brand-other{background:#64748b}
+    .brand-ptt{background:#eff6ff;color:#1d4ed8}
+    .brand-bangchak{background:#ecfdf5;color:#15803d}
+    .brand-shell{background:#fff7ed;color:#c2410c}
+    .brand-esso{background:#eff6ff;color:#1e40af}
+    .brand-caltex{background:#eef2ff;color:#4338ca}
+    .brand-pt{background:#f5f3ff;color:#7c3aed}
+    .brand-susco{background:#fef2f2;color:#b91c1c}
+    .brand-irpc{background:#ecfeff;color:#0f766e}
+    .brand-other{background:#f8fafc;color:#334155}
 
-    .source-crowd{background:#7c3aed}
-    .source-default{background:#64748b}
+    .source-crowd{background:#ecfeff;color:#0f766e}
+    .source-default{background:#f8fafc;color:#475569}
 
     .meta{
       font-size:13px;
-      color:var(--muted);
-      line-height:1.65;
-      margin-bottom:12px;
-      word-break:break-word;
+      color:#475569;
+      line-height:1.6;
+      margin-bottom:10px;
     }
 
     .fuel-grid{
       display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
       gap:8px;
+      grid-template-columns:repeat(2,minmax(0,1fr));
       margin-bottom:12px;
     }
 
-    .fuel-box{
+    .fuel-item{
+      border:1px solid var(--line);
       border-radius:14px;
-      padding:10px 11px;
-      border:1px solid #e5e7eb;
-      background:#f9fafb;
+      padding:10px;
+      background:white;
     }
 
-    .fuel-label{
+    .fuel-name{
       font-size:12px;
-      color:#64748b;
-      font-weight:800;
-      margin-bottom:5px;
+      color:var(--muted);
+      margin-bottom:4px;
     }
 
-    .fuel-state{
-      display:flex;
-      align-items:center;
-      gap:6px;
-      font-size:13px;
+    .fuel-value{
+      font-size:14px;
       font-weight:900;
     }
 
-    .dot{
-      width:9px;
-      height:9px;
-      border-radius:50%;
-      display:inline-block;
-    }
+    .fuel-ok{color:var(--green)}
+    .fuel-low{color:var(--amber)}
+    .fuel-out{color:var(--red)}
+    .fuel-unknown{color:#475569}
 
-    .state-available{color:var(--ok)}
-    .state-available .dot{background:#22c55e}
-    .state-empty{color:var(--empty)}
-    .state-empty .dot{background:#ef4444}
-    .state-unknown{color:var(--unknown)}
-    .state-unknown .dot{background:#94a3b8}
-
-    .updated{
-      border-radius:14px;
-      border:1px dashed #d6e0ea;
-      background:#f8fafc;
-      padding:10px 11px;
-      font-size:12px;
-      color:#64748b;
-      line-height:1.55;
-      margin-bottom:12px;
-    }
-
-    .actions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:9px;
+    .action-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:4px;
     }
 
     .link-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
       text-decoration:none;
-      text-align:center;
-      border-radius:14px;
-      padding:11px 10px;
+      padding:10px 12px;
+      border-radius:12px;
       font-size:13px;
       font-weight:900;
-      color:#fff;
-      background:linear-gradient(135deg,#111827,#1f2937);
+      border:1px solid var(--line);
+      color:white;
+      background:linear-gradient(135deg,var(--blue),var(--blue-dark));
     }
 
     .link-btn.alt{
-      background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+      background:linear-gradient(135deg,#334155,#475569);
     }
 
     .empty{
@@ -391,39 +396,6 @@
       border:1px dashed #d6e0ea;
       border-radius:18px;
       background:#fbfdff;
-    }
-
-    .modal{
-      position:fixed;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:rgba(0,0,0,.6);
-      z-index:9999;
-      padding:16px;
-    }
-
-    .modal-box{
-      background:white;
-      padding:20px;
-      border-radius:18px;
-      width:100%;
-      max-width:420px;
-      box-shadow:0 24px 60px rgba(0,0,0,.25);
-    }
-
-    .modal-title{
-      margin:0 0 6px;
-      font-size:20px;
-      font-weight:900;
-    }
-
-    .modal-sub{
-      margin:0 0 14px;
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.5;
     }
 
     .field{
@@ -438,33 +410,28 @@
       color:#334155;
     }
 
-    input, textarea{
-      width:100%;
-      padding:11px 12px;
-      border-radius:10px;
-      border:1px solid #cbd5e1;
-      font-size:14px;
-      font-family:Arial,Helvetica,sans-serif;
-    }
-
     textarea{
       min-height:120px;
       resize:vertical;
     }
 
-    .modal-actions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:14px;
+    .error-box{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      background:#fef2f2;
+      color:#991b1b;
+      border:1px solid #fecaca;
+      display:none;
+      white-space:pre-wrap;
+      font-size:13px;
     }
 
-    .btn-cancel{
-      background:linear-gradient(135deg,#64748b,#475569);
-    }
-
-    .btn-send{
-      background:linear-gradient(135deg,#16a34a,#059669);
+    .footer-note{
+      font-size:12px;
+      color:#64748b;
+      margin-top:10px;
+      line-height:1.7;
     }
 
     @media (min-width:720px){
@@ -473,8 +440,12 @@
       }
     }
 
-    @media (max-width:760px){
-      .controls,.controls2,.row{
+    @media (max-width:980px){
+      .grid-2,.grid-3,.stat-grid{
+        grid-template-columns:1fr;
+      }
+
+      .controls,.controls2{
         grid-template-columns:1fr;
       }
 
@@ -483,7 +454,7 @@
       }
 
       .hero-title{
-        font-size:22px;
+        font-size:24px;
       }
     }
   </style>
@@ -491,149 +462,167 @@
 <body>
   <div class="wrap">
     <div class="hero">
-      <h1 class="hero-title">⛽ NaraMawin Fuel Finder PRO</h1>
-      <div class="hero-sub">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมสถานะน้ำมันแบบ real-time จาก status.json และระบบรายงานผู้ใช้</div>
-      <div class="hero-by">By NaraMawin</div>
-    </div>
-
-    <div class="card">
-      <div id="statusBox" class="status">พร้อมใช้งาน กำลังโหลด status.json...</div>
-
-      <div class="controls">
-        <button class="btn-find" id="findBtn">ค้นหาปั๊มใกล้ฉัน</button>
-
-        <select id="radiusInput">
-          <option value="2000">รัศมี 2 กม.</option>
-          <option value="3000">รัศมี 3 กม.</option>
-          <option value="5000" selected>รัศมี 5 กม.</option>
-          <option value="10000">รัศมี 10 กม.</option>
-          <option value="15000">รัศมี 15 กม.</option>
-        </select>
-
-        <select id="brandFilter">
-          <option value="all">ทุกแบรนด์</option>
-          <option value="bangchak">Bangchak</option>
-          <option value="ptt">PTT</option>
-          <option value="shell">Shell</option>
-          <option value="caltex">Caltex</option>
-          <option value="pt">PT</option>
-          <option value="susco">Susco</option>
-        </select>
-      </div>
-
-      <div class="controls2">
-        <button class="btn-bkk" id="bkkBtn">ใช้พิกัดกรุงเทพ</button>
-        <button class="btn-refresh" id="reloadStatusBtn">รีโหลด status</button>
-        <a class="btn-report action-link" id="reportLink" href="#" target="_blank" rel="noopener noreferrer">รายงานสถานะน้ำมัน</a>
-        <button class="btn-message" id="messageBtn">ส่งข้อความถึงฉัน</button>
-      </div>
-
-      <div class="row">
-        <div class="mini">
-          <div class="mini-label">ตำแหน่งปัจจุบัน</div>
-          <div class="mini-value" id="coordText">ยังไม่ได้ระบุ</div>
-        </div>
-
-        <div class="mini">
-          <div class="mini-label">ข้อมูลล่าสุด</div>
-          <div class="mini-value" id="statusSourceText">status.json</div>
+      <div class="hero-top">
+        <img src="./child-header.png" alt="Header" class="hero-img" onerror="this.style.display='none'">
+        <div class="hero-text">
+          <h1 class="hero-title">⛽ No1 App Fuel Finder</h1>
+          <p class="hero-sub">
+            ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมสถานะน้ำมันจาก <code>status.json</code> และเปิด Telegram เพื่อส่ง feedback ได้แบบง่ายและเสถียร
+          </p>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="section-head">
-        <div class="section-title">แผนที่สถานีบริการ</div>
-        <div class="pill" id="mapBadge">รอค้นหา</div>
+    <div id="statusBox" class="status">พร้อมใช้งาน กำลังโหลด status.json...</div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <h2 class="card-title">ภาพรวมระบบ</h2>
+      <div class="stat-grid">
+        <div class="stat">
+          <div class="stat-label">Last Updated</div>
+          <div class="stat-value" id="lastUpdatedText">-</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Stations</div>
+          <div class="stat-value" id="stationCountText">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Online</div>
+          <div class="stat-value" id="onlineCountText">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Crowd Reports</div>
+          <div class="stat-value" id="crowdCountText">0</div>
+        </div>
       </div>
-      <div id="map"></div>
+      <div class="footer-note" id="metaText">-</div>
     </div>
 
-    <div class="card">
-      <div class="section-head">
-        <div class="section-title">ผลการค้นหา</div>
-        <div class="pill" id="countBadge">0 สถานี</div>
+    <div class="grid grid-2">
+      <div class="card">
+        <h2 class="card-title">แผนที่</h2>
+
+        <div class="controls">
+          <input id="latInput" class="input" type="number" step="any" placeholder="Latitude">
+          <input id="lngInput" class="input" type="number" step="any" placeholder="Longitude">
+          <button id="gpsBtn" class="btn-primary" type="button">ใช้ตำแหน่งฉัน</button>
+          <button id="bkkBtn" class="btn-ghost" type="button">ใช้กรุงเทพ</button>
+        </div>
+
+        <div class="controls2">
+          <select id="radiusInput" class="select">
+            <option value="3000">ค้นหาในระยะ 3 กม.</option>
+            <option value="5000" selected>ค้นหาในระยะ 5 กม.</option>
+            <option value="10000">ค้นหาในระยะ 10 กม.</option>
+            <option value="20000">ค้นหาในระยะ 20 กม.</option>
+          </select>
+
+          <select id="brandFilter" class="select">
+            <option value="all">ทุกแบรนด์</option>
+            <option value="ptt">PTT</option>
+            <option value="bangchak">Bangchak</option>
+            <option value="shell">Shell</option>
+            <option value="esso">Esso</option>
+            <option value="caltex">Caltex</option>
+            <option value="pt">PT</option>
+            <option value="susco">Susco</option>
+            <option value="irpc">IRPC</option>
+            <option value="other">อื่น ๆ</option>
+          </select>
+
+          <button id="findBtn" class="btn-primary" type="button">ค้นหาปั๊มใกล้ฉัน</button>
+        </div>
+
+        <div class="footer-note" id="coordText">พิกัดปัจจุบัน: -</div>
+
+        <div id="map" style="margin-top:12px;"></div>
       </div>
-      <div class="hero-sub" id="summaryText" style="color:#64748b">ยังไม่มีผลลัพธ์</div>
+
+      <div class="card">
+        <div class="result-head">
+          <h2 class="card-title" style="margin:0;">ผลลัพธ์</h2>
+          <div class="badge" id="countBadge">0 สถานี</div>
+        </div>
+
+        <div class="small" id="summaryText">ยังไม่มีผลลัพธ์</div>
+        <div class="station-list" id="resultList" style="margin-top:12px;">
+          <div class="empty">กด “ค้นหาปั๊มใกล้ฉัน” เพื่อเริ่มต้น</div>
+        </div>
+      </div>
     </div>
 
-    <div id="resultList" class="result-list"></div>
-  </div>
-
-  <div class="modal" id="messageModal">
-    <div class="modal-box">
-      <h3 class="modal-title">ส่งข้อความถึงฉัน</h3>
-      <p class="modal-sub">กรอกชื่อและข้อความ แล้วระบบจะส่งไปที่ Telegram ของคุณ</p>
+    <div class="card" style="margin-top:16px;">
+      <h2 class="card-title">ส่ง Feedback</h2>
+      <div class="small">
+        เวอร์ชันนี้ใช้ Telegram แบบเปิดลิงก์พร้อมข้อความอัตโนมัติ เพื่อให้เสถียรกับ GitHub Pages และไม่ต้องตั้งค่า backend
+      </div>
 
       <div class="field">
-        <label for="senderName">ชื่อผู้ส่ง</label>
-        <input id="senderName" type="text" placeholder="เช่น Kittipan">
+        <label for="feedbackName">ชื่อ</label>
+        <input id="feedbackName" class="input" type="text" placeholder="เช่น Kittipan">
       </div>
 
       <div class="field">
-        <label for="messageText">ข้อความ</label>
-        <textarea id="messageText" placeholder="พิมพ์ข้อความที่ต้องการส่ง"></textarea>
+        <label for="feedbackContact">ติดต่อกลับ</label>
+        <input id="feedbackContact" class="input" type="text" placeholder="Line / Email / Telegram / Phone">
       </div>
 
-      <div class="modal-actions">
-        <button class="btn-cancel" id="cancelMessageBtn">ปิด</button>
-        <button class="btn-send" id="sendMessageBtn">ส่งข้อความ</button>
+      <div class="field">
+        <label for="feedbackMessage">ข้อความ</label>
+        <textarea id="feedbackMessage" placeholder="พิมพ์ปัญหาที่พบ หรือคำแนะนำ"></textarea>
+      </div>
+
+      <div class="action-row" style="margin-top:14px;">
+        <button id="openTelegramBtn" class="btn-green" type="button">เปิด Telegram พร้อมข้อความ</button>
+      </div>
+
+      <div id="feedbackError" class="error-box"></div>
+      <div class="footer-note">
+        สำคัญ: เปลี่ยนค่า <code>TELEGRAM_BOT_USERNAME</code> ในไฟล์นี้ให้เป็น username bot ของคุณก่อนใช้งาน
       </div>
     </div>
   </div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    crossorigin=""
+  ></script>
 
   <script>
-    const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdApv6W6uAEWHzuFlkFkOG80iLIYSwPiveJwuCifxYvCkiAEg/viewform?usp=publish-editor";
-    const MESSAGE_API_URL = "https://script.google.com/macros/s/AKfycbwGtU2fRx6Mblya9JwFY_C3cfbZgJJHynlMKa_XDdptvy9ObsVufhqHOE4JpDAwYRbS/exec";
+    const TELEGRAM_BOT_USERNAME = "FuelStationFinderBot";
 
-    const OVERPASS_ENDPOINTS = [
-      "https://overpass-api.de/api/interpreter",
-      "https://lz4.overpass-api.de/api/interpreter"
-    ];
-
-    let currentLat = null;
-    let currentLng = null;
-    let STATUS_DOC = { meta: {}, stations: [] };
-    let lastStations = [];
-    let map = null;
+    let map;
     let mapMarkers = [];
     let userMarker = null;
+    let currentLat = 13.7563;
+    let currentLng = 100.5018;
+    let stationStatusData = { meta: {}, stations: [] };
+    let lastStations = [];
 
     const statusBox = document.getElementById("statusBox");
-    const coordText = document.getElementById("coordText");
-    const statusSourceText = document.getElementById("statusSourceText");
-    const countBadge = document.getElementById("countBadge");
-    const mapBadge = document.getElementById("mapBadge");
-    const summaryText = document.getElementById("summaryText");
-    const resultList = document.getElementById("resultList");
+    const latInput = document.getElementById("latInput");
+    const lngInput = document.getElementById("lngInput");
     const radiusInput = document.getElementById("radiusInput");
     const brandFilter = document.getElementById("brandFilter");
-    const reportLink = document.getElementById("reportLink");
-    const messageBtn = document.getElementById("messageBtn");
-    const messageModal = document.getElementById("messageModal");
-    const cancelMessageBtn = document.getElementById("cancelMessageBtn");
-    const sendMessageBtn = document.getElementById("sendMessageBtn");
-    const senderNameInput = document.getElementById("senderName");
-    const messageTextInput = document.getElementById("messageText");
+    const resultList = document.getElementById("resultList");
+    const countBadge = document.getElementById("countBadge");
+    const summaryText = document.getElementById("summaryText");
+    const coordText = document.getElementById("coordText");
 
-    reportLink.href = GOOGLE_FORM_URL;
-
-    function setStatus(text, type) {
-      statusBox.textContent = text;
-      statusBox.className = "status";
-      if (type === "ok") statusBox.classList.add("ok");
-      if (type === "warn") statusBox.classList.add("warn");
+    function setStatus(message, type = "") {
+      statusBox.className = "status" + (type ? " " + type : "");
+      statusBox.textContent = message;
     }
 
-    function updateCoordText() {
-      coordText.textContent =
-        Number.isFinite(currentLat) && Number.isFinite(currentLng)
-          ? `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`
-          : "ยังไม่ได้ระบุ";
+    function showError(id, message) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.display = message ? "block" : "none";
+      el.textContent = message || "";
     }
 
-    function escapeHtml(value) {
-      return String(value ?? "")
+    function escapeHtml(text) {
+      return String(text ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
@@ -641,149 +630,79 @@
         .replaceAll("'", "&#039;");
     }
 
+    function updateCoordText() {
+      coordText.textContent = `พิกัดปัจจุบัน: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+      latInput.value = currentLat.toFixed(6);
+      lngInput.value = currentLng.toFixed(6);
+    }
+
     function normalizeText(value) {
       return String(value || "")
         .toLowerCase()
-        .replace(/station/g, "")
-        .replace(/ปั๊ม/g, "")
-        .replace(/service/g, "")
-        .replace(/[().,'"’\-_/]/g, "")
-        .replace(/\s+/g, "")
-        .trim();
+        .replace(/[^\u0E00-\u0E7Fa-z0-9]/g, "");
+    }
+
+    function detectBrand(name, tags = {}) {
+      const text = `${name || ""} ${tags.brand || ""} ${tags.operator || ""}`.toLowerCase();
+      if (text.includes("ptt")) return "ptt";
+      if (text.includes("บางจาก") || text.includes("bangchak")) return "bangchak";
+      if (text.includes("shell") || text.includes("เชลล์")) return "shell";
+      if (text.includes("esso") || text.includes("เอสโซ่")) return "esso";
+      if (text.includes("caltex") || text.includes("คาลเท็กซ์")) return "caltex";
+      if (text.includes("pt ") || text.startsWith("pt") || text.includes("พีที")) return "pt";
+      if (text.includes("susco") || text.includes("ซัสโก้")) return "susco";
+      if (text.includes("irpc")) return "irpc";
+      return "other";
+    }
+
+    function brandLabel(brandKey, name, tags = {}) {
+      const map = {
+        ptt: "PTT",
+        bangchak: "Bangchak",
+        shell: "Shell",
+        esso: "Esso",
+        caltex: "Caltex",
+        pt: "PT",
+        susco: "Susco",
+        irpc: "IRPC",
+        other: tags.brand || tags.operator || name || "อื่น ๆ"
+      };
+      return map[brandKey] || "อื่น ๆ";
     }
 
     function fuelText(status) {
-      if (status === "available") return "มี";
-      if (status === "empty") return "หมด";
+      const s = String(status || "unknown").toLowerCase();
+      if (s === "available") return "มี";
+      if (s === "low") return "ใกล้หมด";
+      if (s === "out") return "หมด";
       return "ไม่ทราบ";
     }
 
     function fuelClass(status) {
-      if (status === "available") return "state-available";
-      if (status === "empty") return "state-empty";
-      return "state-unknown";
-    }
-
-    function fuelBox(label, status) {
-      return `
-        <div class="fuel-box">
-          <div class="fuel-label">${label}</div>
-          <div class="fuel-state ${fuelClass(status)}">
-            <span class="dot"></span>${fuelText(status)}
-          </div>
-        </div>
-      `;
-    }
-
-    function detectBrand(name, tags) {
-      const text = normalizeText(`${name} ${tags.brand || ""} ${tags.operator || ""}`);
-      if (text.includes("bangchak") || text.includes("บางจาก")) return "bangchak";
-      if (text.includes("ptt") || text.includes("ปตท")) return "ptt";
-      if (text.includes("shell") || text.includes("เชลล์")) return "shell";
-      if (text.includes("caltex") || text.includes("คาลเท็กซ์")) return "caltex";
-      if (text.includes("susco") || text.includes("ซัสโก้")) return "susco";
-      if (text.includes("ptg") || text === "pt" || text.includes("ptstation")) return "pt";
-      return "other";
-    }
-
-    function brandLabel(brandKey, name, tags) {
-      if (brandKey === "bangchak") return "Bangchak";
-      if (brandKey === "ptt") return "PTT";
-      if (brandKey === "shell") return "Shell";
-      if (brandKey === "caltex") return "Caltex";
-      if (brandKey === "pt") return "PT";
-      if (brandKey === "susco") return "Susco";
-      return tags.brand || tags.operator || name || "Other";
-    }
-
-    function scoreMatch(stationName, matchKey) {
-      const s = normalizeText(stationName);
-      const k = normalizeText(matchKey);
-      if (!s || !k) return 0;
-      if (s === k) return 100;
-      if (s.includes(k)) return 90;
-      if (k.includes(s)) return 80;
-      return 0;
-    }
-
-    function getStationFuelStatus(station) {
-      const items = Array.isArray(STATUS_DOC.stations) ? STATUS_DOC.stations : [];
-      let best = null;
-      let bestScore = 0;
-
-      for (const item of items) {
-        const keys = Array.isArray(item.matchKeys) ? item.matchKeys : [];
-        for (const key of keys) {
-          const score = scoreMatch(station.name, key);
-          if (score > bestScore) {
-            bestScore = score;
-            best = item;
-          }
-        }
-      }
-
-      if (best && bestScore >= 30) {
-        const crowd = best.crowdsource || {};
-        return {
-          updatedAt: best.updatedAt || "มีข้อมูล",
-          fuels: {
-            gasohol95: best.fuels?.gasohol95 || "unknown",
-            gasohol91: best.fuels?.gasohol91 || "unknown",
-            dieselB7: best.fuels?.dieselB7 || "unknown",
-            dieselB10: best.fuels?.dieselB10 || "unknown",
-            diesel: best.fuels?.diesel || "unknown"
-          },
-          crowdsource: {
-            enabled: !!crowd.enabled,
-            reporters: Array.isArray(crowd.reporters) ? crowd.reporters : [],
-            sampleSize: Number(crowd.sampleSize || 0),
-            confidence: Number(crowd.confidence || 0),
-            source: crowd.source || ""
-          }
-        };
-      }
-
-      return {
-        updatedAt: "ยังไม่มีข้อมูล",
-        fuels: {
-          gasohol95: "unknown",
-          gasohol91: "unknown",
-          dieselB7: "unknown",
-          dieselB10: "unknown",
-          diesel: "unknown"
-        },
-        crowdsource: {
-          enabled: false,
-          reporters: [],
-          sampleSize: 0,
-          confidence: 0,
-          source: ""
-        }
-      };
+      const s = String(status || "unknown").toLowerCase();
+      if (s === "available") return "fuel-ok";
+      if (s === "low") return "fuel-low";
+      if (s === "out") return "fuel-out";
+      return "fuel-unknown";
     }
 
     function haversineKm(lat1, lon1, lat2, lon2) {
+      const toRad = deg => deg * Math.PI / 180;
       const R = 6371;
-      const dLat = ((lat2 - lat1) * Math.PI) / 180;
-      const dLon = ((lon2 - lon1) * Math.PI) / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
       const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
-
-    function mapsLink(name, lat, lng) {
-      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}@${lat},${lng}`;
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return 2 * R * Math.asin(Math.sqrt(a));
     }
 
     function dirLink(fromLat, fromLng, toLat, toLng) {
       return `https://www.google.com/maps/dir/?api=1&origin=${fromLat},${fromLng}&destination=${toLat},${toLng}&travelmode=driving`;
     }
 
-    async function fetchWithTimeout(url, options, timeoutMs) {
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       try {
@@ -802,6 +721,8 @@
         maxZoom: 19,
         attribution: "&copy; OpenStreetMap contributors"
       }).addTo(map);
+
+      addUserMarker(currentLat, currentLng);
     }
 
     function clearMapMarkers() {
@@ -848,73 +769,167 @@
       } else if (currentLat && currentLng) {
         map.setView([currentLat, currentLng], 12);
       }
+    }
 
-      mapBadge.textContent = `${filtered.length} marker`;
+    function bestStationMatch(station) {
+      const stations = Array.isArray(stationStatusData.stations) ? stationStatusData.stations : [];
+      const stationNameNorm = normalizeText(station.name);
+      let best = null;
+      let bestScore = -1;
+
+      stations.forEach(item => {
+        const names = [];
+        if (item.name) names.push(item.name);
+        if (Array.isArray(item.matchKeys)) names.push(...item.matchKeys);
+
+        let score = 0;
+        names.forEach(name => {
+          const n = normalizeText(name);
+          if (!n) return;
+          if (n === stationNameNorm) score = Math.max(score, 100);
+          else if (stationNameNorm.includes(n) || n.includes(stationNameNorm)) score = Math.max(score, 80);
+          else {
+            const brand = detectBrand(station.name, station.tags);
+            if (brand !== "other" && normalizeText(name).includes(brand)) score = Math.max(score, 40);
+          }
+        });
+
+        if (score > bestScore) {
+          bestScore = score;
+          best = item;
+        }
+      });
+
+      return bestScore >= 40 ? best : null;
+    }
+
+    function getStationFuelStatus(station) {
+      const matched = bestStationMatch(station);
+
+      if (!matched) {
+        return {
+          matchedName: null,
+          fuels: {
+            gasohol95: "unknown",
+            gasohol91: "unknown",
+            dieselB7: "unknown",
+            dieselB10: "unknown",
+            diesel: "unknown"
+          },
+          crowdsource: {
+            enabled: false,
+            confidence: 0,
+            sampleSize: 0,
+            reporters: []
+          }
+        };
+      }
+
+      return {
+        matchedName: matched.name || null,
+        fuels: {
+          gasohol95: matched.fuels?.gasohol95 || "unknown",
+          gasohol91: matched.fuels?.gasohol91 || "unknown",
+          dieselB7: matched.fuels?.dieselB7 || "unknown",
+          dieselB10: matched.fuels?.dieselB10 || "unknown",
+          diesel: matched.fuels?.diesel || "unknown"
+        },
+        crowdsource: {
+          enabled: !!matched.crowdsource?.enabled,
+          confidence: Number(matched.crowdsource?.confidence || 0),
+          sampleSize: Number(matched.crowdsource?.sampleSize || 0),
+          reporters: Array.isArray(matched.crowdsource?.reporters) ? matched.crowdsource.reporters : []
+        }
+      };
     }
 
     async function loadStationStatus() {
       try {
-        const res = await fetch("./status.json?v=" + Date.now(), { cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        STATUS_DOC = await res.json();
-        const meta = STATUS_DOC.meta || {};
-        statusSourceText.textContent = `อัปเดตโดย ${meta.updatedBy || "-"} / ${meta.generatedBy || "-"}`;
+        setStatus("กำลังโหลด status.json...", "");
+        const res = await fetchWithTimeout("./status.json?t=" + Date.now(), {}, 15000);
+        if (!res.ok) throw new Error("โหลด status.json ไม่สำเร็จ: HTTP " + res.status);
+
+        const data = await res.json();
+
+        if (!data || typeof data !== "object") {
+          throw new Error("status.json ไม่ใช่ object");
+        }
+
+        if (!Array.isArray(data.stations)) {
+          throw new Error("status.json ไม่มี stations ที่เป็น array");
+        }
+
+        stationStatusData = {
+          meta: data.meta || {},
+          stations: data.stations
+        };
+
+        document.getElementById("lastUpdatedText").textContent =
+          stationStatusData.meta.lastUpdatedBkk || "-";
+
+        document.getElementById("stationCountText").textContent =
+          stationStatusData.stations.length;
+
+        document.getElementById("onlineCountText").textContent =
+          stationStatusData.stations.filter(s =>
+            Object.values(s.fuels || {}).some(v => v === "available" || v === "low")
+          ).length;
+
+        document.getElementById("crowdCountText").textContent =
+          stationStatusData.stations.filter(s => s.crowdsource?.enabled).length;
+
+        document.getElementById("metaText").textContent =
+          `Source: ${stationStatusData.meta.source || "-"} | Version: ${stationStatusData.meta.version || "-"} | Notes: ${stationStatusData.meta.notes || "-"}`;
+
         setStatus("โหลด status.json สำเร็จ", "ok");
       } catch (err) {
         console.error(err);
-        STATUS_DOC = { meta: {}, stations: [] };
-        setStatus("โหลด status.json ไม่สำเร็จ", "warn");
+        setStatus("โหลด status.json ล้มเหลว", "error");
+        document.getElementById("metaText").textContent = err.message;
       }
     }
 
     async function overpassQuery(query) {
-      let lastErr = null;
-      for (const endpoint of OVERPASS_ENDPOINTS) {
+      const endpoints = [
+        "https://overpass-api.de/api/interpreter",
+        "https://overpass.kumi.systems/api/interpreter"
+      ];
+
+      let lastError = null;
+
+      for (const endpoint of endpoints) {
         try {
-          const res = await fetchWithTimeout(
-            endpoint,
-            {
-              method: "POST",
-              headers: { "Content-Type": "text/plain;charset=UTF-8" },
-              body: query
+          const res = await fetchWithTimeout(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain;charset=UTF-8"
             },
-            20000
-          );
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            body: query
+          }, 25000);
+
+          if (!res.ok) throw new Error(`Overpass HTTP ${res.status}`);
           return await res.json();
         } catch (err) {
-          lastErr = err;
+          lastError = err;
         }
       }
-      throw lastErr || new Error("Overpass unavailable");
-    }
 
-    async function getCurrentPositionMobile() {
-      return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-          reject(new Error("เบราว์เซอร์ไม่รองรับ GPS"));
-          return;
-        }
-        navigator.geolocation.getCurrentPosition(
-          resolve,
-          reject,
-          { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
-        );
-      });
+      throw lastError || new Error("Overpass failed");
     }
 
     async function findNearbyStations() {
-      resultList.innerHTML = `<div class="empty">กำลังค้นหาปั๊มน้ำมันใกล้คุณ...</div>`;
-      summaryText.textContent = "กำลังโหลดข้อมูล...";
-      countBadge.textContent = "...";
-
       try {
+        currentLat = Number(latInput.value);
+        currentLng = Number(lngInput.value);
+
         if (!Number.isFinite(currentLat) || !Number.isFinite(currentLng)) {
-          const pos = await getCurrentPositionMobile();
-          currentLat = pos.coords.latitude;
-          currentLng = pos.coords.longitude;
-          updateCoordText();
+          throw new Error("กรุณาระบุพิกัดให้ถูกต้องก่อน");
         }
+
+        updateCoordText();
+        setStatus("กำลังค้นหาปั๊มน้ำมันใกล้คุณ...", "");
+        countBadge.textContent = "กำลังค้นหา...";
+        summaryText.textContent = "กำลังโหลดผลลัพธ์";
 
         const radius = Number(radiusInput.value || 5000);
 
@@ -974,7 +989,7 @@ out center tags;
         setStatus("โหลดข้อมูลล้มเหลว", "warn");
         countBadge.textContent = "0 สถานี";
         summaryText.textContent = "ยังโหลดผลลัพธ์ไม่ได้";
-        resultList.innerHTML = `<div class="empty">ยังไม่สามารถโหลดข้อมูลได้ในตอนนี้</div>`;
+        resultList.innerHTML = `<div class="empty">ยังไม่สามารถโหลดข้อมูลได้ในตอนนี้<br>${escapeHtml(err.message || "Unknown error")}</div>`;
       }
     }
 
@@ -1018,85 +1033,119 @@ out center tags;
 
           <div class="meta">
             ที่อยู่: ${escapeHtml(s.address || "-")}<br>
-            พิกัด: ${s.lat.toFixed(6)}, ${s.lng.toFixed(6)}
+            พิกัด: ${s.lat.toFixed(6)}, ${s.lng.toFixed(6)}<br>
+            จับคู่กับสถานะ: ${escapeHtml(s.statusInfo.matchedName || "ไม่พบใน status.json")}
           </div>
 
           <div class="fuel-grid">
-            ${fuelBox("แก๊สโซฮอล์ 95", s.statusInfo.fuels.gasohol95)}
-            ${fuelBox("แก๊สโซฮอล์ 91", s.statusInfo.fuels.gasohol91)}
-            ${fuelBox("ดีเซล B7", s.statusInfo.fuels.dieselB7)}
-            ${fuelBox("ดีเซล B10", s.statusInfo.fuels.dieselB10)}
-            ${fuelBox("ดีเซล", s.statusInfo.fuels.diesel)}
+            <div class="fuel-item">
+              <div class="fuel-name">Gasohol 95</div>
+              <div class="fuel-value ${fuelClass(s.statusInfo.fuels.gasohol95)}">${fuelText(s.statusInfo.fuels.gasohol95)}</div>
+            </div>
+            <div class="fuel-item">
+              <div class="fuel-name">Gasohol 91</div>
+              <div class="fuel-value ${fuelClass(s.statusInfo.fuels.gasohol91)}">${fuelText(s.statusInfo.fuels.gasohol91)}</div>
+            </div>
+            <div class="fuel-item">
+              <div class="fuel-name">Diesel B7</div>
+              <div class="fuel-value ${fuelClass(s.statusInfo.fuels.dieselB7)}">${fuelText(s.statusInfo.fuels.dieselB7)}</div>
+            </div>
+            <div class="fuel-item">
+              <div class="fuel-name">Diesel B10</div>
+              <div class="fuel-value ${fuelClass(s.statusInfo.fuels.dieselB10)}">${fuelText(s.statusInfo.fuels.dieselB10)}</div>
+            </div>
+            <div class="fuel-item">
+              <div class="fuel-name">Diesel</div>
+              <div class="fuel-value ${fuelClass(s.statusInfo.fuels.diesel)}">${fuelText(s.statusInfo.fuels.diesel)}</div>
+            </div>
+            <div class="fuel-item">
+              <div class="fuel-name">Crowd Confidence</div>
+              <div class="fuel-value">${confidence}% (${sampleSize})</div>
+            </div>
           </div>
 
-          <div class="updated">
-            อัปเดตล่าสุด: ${escapeHtml(s.statusInfo.updatedAt)}<br>
-            จำนวนรายงาน: ${sampleSize} | ความน่าเชื่อถือ: ${confidence}%<br>
-            ผู้รายงาน: ${escapeHtml(reporters || "-")}
+          <div class="small" style="margin-bottom:10px;">
+            Reporter: ${escapeHtml(reporters || "-")}
           </div>
 
-          <div class="actions">
-            <a class="link-btn" href="${mapsLink(s.name, s.lat, s.lng)}" target="_blank" rel="noopener noreferrer">เปิดแผนที่</a>
-            <a class="link-btn alt" href="${dirLink(currentLat, currentLng, s.lat, s.lng)}" target="_blank" rel="noopener noreferrer">นำทาง</a>
+          <div class="action-row">
+            <a class="link-btn" href="${dirLink(currentLat, currentLng, s.lat, s.lng)}" target="_blank" rel="noopener noreferrer">นำทาง</a>
           </div>
         `;
         resultList.appendChild(el);
       });
     }
 
-    function openModal() {
-      messageModal.style.display = "flex";
-    }
+    function openTelegramFeedback() {
+      showError("feedbackError", "");
 
-    function closeModal() {
-      messageModal.style.display = "none";
-      senderNameInput.value = "";
-      messageTextInput.value = "";
-    }
+      const name = document.getElementById("feedbackName").value.trim() || "Anonymous";
+      const contact = document.getElementById("feedbackContact").value.trim() || "-";
+      const message = document.getElementById("feedbackMessage").value.trim();
 
-    async function sendMessageToTelegram() {
-      const sender = senderNameInput.value.trim() || "Anonymous";
-      const text = messageTextInput.value.trim();
-
-      if (!text) {
-        alert("กรุณาพิมพ์ข้อความก่อนส่ง");
+      if (!message) {
+        showError("feedbackError", "กรุณากรอกข้อความก่อน");
         return;
       }
 
-      try {
-        sendMessageBtn.disabled = true;
-        sendMessageBtn.textContent = "กำลังส่ง...";
-
-        await fetch(MESSAGE_API_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: {
-            "Content-Type": "text/plain;charset=utf-8"
-          },
-          body: JSON.stringify({
-            sender,
-            message: text,
-            page: location.href
-          })
-        });
-
-        alert("ส่งแล้ว กรุณาเช็ก Telegram");
-        closeModal();
-      } catch (err) {
-        console.error(err);
-        alert("ส่งข้อความไม่สำเร็จ: " + err.message);
-      } finally {
-        sendMessageBtn.disabled = false;
-        sendMessageBtn.textContent = "ส่งข้อความ";
+      if (TELEGRAM_BOT_USERNAME === "YOUR_BOT_USERNAME") {
+        showError("feedbackError", "กรุณาแก้ TELEGRAM_BOT_USERNAME ใน index.html ก่อนใช้งาน");
+        return;
       }
+
+      const text =
+`📩 Feedback from No1 App
+Name: ${name}
+Contact: ${contact}
+Message: ${message}
+Page: ${window.location.href}
+Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+
+      const encoded = encodeURIComponent(text);
+      const url = `https://t.me/${TELEGRAM_BOT_USERNAME}?text=${encoded}`;
+      window.open(url, "_blank");
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    function useBrowserGPS() {
+      if (!navigator.geolocation) {
+        setStatus("อุปกรณ์นี้ไม่รองรับ GPS", "warn");
+        return;
+      }
+
+      setStatus("กำลังขอตำแหน่งจากอุปกรณ์...", "");
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          currentLat = pos.coords.latitude;
+          currentLng = pos.coords.longitude;
+          updateCoordText();
+
+          clearMapMarkers();
+          addUserMarker(currentLat, currentLng);
+          map.setView([currentLat, currentLng], 13);
+
+          if (lastStations.length) {
+            renderStations(lastStations);
+            addStationMarkers(lastStations);
+          }
+
+          setStatus("ใช้ตำแหน่งจากอุปกรณ์สำเร็จ", "ok");
+        },
+        (err) => {
+          console.error(err);
+          setStatus("ดึงตำแหน่งไม่สำเร็จ", "warn");
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
       initMap();
       updateCoordText();
-      loadStationStatus();
+      await loadStationStatus();
 
+      document.getElementById("gpsBtn").addEventListener("click", useBrowserGPS);
       document.getElementById("findBtn").addEventListener("click", findNearbyStations);
+      document.getElementById("openTelegramBtn").addEventListener("click", openTelegramFeedback);
 
       document.getElementById("bkkBtn").addEventListener("click", () => {
         currentLat = 13.7563;
@@ -1114,18 +1163,6 @@ out center tags;
         setStatus("ใช้พิกัดกรุงเทพแล้ว", "ok");
       });
 
-      document.getElementById("reloadStatusBtn").addEventListener("click", async () => {
-        await loadStationStatus();
-
-        if (lastStations.length) {
-          lastStations = lastStations.map(s => ({ ...s, statusInfo: getStationFuelStatus(s) }));
-          renderStations(lastStations);
-          clearMapMarkers();
-          if (currentLat && currentLng) addUserMarker(currentLat, currentLng);
-          addStationMarkers(lastStations);
-        }
-      });
-
       brandFilter.addEventListener("change", () => {
         if (lastStations.length) {
           renderStations(lastStations);
@@ -1133,13 +1170,6 @@ out center tags;
           if (currentLat && currentLng) addUserMarker(currentLat, currentLng);
           addStationMarkers(lastStations);
         }
-      });
-
-      messageBtn.addEventListener("click", openModal);
-      cancelMessageBtn.addEventListener("click", closeModal);
-      sendMessageBtn.addEventListener("click", sendMessageToTelegram);
-      messageModal.addEventListener("click", (e) => {
-        if (e.target === messageModal) closeModal();
       });
     });
   </script>
