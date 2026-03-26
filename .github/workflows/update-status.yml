@@ -33,11 +33,20 @@ jobs:
               s = str(v or "").strip().lower()
               return s if s in VALID else "unknown"
 
+          def as_str(v):
+              return str(v or "").strip()
+
           def parse_ts(row):
-              return str(row.get("Timestamp", row.get("timestamp", ""))).strip()
+              if not isinstance(row, dict):
+                  return ""
+              return as_str(row.get("Timestamp") or row.get("timestamp"))
 
           def majority(rows, field, fallback):
-              vals = [clean_status(r.get(field)) for r in rows]
+              vals = []
+              for r in rows:
+                  if not isinstance(r, dict):
+                      continue
+                  vals.append(clean_status(r.get(field)))
               vals = [v for v in vals if v in VALID]
               if not vals:
                   return fallback
@@ -47,19 +56,34 @@ jobs:
                   return fallback
               return top[0][0]
 
-          base = json.loads(Path("fuel-status-source.json").read_text(encoding="utf-8"))
+          base_path = Path("fuel-status-source.json")
+          out_path = Path("status.json")
+
+          base = json.loads(base_path.read_text(encoding="utf-8"))
           stations = base.get("stations", [])
+          if not isinstance(stations, list):
+              stations = []
 
           url = os.environ.get("APPS_SCRIPT_URL", "").strip()
           rows = []
 
           if url:
               with urllib.request.urlopen(url, timeout=30) as resp:
-                  rows = json.loads(resp.read().decode("utf-8"))
+                  raw = json.loads(resp.read().decode("utf-8"))
+                  if isinstance(raw, list):
+                      rows = raw
+                  elif isinstance(raw, dict):
+                      # กันกรณี Apps Script ส่ง object มา
+                      rows = raw.get("rows", [])
+                  else:
+                      rows = []
+
+          # เก็บเฉพาะ row ที่เป็น dict จริง
+          safe_rows = [r for r in rows if isinstance(r, dict)]
 
           grouped = {}
-          for r in rows:
-              key = str(r.get("station_key", "")).strip().lower()
+          for r in safe_rows:
+              key = as_str(r.get("station_key")).lower()
               if not key:
                   continue
               grouped.setdefault(key, []).append(r)
@@ -70,31 +94,37 @@ jobs:
           merged = []
 
           for s in stations:
-              station_key = str(s.get("stationKey", "")).strip().lower()
-              base_fuels = dict(s.get("fuels", {}))
+              if not isinstance(s, dict):
+                  continue
+
+              station_key = as_str(s.get("stationKey")).lower()
+              base_fuels = s.get("fuels", {})
+              if not isinstance(base_fuels, dict):
+                  base_fuels = {}
+
               reports = grouped.get(station_key, [])[:5]
 
               new_station = dict(s)
 
               if reports:
                   fuels = {
-                      "gasohol95": majority(reports, "gasohol95", base_fuels.get("gasohol95", "unknown")),
-                      "gasohol91": majority(reports, "gasohol91", base_fuels.get("gasohol91", "unknown")),
-                      "dieselB7": majority(reports, "dieselB7", base_fuels.get("dieselB7", "unknown")),
-                      "dieselB10": majority(reports, "dieselB10", base_fuels.get("dieselB10", "unknown")),
-                      "diesel": majority(reports, "diesel", base_fuels.get("diesel", "unknown"))
+                      "gasohol95": majority(reports, "gasohol95", clean_status(base_fuels.get("gasohol95", "unknown"))),
+                      "gasohol91": majority(reports, "gasohol91", clean_status(base_fuels.get("gasohol91", "unknown"))),
+                      "dieselB7": majority(reports, "dieselB7", clean_status(base_fuels.get("dieselB7", "unknown"))),
+                      "dieselB10": majority(reports, "dieselB10", clean_status(base_fuels.get("dieselB10", "unknown"))),
+                      "diesel": majority(reports, "diesel", clean_status(base_fuels.get("diesel", "unknown")))
                   }
 
                   reporters = []
                   for r in reports:
-                      rep = str(r.get("reporter", "")).strip()
+                      rep = as_str(r.get("reporter"))
                       if rep and rep not in reporters:
                           reporters.append(rep)
 
                   confidence = min(100, 40 + len(reports) * 12)
 
                   new_station["fuels"] = fuels
-                  new_station["updatedAt"] = parse_ts(reports[0]) or s.get("updatedAt", "")
+                  new_station["updatedAt"] = parse_ts(reports[0]) or as_str(s.get("updatedAt"))
                   new_station["crowdsource"] = {
                       "enabled": True,
                       "source": "google-form",
@@ -115,26 +145,27 @@ jobs:
 
           result = {
               "meta": {
-                  "system": "Fuel Finder PRO+",
-                  "owner": "NaraMawin",
-                  "update": "auto 5 min",
+                  "updatedBy": base.get("updatedBy", "NaraMawin"),
+                  "generatedBy": "GitHub Actions",
+                  "version": "pro-final",
+                  "schedule": "every ~5 minutes",
                   "mode": "majority-vote"
               },
               "stations": merged
           }
 
-          Path("status.json").write_text(
+          out_path.write_text(
               json.dumps(result, indent=2, ensure_ascii=False),
               encoding="utf-8"
           )
 
-          print("DONE")
+          print("status.json updated successfully")
           PY
 
-      - name: Commit & push
+      - name: Commit and push if changed
         run: |
-          git config user.name "bot"
-          git config user.email "bot@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add status.json
-          git diff --cached --quiet || git commit -m "auto update"
+          git diff --cached --quiet || git commit -m "Auto update status.json"
           git push
