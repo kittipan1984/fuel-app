@@ -9,8 +9,12 @@
   "stations": [
     {
       "stationKey": "bangchak",
-      "matchKeys": ["บางจาก", "bangchak", "bcp"],
-      "updatedAt": "2026-03-26 09:10",
+      "matchKeys": [
+        "บางจาก",
+        "bangchak",
+        "bcp"
+      ],
+      "updatedAt": "2026-03-25 10:20",
       "fuels": {
         "gasohol95": "available",
         "gasohol91": "available",
@@ -19,17 +23,22 @@
         "diesel": "unknown"
       },
       "crowdsource": {
-        "enabled": true,
-        "source": "google-form",
-        "reporters": ["user1", "user2"],
-        "sampleSize": 2,
-        "confidence": 64
+        "enabled": false,
+        "source": "fuel-status-source.json",
+        "reporters": [],
+        "sampleSize": 0,
+        "confidence": 0
       }
     },
     {
       "stationKey": "ptt",
-      "matchKeys": ["ปตท", "ptt", "ptt station", "pttstation"],
-      "updatedAt": "2026-03-26 09:12",
+      "matchKeys": [
+        "ปตท",
+        "ptt",
+        "ptt station",
+        "pttstation"
+      ],
+      "updatedAt": "2026-03-25 10:15",
       "fuels": {
         "gasohol95": "available",
         "gasohol91": "available",
@@ -38,17 +47,20 @@
         "diesel": "available"
       },
       "crowdsource": {
-        "enabled": true,
-        "source": "google-form",
-        "reporters": ["user3", "user4", "user5"],
-        "sampleSize": 3,
-        "confidence": 76
+        "enabled": false,
+        "source": "fuel-status-source.json",
+        "reporters": [],
+        "sampleSize": 0,
+        "confidence": 0
       }
     },
     {
       "stationKey": "shell",
-      "matchKeys": ["เชลล์", "shell"],
-      "updatedAt": "2026-03-26 09:05",
+      "matchKeys": [
+        "เชลล์",
+        "shell"
+      ],
+      "updatedAt": "2026-03-25 10:10",
       "fuels": {
         "gasohol95": "available",
         "gasohol91": "unknown",
@@ -57,17 +69,20 @@
         "diesel": "unknown"
       },
       "crowdsource": {
-        "enabled": true,
-        "source": "google-form",
-        "reporters": ["user6"],
-        "sampleSize": 1,
-        "confidence": 52
+        "enabled": false,
+        "source": "fuel-status-source.json",
+        "reporters": [],
+        "sampleSize": 0,
+        "confidence": 0
       }
     },
     {
       "stationKey": "caltex",
-      "matchKeys": ["คาลเท็กซ์", "caltex"],
-      "updatedAt": "2026-03-26 08:58",
+      "matchKeys": [
+        "คาลเท็กซ์",
+        "caltex"
+      ],
+      "updatedAt": "2026-03-25 10:05",
       "fuels": {
         "gasohol95": "available",
         "gasohol91": "available",
@@ -85,8 +100,12 @@
     },
     {
       "stationKey": "pt",
-      "matchKeys": ["pt", "pt station", "ptg"],
-      "updatedAt": "2026-03-26 09:14",
+      "matchKeys": [
+        "pt",
+        "pt station",
+        "ptg"
+      ],
+      "updatedAt": "2026-03-25 10:00",
       "fuels": {
         "gasohol95": "available",
         "gasohol91": "available",
@@ -95,17 +114,20 @@
         "diesel": "available"
       },
       "crowdsource": {
-        "enabled": true,
-        "source": "google-form",
-        "reporters": ["user7", "user8", "user9", "user10"],
-        "sampleSize": 4,
-        "confidence": 88
+        "enabled": false,
+        "source": "fuel-status-source.json",
+        "reporters": [],
+        "sampleSize": 0,
+        "confidence": 0
       }
     },
     {
       "stationKey": "susco",
-      "matchKeys": ["susco", "ซัสโก้"],
-      "updatedAt": "2026-03-26 08:50",
+      "matchKeys": [
+        "susco",
+        "ซัสโก้"
+      ],
+      "updatedAt": "2026-03-25 09:55",
       "fuels": {
         "gasohol95": "unknown",
         "gasohol91": "unknown",
