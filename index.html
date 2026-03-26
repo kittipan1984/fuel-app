@@ -13,27 +13,39 @@
 
   <style>
     :root{
-      --bg:#f4f7fb;
+      --bg:#0b1220;
+      --bg-soft:#111a2e;
+      --panel:#111827;
+      --panel-2:#162033;
       --card:#ffffff;
       --line:#dbe4ef;
+      --line-dark:rgba(255,255,255,.08);
       --text:#0f172a;
+      --text-light:#eaf2ff;
       --muted:#64748b;
-      --blue:#2563eb;
+      --muted-light:#a9bbda;
+      --blue:#3b82f6;
       --blue-dark:#1d4ed8;
+      --cyan:#22d3ee;
       --green:#16a34a;
       --amber:#d97706;
       --red:#dc2626;
-      --header:#0f172a;
-      --shadow:0 12px 28px rgba(15,23,42,.08);
-      --radius:18px;
+      --violet:#7c3aed;
       --header-h:86px;
+      --shadow:0 12px 28px rgba(15,23,42,.12);
+      --shadow-pro:0 20px 50px rgba(2,8,23,.28);
+      --radius:20px;
+      --radius-lg:26px;
     }
 
     *{box-sizing:border-box}
     html,body{margin:0;padding:0}
     body{
       font-family:Arial, Helvetica, sans-serif;
-      background:var(--bg);
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,.10), transparent 25%),
+        radial-gradient(circle at top right, rgba(34,211,238,.10), transparent 20%),
+        linear-gradient(180deg,#edf3fb 0%, #f6f9fd 100%);
       color:var(--text);
     }
 
@@ -42,119 +54,221 @@
       top:0;
       z-index:9999;
       height:var(--header-h);
-      background:rgba(15,23,42,.96);
-      color:#fff;
+      background:rgba(11,18,32,.88);
+      backdrop-filter: blur(14px);
       border-bottom:1px solid rgba(255,255,255,.08);
-      backdrop-filter: blur(8px);
+      box-shadow:0 10px 30px rgba(2,8,23,.22);
+    }
+
+    .topbar::after{
+      content:"";
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      height:1px;
+      background:linear-gradient(90deg, transparent, rgba(34,211,238,.6), rgba(59,130,246,.6), transparent);
+      opacity:.9;
     }
 
     .topbar-inner{
-      max-width:1180px;
+      max-width:1200px;
       height:100%;
       margin:0 auto;
-      padding:10px 16px;
+      padding:0 16px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:14px;
+      gap:16px;
     }
 
     .brand{
       display:flex;
       align-items:center;
-      gap:12px;
+      gap:14px;
       min-width:0;
     }
 
-    .brand-avatar{
-      width:52px;
-      height:52px;
+    .avatar-wrap{
+      width:54px;
+      height:54px;
+      border-radius:50%;
+      padding:2px;
+      background:linear-gradient(135deg,#22d3ee,#3b82f6,#7c3aed);
+      box-shadow:
+        0 0 0 3px rgba(255,255,255,.04),
+        0 0 18px rgba(34,211,238,.35),
+        0 0 32px rgba(59,130,246,.18);
+      flex:0 0 auto;
+    }
+
+    .avatar-wrap img{
+      width:100%;
+      height:100%;
       border-radius:50%;
       object-fit:cover;
-      object-position:center;
-      border:2px solid rgba(255,255,255,.15);
+      display:block;
       background:#fff;
-      flex:0 0 auto;
     }
 
     .brand-text{
       min-width:0;
-      line-height:1.15;
+      line-height:1.1;
     }
 
     .brand-title{
+      color:#fff;
       font-size:24px;
       font-weight:900;
       letter-spacing:.2px;
       white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
 
     .brand-sub{
+      color:var(--muted-light);
       font-size:13px;
-      color:#cbd5e1;
       margin-top:4px;
       white-space:nowrap;
     }
 
     .topbar-right{
       display:flex;
-      gap:8px;
       align-items:center;
+      gap:8px;
       flex-wrap:wrap;
       justify-content:flex-end;
     }
 
     .mini-pill{
-      padding:7px 10px;
+      padding:7px 12px;
       border-radius:999px;
-      background:rgba(255,255,255,.08);
+      background:rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.08);
-      color:#e2e8f0;
+      color:#e2ecff;
       font-size:12px;
-      font-weight:700;
+      font-weight:800;
       white-space:nowrap;
     }
 
     .wrap{
-      max-width:1180px;
+      max-width:1200px;
       margin:0 auto;
-      padding:16px;
-      padding-top:calc(16px + 6px);
+      padding:18px 16px 32px;
     }
 
     .hero{
-      background:linear-gradient(135deg,#dbeafe,#eff6ff);
-      border:1px solid #bfdbfe;
-      border-radius:24px;
-      padding:18px;
-      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 85% 20%, rgba(34,211,238,.22), transparent 18%),
+        radial-gradient(circle at 15% 10%, rgba(59,130,246,.18), transparent 18%),
+        linear-gradient(135deg,#0f172a,#172554 70%, #0f172a);
+      color:white;
+      border-radius:28px;
+      padding:26px;
+      box-shadow:var(--shadow-pro);
       margin-bottom:18px;
     }
 
+    .hero::before{
+      content:"";
+      position:absolute;
+      inset:auto -60px -80px auto;
+      width:240px;
+      height:240px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(124,58,237,.18), transparent 65%);
+      pointer-events:none;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:18px;
+      align-items:stretch;
+    }
+
+    .hero-left{
+      position:relative;
+      z-index:1;
+    }
+
+    .hero-kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      font-size:12px;
+      font-weight:800;
+      color:#dbeafe;
+      margin-bottom:12px;
+    }
+
     .hero-title{
-      margin:0 0 8px;
-      font-size:26px;
+      margin:0 0 10px;
+      font-size:34px;
       font-weight:900;
-      line-height:1.15;
-      color:#0f172a;
+      line-height:1.08;
+      letter-spacing:-.02em;
     }
 
     .hero-sub{
       margin:0;
-      color:#334155;
-      line-height:1.7;
-      font-size:14px;
+      color:#d9e6ff;
+      line-height:1.75;
+      font-size:15px;
+      max-width:64ch;
+    }
+
+    .hero-right{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+      position:relative;
+      z-index:1;
+    }
+
+    .hero-stat{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.06);
+      border-radius:20px;
+      padding:16px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+
+    .hero-stat-label{
+      font-size:12px;
+      color:#bfd5ff;
+      margin-bottom:8px;
+    }
+
+    .hero-stat-value{
+      font-size:24px;
+      font-weight:900;
+      color:#fff;
+      margin-bottom:4px;
+    }
+
+    .hero-stat-sub{
+      font-size:12px;
+      color:#c7d7f4;
     }
 
     .status{
       padding:12px 14px;
       border-radius:14px;
       font-size:14px;
-      font-weight:700;
+      font-weight:800;
       margin-bottom:14px;
       border:1px solid var(--line);
       background:#f8fafc;
       color:#334155;
+      box-shadow:var(--shadow);
     }
 
     .status.ok{
@@ -175,27 +289,44 @@
       color:#991b1b;
     }
 
-    .grid{
+    .section-grid{
       display:grid;
-      gap:16px;
-    }
-
-    .grid-2{
-      grid-template-columns:1.1fr .9fr;
+      gap:18px;
+      grid-template-columns:1.08fr .92fr;
     }
 
     .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
+      background:rgba(255,255,255,.88);
+      border:1px solid rgba(219,228,239,.95);
+      border-radius:var(--radius-lg);
       padding:18px;
       box-shadow:var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .card-dark{
+      background:linear-gradient(180deg,#111827,#172033);
+      color:var(--text-light);
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:var(--shadow-pro);
     }
 
     .card-title{
       margin:0 0 12px;
-      font-size:20px;
+      font-size:21px;
       font-weight:900;
+      letter-spacing:-.01em;
+    }
+
+    .card-sub{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+      margin-bottom:12px;
+    }
+
+    .card-dark .card-sub{
+      color:#bfd0ec;
     }
 
     .stat-grid{
@@ -205,34 +336,36 @@
     }
 
     .stat{
-      border:1px solid var(--line);
-      border-radius:16px;
+      border:1px solid #e4ebf3;
+      border-radius:18px;
       padding:14px;
-      background:#fbfdff;
+      background:linear-gradient(180deg,#ffffff,#f8fbff);
+      box-shadow:0 8px 20px rgba(15,23,42,.04);
     }
 
     .stat-label{
       font-size:13px;
       color:var(--muted);
-      margin-bottom:6px;
+      margin-bottom:7px;
     }
 
     .stat-value{
       font-size:24px;
       font-weight:900;
+      line-height:1.1;
     }
 
     .controls{
       display:grid;
       gap:10px;
-      grid-template-columns:1fr auto auto auto;
+      grid-template-columns:1fr 1fr auto auto;
       margin-top:12px;
     }
 
     .controls2{
       display:grid;
       gap:10px;
-      grid-template-columns:1fr 1fr 1fr;
+      grid-template-columns:1fr 1fr auto;
       margin-top:12px;
     }
 
@@ -242,20 +375,28 @@
 
     .input, .select, textarea{
       width:100%;
-      border:1px solid #cbd5e1;
-      border-radius:12px;
-      padding:11px 12px;
-      background:white;
+      border:1px solid #cdd8e7;
+      border-radius:14px;
+      padding:12px 13px;
+      background:#fff;
       color:var(--text);
+      outline:none;
+      transition:.18s ease;
+    }
+
+    .input:focus, .select:focus, textarea:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(59,130,246,.12);
     }
 
     button{
       border:none;
-      border-radius:12px;
-      padding:11px 14px;
-      font-weight:800;
+      border-radius:14px;
+      padding:12px 15px;
+      font-weight:900;
       cursor:pointer;
       transition:.18s ease;
+      box-shadow:0 8px 18px rgba(15,23,42,.08);
     }
 
     button:hover{
@@ -268,7 +409,7 @@
     }
 
     .btn-ghost{
-      background:#e2e8f0;
+      background:#e8eef7;
       color:#0f172a;
     }
 
@@ -285,33 +426,40 @@
 
     #map{
       width:100%;
-      height:420px;
-      border-radius:18px;
-      border:1px solid var(--line);
+      height:440px;
+      border-radius:22px;
+      border:1px solid #d8e4f0;
       overflow:hidden;
       background:#e5eef9;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.4);
     }
 
-    .result-head{
+    .panel-top{
       display:flex;
       justify-content:space-between;
-      gap:12px;
       align-items:center;
-      margin-bottom:10px;
+      gap:10px;
       flex-wrap:wrap;
+      margin-bottom:10px;
     }
 
     .badge{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      padding:7px 12px;
+      padding:8px 12px;
       border-radius:999px;
-      border:1px solid var(--line);
-      background:#f8fafc;
+      border:1px solid #dbe4ef;
+      background:#f8fbff;
       color:#334155;
       font-size:13px;
-      font-weight:800;
+      font-weight:900;
+    }
+
+    .badge.dark{
+      background:rgba(255,255,255,.08);
+      border-color:rgba(255,255,255,.08);
+      color:#dce8ff;
     }
 
     .station-list{
@@ -320,10 +468,11 @@
     }
 
     .station{
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:14px;
-      background:#fcfdff;
+      border:1px solid #e5edf6;
+      border-radius:22px;
+      padding:15px;
+      background:linear-gradient(180deg,#ffffff,#fbfdff);
+      box-shadow:0 10px 22px rgba(15,23,42,.05);
     }
 
     .station-top{
@@ -346,8 +495,8 @@
       color:#0f172a;
       background:#e0ecff;
       border-radius:999px;
-      padding:6px 10px;
-      font-weight:800;
+      padding:7px 10px;
+      font-weight:900;
     }
 
     .brand-row{
@@ -363,8 +512,8 @@
       border-radius:999px;
       padding:6px 10px;
       font-size:12px;
-      font-weight:800;
-      border:1px solid var(--line);
+      font-weight:900;
+      border:1px solid #dbe4ef;
     }
 
     .brand-ptt{background:#eff6ff;color:#1d4ed8}
@@ -383,28 +532,28 @@
     .meta{
       font-size:13px;
       color:#475569;
-      line-height:1.6;
+      line-height:1.7;
       margin-bottom:10px;
     }
 
     .fuel-grid{
       display:grid;
       gap:8px;
-      grid-template-columns:repeat(2,minmax(0,1fr));
+      grid-template-columns:repeat(3,minmax(0,1fr));
       margin-bottom:12px;
     }
 
     .fuel-item{
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:10px;
+      border:1px solid #e4ecf5;
+      border-radius:16px;
+      padding:11px;
       background:white;
     }
 
     .fuel-name{
       font-size:12px;
       color:var(--muted);
-      margin-bottom:4px;
+      margin-bottom:5px;
     }
 
     .fuel-value{
@@ -421,7 +570,7 @@
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      margin-top:4px;
+      margin-top:6px;
     }
 
     .link-btn{
@@ -429,65 +578,68 @@
       align-items:center;
       justify-content:center;
       text-decoration:none;
-      padding:10px 12px;
-      border-radius:12px;
+      padding:10px 13px;
+      border-radius:13px;
       font-size:13px;
       font-weight:900;
-      border:1px solid var(--line);
+      border:1px solid #dbe4ef;
       color:white;
       background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+      box-shadow:0 8px 18px rgba(37,99,235,.18);
     }
 
     .empty{
       text-align:center;
-      padding:26px 14px;
+      padding:28px 14px;
       color:var(--muted);
       font-size:14px;
-      line-height:1.6;
+      line-height:1.7;
       border:1px dashed #d6e0ea;
-      border-radius:18px;
+      border-radius:20px;
       background:#fbfdff;
     }
 
     .field{
-      margin-top:10px;
+      margin-top:12px;
     }
 
     .field label{
       display:block;
-      margin-bottom:6px;
+      margin-bottom:7px;
       font-size:13px;
-      font-weight:700;
+      font-weight:800;
       color:#334155;
     }
 
     textarea{
-      min-height:120px;
+      min-height:130px;
       resize:vertical;
     }
 
     .error-box{
       margin-top:10px;
-      padding:10px 12px;
-      border-radius:12px;
+      padding:11px 12px;
+      border-radius:14px;
       background:#fef2f2;
       color:#991b1b;
       border:1px solid #fecaca;
       display:none;
       white-space:pre-wrap;
       font-size:13px;
+      font-weight:700;
     }
 
     .ok-box{
       margin-top:10px;
-      padding:10px 12px;
-      border-radius:12px;
+      padding:11px 12px;
+      border-radius:14px;
       background:#ecfdf5;
       color:#166534;
       border:1px solid #bbf7d0;
       display:none;
       white-space:pre-wrap;
       font-size:13px;
+      font-weight:700;
     }
 
     .footer-note{
@@ -497,18 +649,20 @@
       line-height:1.7;
     }
 
-    @media (min-width:720px){
-      .fuel-grid{
-        grid-template-columns:repeat(3,minmax(0,1fr));
+    .footer-note.light{
+      color:#bfd0ec;
+    }
+
+    @media (max-width:1100px){
+      .hero-grid,
+      .section-grid,
+      .stat-grid{
+        grid-template-columns:1fr;
       }
     }
 
-    @media (max-width:980px){
-      .grid-2,.stat-grid{
-        grid-template-columns:1fr;
-      }
-
-      .controls,.controls2{
+    @media (max-width:860px){
+      .controls, .controls2, .fuel-grid{
         grid-template-columns:1fr;
       }
 
@@ -516,17 +670,8 @@
         height:340px;
       }
 
-      .brand-title{
-        font-size:20px;
-      }
-
-      .topbar{
-        height:auto;
-      }
-
-      .topbar-inner{
-        min-height:var(--header-h);
-        align-items:center;
+      .hero-title{
+        font-size:28px;
       }
     }
 
@@ -535,17 +680,29 @@
         display:none;
       }
 
-      .brand-avatar{
+      .brand-title{
+        font-size:19px;
+      }
+
+      .avatar-wrap{
         width:44px;
         height:44px;
       }
 
-      .brand-title{
-        font-size:18px;
+      .hero{
+        padding:20px;
       }
 
-      .brand-sub{
-        font-size:12px;
+      .hero-title{
+        font-size:24px;
+      }
+
+      .station-top{
+        flex-direction:column;
+      }
+
+      .distance{
+        align-self:flex-start;
       }
     }
   </style>
@@ -554,7 +711,10 @@
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
-        <img src="./child-header.png" alt="NaraMawin" class="brand-avatar" onerror="this.style.display='none'">
+        <div class="avatar-wrap">
+          <img src="./child-header.png" alt="NaraMawin" onerror="this.style.display='none'">
+        </div>
+
         <div class="brand-text">
           <div class="brand-title">Fuel Finder</div>
           <div class="brand-sub">By NaraMawin</div>
@@ -569,41 +729,85 @@
   </header>
 
   <div class="wrap">
-    <div class="hero">
-      <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ</h1>
-      <p class="hero-sub">
-        ระบบนี้อ่านข้อมูลจาก <code>status.json</code> และแสดงสถานะน้ำมันบนหน้ารายการสถานี พร้อมส่งข้อความถึง Telegram ของคุณได้จากฟอร์มด้านล่าง
-      </p>
-    </div>
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-left">
+          <div class="hero-kicker">⚡ PRO Dashboard</div>
+          <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมดูสถานะน้ำมันแบบเรียลไทม์จากไฟล์ข้อมูลของคุณ</h1>
+          <p class="hero-sub">
+            ระบบนี้อ่านข้อมูลจาก <code>status.json</code> แล้วนำไปจับคู่กับสถานีใกล้เคียงบนแผนที่
+            พร้อมทั้งมีฟอร์มให้ผู้ใช้ส่งข้อความเข้าหา Telegram ของคุณได้ทันที
+          </p>
+        </div>
+
+        <div class="hero-right">
+          <div class="hero-stat">
+            <div class="hero-stat-label">Last Updated</div>
+            <div class="hero-stat-value" id="lastUpdatedText">-</div>
+            <div class="hero-stat-sub">อัปเดตล่าสุด</div>
+          </div>
+
+          <div class="hero-stat">
+            <div class="hero-stat-label">Stations</div>
+            <div class="hero-stat-value" id="stationCountText">0</div>
+            <div class="hero-stat-sub">สถานีในระบบ</div>
+          </div>
+
+          <div class="hero-stat">
+            <div class="hero-stat-label">Online</div>
+            <div class="hero-stat-value" id="onlineCountText">0</div>
+            <div class="hero-stat-sub">พร้อมให้บริการ</div>
+          </div>
+
+          <div class="hero-stat">
+            <div class="hero-stat-label">Crowd Reports</div>
+            <div class="hero-stat-value" id="crowdCountText">0</div>
+            <div class="hero-stat-sub">ข้อมูลจากผู้ใช้</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <div id="statusBox" class="status">พร้อมใช้งาน กำลังโหลด status.json...</div>
 
-    <div class="card" style="margin-bottom:16px;">
-      <h2 class="card-title">ภาพรวมระบบ</h2>
+    <section class="card" style="margin-bottom:18px;">
+      <div class="panel-top">
+        <h2 class="card-title" style="margin:0;">ภาพรวมระบบ</h2>
+        <div class="badge" id="metaBadge">Status Overview</div>
+      </div>
+
       <div class="stat-grid">
         <div class="stat">
           <div class="stat-label">Last Updated</div>
-          <div class="stat-value" id="lastUpdatedText">-</div>
+          <div class="stat-value" id="summaryLastUpdated">-</div>
         </div>
         <div class="stat">
           <div class="stat-label">Stations</div>
-          <div class="stat-value" id="stationCountText">0</div>
+          <div class="stat-value" id="summaryStationCount">0</div>
         </div>
         <div class="stat">
           <div class="stat-label">Online</div>
-          <div class="stat-value" id="onlineCountText">0</div>
+          <div class="stat-value" id="summaryOnlineCount">0</div>
         </div>
         <div class="stat">
           <div class="stat-label">Crowd Reports</div>
-          <div class="stat-value" id="crowdCountText">0</div>
+          <div class="stat-value" id="summaryCrowdCount">0</div>
         </div>
       </div>
-      <div class="footer-note" id="metaText">-</div>
-    </div>
 
-    <div class="grid grid-2">
-      <div class="card">
-        <h2 class="card-title">แผนที่</h2>
+      <div class="footer-note" id="metaText" style="margin-top:14px;">-</div>
+    </section>
+
+    <section class="section-grid">
+      <div class="card card-dark">
+        <div class="panel-top">
+          <h2 class="card-title" style="margin:0;">แผนที่และการค้นหา</h2>
+          <div class="badge dark">Nearby Finder</div>
+        </div>
+
+        <div class="card-sub">
+          ระบุพิกัดเอง หรือใช้ GPS จากอุปกรณ์ จากนั้นกดค้นหาปั๊มน้ำมันใกล้คุณ
+        </div>
 
         <div class="controls">
           <input id="latInput" class="input" type="number" step="any" placeholder="Latitude">
@@ -636,26 +840,34 @@
           <button id="findBtn" class="btn-primary" type="button">ค้นหาปั๊มใกล้ฉัน</button>
         </div>
 
-        <div class="footer-note" id="coordText">พิกัดปัจจุบัน: -</div>
+        <div class="footer-note light" id="coordText">พิกัดปัจจุบัน: -</div>
 
         <div id="map" style="margin-top:12px;"></div>
       </div>
 
       <div class="card">
-        <div class="result-head">
+        <div class="panel-top">
           <h2 class="card-title" style="margin:0;">ผลลัพธ์</h2>
           <div class="badge" id="countBadge">0 สถานี</div>
         </div>
 
         <div class="small" id="summaryText">ยังไม่มีผลลัพธ์</div>
+
         <div class="station-list" id="resultList" style="margin-top:12px;">
           <div class="empty">กด “ค้นหาปั๊มใกล้ฉัน” เพื่อเริ่มต้น</div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="card" style="margin-top:16px;">
-      <h2 class="card-title">ส่งข้อความถึงฉัน</h2>
+    <section class="card" style="margin-top:18px;">
+      <div class="panel-top">
+        <h2 class="card-title" style="margin:0;">ส่งข้อความถึงฉัน</h2>
+        <div class="badge">Telegram Message</div>
+      </div>
+
+      <div class="card-sub">
+        กรอกชื่อผู้ส่งและข้อความ จากนั้นกดส่ง ระบบจะส่งเข้า Telegram bot ของคุณทันที
+      </div>
 
       <div class="field">
         <label for="senderName">ชื่อ Sender</label>
@@ -677,7 +889,7 @@
       <div class="footer-note">
         โหมดนี้ส่งเข้า Telegram โดยตรงจากหน้าเว็บ เหมาะสำหรับทดลองใช้งานก่อน
       </div>
-    </div>
+    </section>
   </div>
 
   <script
@@ -977,8 +1189,14 @@
         document.getElementById("onlineCountText").textContent = onlineCount;
         document.getElementById("crowdCountText").textContent = crowdCount;
 
+        document.getElementById("summaryLastUpdated").textContent = lastUpdated;
+        document.getElementById("summaryStationCount").textContent = stationCount;
+        document.getElementById("summaryOnlineCount").textContent = onlineCount;
+        document.getElementById("summaryCrowdCount").textContent = crowdCount;
+
         document.getElementById("headerUpdated").textContent = `Updated: ${lastUpdated}`;
         document.getElementById("headerStations").textContent = `Stations: ${stationCount}`;
+        document.getElementById("metaBadge").textContent = stationStatusData.meta.version || "Status Overview";
 
         document.getElementById("metaText").textContent =
           `Source: ${stationStatusData.meta.source || "-"} | Version: ${stationStatusData.meta.version || "-"} | Notes: ${stationStatusData.meta.notes || "-"}`;
