@@ -1,287 +1,199 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NaraMawin Fuel Finder</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NaraMawin Fuel Finder</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f5f7fb;
-      color: #162033;
-    }
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f4f7fb;
+}
 
-    .header {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: linear-gradient(135deg, #0f172a, #0f766e);
-      color: white;
-      padding: 15px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-    }
+/* HEADER */
+.header{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  background:linear-gradient(135deg,#0f172a,#0f766e);
+  color:white;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
 
-    .header-left h2 {
-      margin: 0;
-      font-size: 24px;
-      font-weight: 900;
-    }
+/* TEXT */
+.title{
+  font-size:22px;
+  font-weight:900;
+}
 
-    .header-left .byline {
-      margin-top: 6px;
-      font-size: 14px;
-      opacity: .9;
-    }
+.by{
+  font-size:14px;
+  margin-top:4px;
+}
 
-    .hero-avatar-wrap {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      border: 3px solid rgba(255,255,255,.75);
-      box-shadow: 0 8px 18px rgba(0,0,0,.22);
-      overflow: hidden;
-      flex: 0 0 auto;
-      background: rgba(255,255,255,.15);
-    }
+/* AVATAR FIX */
+.hero-avatar-wrap{
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  border:3px solid rgba(255,255,255,.8);
+  overflow:hidden;
+}
 
-    .hero-avatar {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: 50% 18%;
-      display: block;
-    }
+.hero-avatar{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:50% 18%;
+}
 
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 16px;
-    }
+/* CONTENT */
+.container{
+  padding:15px;
+}
 
-    .card {
-      background: white;
-      border-radius: 18px;
-      padding: 16px;
-      margin-top: 14px;
-      box-shadow: 0 8px 22px rgba(15,23,42,.08);
-    }
+.card{
+  background:white;
+  padding:15px;
+  border-radius:15px;
+  margin-top:10px;
+}
 
-    .btn {
-      padding: 12px 14px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: 800;
-      font-size: 14px;
-    }
+/* BUTTON */
+.btn{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:10px;
+}
 
-    .btn-message {
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      color: white;
-      width: 100%;
-    }
+.btn-report{
+  background:#7c3aed;
+  color:white;
+}
 
-    .hint {
-      margin-top: 10px;
-      font-size: 13px;
-      color: #64748b;
-      line-height: 1.5;
-    }
+.btn-message{
+  background:#2563eb;
+  color:white;
+}
 
-    .modal {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.6);
-      z-index: 9999;
-      padding: 16px;
-    }
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  background:rgba(0,0,0,.6);
+}
 
-    .modal-box {
-      background: white;
-      padding: 20px;
-      border-radius: 18px;
-      width: 100%;
-      max-width: 420px;
-      box-shadow: 0 24px 60px rgba(0,0,0,.25);
-    }
+.modal-box{
+  background:white;
+  padding:20px;
+  border-radius:15px;
+  width:90%;
+  max-width:400px;
+}
 
-    .modal-box h3 {
-      margin: 0 0 8px 0;
-      font-size: 22px;
-    }
-
-    .modal-box p {
-      margin: 0 0 14px 0;
-      font-size: 13px;
-      color: #64748b;
-      line-height: 1.5;
-    }
-
-    .field {
-      margin-top: 10px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 6px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #334155;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 11px 12px;
-      border-radius: 10px;
-      border: 1px solid #cbd5e1;
-      font-size: 14px;
-      font-family: Arial, Helvetica, sans-serif;
-      box-sizing: border-box;
-    }
-
-    textarea {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    .modal-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .btn-cancel {
-      background: #64748b;
-      color: white;
-    }
-
-    .btn-send {
-      background: #16a34a;
-      color: white;
-    }
-  </style>
+input,textarea{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+</style>
 </head>
+
 <body>
 
-  <div class="header">
-    <div class="header-left">
-      <h2>NaraMawin Fuel Finder</h2>
-      <div class="byline">By NaraMawin</div>
-    </div>
-
-    <div class="hero-avatar-wrap">
-      <img class="hero-avatar" src="./child-header.png?v=99" alt="avatar">
-    </div>
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="title">⛽ NaraMawin Fuel Finder</div>
+    <div class="by">By NaraMawin</div>
   </div>
 
-  <div class="container">
-    <div class="card">
-      <button class="btn btn-message" id="messageBtn">ส่งข้อความถึงฉัน</button>
-      <div class="hint">
-        กดปุ่มนี้เพื่อเปิดกล่องข้อความ แล้วระบบจะส่งข้อความไปที่ Telegram ผ่าน Apps Script
-      </div>
-    </div>
+  <!-- ✅ รูป -->
+  <div class="hero-avatar-wrap">
+    <img class="hero-avatar" src="./child-header.png?v=1">
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="container">
+
+  <div class="card">
+    <!-- GOOGLE FORM -->
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdApv6W6uAEWHzuFlkFkOG80iLIYSwPiveJwuCifxYvCkiAEg/viewform" target="_blank">
+      <button class="btn btn-report">รายงานสถานะน้ำมัน</button>
+    </a>
+
+    <!-- MESSAGE -->
+    <button class="btn btn-message" id="openMsg">ส่งข้อความถึงฉัน</button>
   </div>
 
-  <div class="modal" id="messageModal">
-    <div class="modal-box">
-      <h3>ส่งข้อความถึงฉัน</h3>
-      <p>กรอกชื่อและข้อความ แล้วกดส่ง</p>
+</div>
 
-      <div class="field">
-        <label for="senderName">ชื่อผู้ส่ง</label>
-        <input id="senderName" type="text" placeholder="เช่น Kittipan">
-      </div>
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3>ส่งข้อความ</h3>
 
-      <div class="field">
-        <label for="messageText">ข้อความ</label>
-        <textarea id="messageText" placeholder="พิมพ์ข้อความที่ต้องการส่ง"></textarea>
-      </div>
+    <input id="name" placeholder="ชื่อ">
+    <textarea id="msg" placeholder="ข้อความ"></textarea>
 
-      <div class="modal-actions">
-        <button class="btn btn-cancel" id="cancelMessageBtn">ปิด</button>
-        <button class="btn btn-send" id="sendMessageBtn">ส่งข้อความ</button>
-      </div>
-    </div>
+    <button class="btn" id="send" style="background:green;color:white;">ส่ง</button>
+    <button class="btn" id="close" style="background:gray;color:white;">ปิด</button>
   </div>
+</div>
 
-  <script>
-    const MESSAGE_API_URL = "https://script.google.com/macros/s/AKfycbwGtU2fRx6Mblya9JwFY_C3cfbZgJJHynlMKa_XDdptvy9ObsVufhqHOE4JpDAwYRbS/exec";
+<script>
+const API = "https://script.google.com/macros/s/AKfycbwGtU2fRx6Mblya9JwFY_C3cfbZgJJHynlMKa_XDdptvy9ObsVufhqHOE4JpDAwYRbS/exec";
 
-    document.addEventListener("DOMContentLoaded", function () {
-      const messageBtn = document.getElementById("messageBtn");
-      const modal = document.getElementById("messageModal");
-      const cancelBtn = document.getElementById("cancelMessageBtn");
-      const sendBtn = document.getElementById("sendMessageBtn");
-      const senderNameInput = document.getElementById("senderName");
-      const messageTextInput = document.getElementById("messageText");
+/* OPEN */
+document.getElementById("openMsg").onclick = () => {
+  document.getElementById("modal").style.display="flex";
+};
 
-      function openModal() {
-        modal.style.display = "flex";
-      }
+/* CLOSE */
+document.getElementById("close").onclick = () => {
+  document.getElementById("modal").style.display="none";
+};
 
-      function closeModal() {
-        modal.style.display = "none";
-        senderNameInput.value = "";
-        messageTextInput.value = "";
-      }
+/* SEND */
+document.getElementById("send").onclick = async () => {
+  const name = document.getElementById("name").value || "Anonymous";
+  const msg = document.getElementById("msg").value;
 
-      async function sendMessage() {
-        const sender = senderNameInput.value.trim() || "Anonymous";
-        const text = messageTextInput.value.trim();
+  if(!msg){
+    alert("กรอกข้อความก่อน");
+    return;
+  }
 
-        if (!text) {
-          alert("กรุณากรอกข้อความก่อน");
-          return;
-        }
-
-        try {
-          sendBtn.disabled = true;
-          sendBtn.textContent = "กำลังส่ง...";
-
-          await fetch(MESSAGE_API_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: {
-              "Content-Type": "text/plain;charset=utf-8"
-            },
-            body: JSON.stringify({
-              sender: sender,
-              message: text,
-              page: location.href
-            })
-          });
-
-          alert("ส่งแล้ว กรุณาเช็ก Telegram");
-          closeModal();
-        } catch (err) {
-          alert("ส่งข้อความไม่สำเร็จ: " + err.message);
-        } finally {
-          sendBtn.disabled = false;
-          sendBtn.textContent = "ส่งข้อความ";
-        }
-      }
-
-      messageBtn.addEventListener("click", openModal);
-      cancelBtn.addEventListener("click", closeModal);
-      sendBtn.addEventListener("click", sendMessage);
-
-      modal.addEventListener("click", function (e) {
-        if (e.target === modal) {
-          closeModal();
-        }
-      });
+  try{
+    await fetch(API,{
+      method:"POST",
+      mode:"no-cors",
+      body:JSON.stringify({name,msg})
     });
-  </script>
+
+    alert("ส่งแล้ว ✅");
+    document.getElementById("modal").style.display="none";
+
+  }catch(e){
+    alert("ส่งไม่สำเร็จ");
+  }
+};
+</script>
 
 </body>
 </html>
