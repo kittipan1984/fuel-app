@@ -3,7 +3,7 @@
     "source": "generated from fuel-status-source.json + crowdsource-source.csv",
     "version": "1.0.0",
     "lastUpdatedBkk": "2026-03-26 19:30 BKK",
-    "notes": "Static demo schema for No1 App"
+    "notes": "Static demo schema for Fuel Finder"
   },
   "stations": [
     {
