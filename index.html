@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Fuel Finder</title>
 
   <link
@@ -13,40 +13,37 @@
 
   <style>
     :root{
-      --bg:#0b1220;
-      --bg-soft:#111a2e;
-      --panel:#111827;
-      --panel-2:#162033;
+      --bg:#edf3fb;
+      --bg2:#f7faff;
       --card:#ffffff;
-      --line:#dbe4ef;
-      --line-dark:rgba(255,255,255,.08);
       --text:#0f172a;
-      --text-light:#eaf2ff;
       --muted:#64748b;
-      --muted-light:#a9bbda;
-      --blue:#3b82f6;
-      --blue-dark:#1d4ed8;
+      --line:#dbe4ef;
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
       --cyan:#22d3ee;
       --green:#16a34a;
       --amber:#d97706;
       --red:#dc2626;
-      --violet:#7c3aed;
-      --header-h:86px;
-      --shadow:0 12px 28px rgba(15,23,42,.12);
-      --shadow-pro:0 20px 50px rgba(2,8,23,.28);
-      --radius:20px;
-      --radius-lg:26px;
+      --dark:#0b1220;
+      --dark2:#111a2d;
+      --lightText:#eef4ff;
+      --lightMuted:#b8cae8;
+      --radius:22px;
+      --shadow:0 12px 30px rgba(15,23,42,.08);
+      --shadow-strong:0 18px 45px rgba(2,8,23,.22);
+      --header-h:76px;
     }
 
     *{box-sizing:border-box}
     html,body{margin:0;padding:0}
     body{
       font-family:Arial, Helvetica, sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(59,130,246,.10), transparent 25%),
-        radial-gradient(circle at top right, rgba(34,211,238,.10), transparent 20%),
-        linear-gradient(180deg,#edf3fb 0%, #f6f9fd 100%);
       color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.08), transparent 22%),
+        radial-gradient(circle at top right, rgba(34,211,238,.08), transparent 18%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
     }
 
     .topbar{
@@ -55,60 +52,47 @@
       z-index:9999;
       height:var(--header-h);
       background:rgba(11,18,32,.88);
-      backdrop-filter: blur(14px);
+      backdrop-filter:blur(14px);
       border-bottom:1px solid rgba(255,255,255,.08);
-      box-shadow:0 10px 30px rgba(2,8,23,.22);
-    }
-
-    .topbar::after{
-      content:"";
-      position:absolute;
-      left:0;
-      right:0;
-      bottom:0;
-      height:1px;
-      background:linear-gradient(90deg, transparent, rgba(34,211,238,.6), rgba(59,130,246,.6), transparent);
-      opacity:.9;
+      box-shadow:0 8px 24px rgba(2,8,23,.18);
     }
 
     .topbar-inner{
-      max-width:1200px;
+      max-width:1180px;
       height:100%;
       margin:0 auto;
-      padding:0 16px;
+      padding:0 14px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:16px;
+      gap:12px;
     }
 
     .brand{
       display:flex;
       align-items:center;
-      gap:14px;
+      gap:12px;
       min-width:0;
     }
 
     .avatar-wrap{
-      width:54px;
-      height:54px;
+      width:46px;
+      height:46px;
       border-radius:50%;
-      padding:2px;
-      background:linear-gradient(135deg,#22d3ee,#3b82f6,#7c3aed);
+      overflow:hidden;
+      flex:0 0 auto;
+      background:#fff;
+      border:2px solid rgba(255,255,255,.16);
       box-shadow:
         0 0 0 3px rgba(255,255,255,.04),
-        0 0 18px rgba(34,211,238,.35),
-        0 0 32px rgba(59,130,246,.18);
-      flex:0 0 auto;
+        0 0 18px rgba(34,211,238,.16);
     }
 
     .avatar-wrap img{
       width:100%;
       height:100%;
-      border-radius:50%;
       object-fit:cover;
       display:block;
-      background:#fff;
     }
 
     .brand-text{
@@ -118,7 +102,7 @@
 
     .brand-title{
       color:#fff;
-      font-size:24px;
+      font-size:22px;
       font-weight:900;
       letter-spacing:.2px;
       white-space:nowrap;
@@ -127,146 +111,129 @@
     }
 
     .brand-sub{
-      color:var(--muted-light);
-      font-size:13px;
+      color:var(--lightMuted);
+      font-size:12px;
       margin-top:4px;
       white-space:nowrap;
     }
 
     .topbar-right{
       display:flex;
-      align-items:center;
       gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
+      align-items:center;
     }
 
     .mini-pill{
-      padding:7px 12px;
+      padding:7px 10px;
       border-radius:999px;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.08);
-      color:#e2ecff;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.06);
+      color:#e7efff;
       font-size:12px;
       font-weight:800;
       white-space:nowrap;
     }
 
-    .wrap{
-      max-width:1200px;
+    .app{
+      max-width:1180px;
       margin:0 auto;
-      padding:18px 16px 32px;
+      padding:14px;
     }
 
     .hero{
-      position:relative;
-      overflow:hidden;
       background:
-        radial-gradient(circle at 85% 20%, rgba(34,211,238,.22), transparent 18%),
-        radial-gradient(circle at 15% 10%, rgba(59,130,246,.18), transparent 18%),
+        radial-gradient(circle at 85% 20%, rgba(34,211,238,.18), transparent 16%),
+        radial-gradient(circle at 15% 10%, rgba(59,130,246,.16), transparent 18%),
         linear-gradient(135deg,#0f172a,#172554 70%, #0f172a);
-      color:white;
+      color:#fff;
       border-radius:28px;
-      padding:26px;
-      box-shadow:var(--shadow-pro);
-      margin-bottom:18px;
+      padding:20px;
+      box-shadow:var(--shadow-strong);
+      margin-bottom:14px;
+      overflow:hidden;
     }
 
-    .hero::before{
-      content:"";
-      position:absolute;
-      inset:auto -60px -80px auto;
-      width:240px;
-      height:240px;
-      border-radius:50%;
-      background:radial-gradient(circle, rgba(124,58,237,.18), transparent 65%);
-      pointer-events:none;
-    }
-
-    .hero-grid{
+    .hero-row{
       display:grid;
-      grid-template-columns:1.2fr .8fr;
-      gap:18px;
+      grid-template-columns:1.1fr .9fr;
+      gap:14px;
       align-items:stretch;
     }
 
     .hero-left{
-      position:relative;
-      z-index:1;
+      min-width:0;
     }
 
     .hero-kicker{
       display:inline-flex;
       align-items:center;
       gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
       background:rgba(255,255,255,.08);
       border:1px solid rgba(255,255,255,.10);
+      border-radius:999px;
+      padding:8px 12px;
       font-size:12px;
-      font-weight:800;
-      color:#dbeafe;
+      font-weight:900;
+      color:#dce8ff;
       margin-bottom:12px;
     }
 
     .hero-title{
       margin:0 0 10px;
-      font-size:34px;
-      font-weight:900;
+      font-size:32px;
       line-height:1.08;
+      font-weight:900;
       letter-spacing:-.02em;
     }
 
-    .hero-sub{
+    .hero-desc{
       margin:0;
-      color:#d9e6ff;
-      line-height:1.75;
-      font-size:15px;
-      max-width:64ch;
+      color:#d8e5ff;
+      font-size:14px;
+      line-height:1.7;
+      max-width:62ch;
     }
 
-    .hero-right{
+    .hero-stats{
       display:grid;
       grid-template-columns:repeat(2,1fr);
-      gap:12px;
-      position:relative;
-      z-index:1;
+      gap:10px;
     }
 
     .hero-stat{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(255,255,255,.06);
-      border-radius:20px;
-      padding:16px;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      padding:14px;
     }
 
     .hero-stat-label{
-      font-size:12px;
-      color:#bfd5ff;
+      font-size:11px;
+      color:#bfd2f3;
       margin-bottom:8px;
     }
 
     .hero-stat-value{
-      font-size:24px;
+      font-size:22px;
       font-weight:900;
       color:#fff;
+      line-height:1.1;
       margin-bottom:4px;
     }
 
     .hero-stat-sub{
-      font-size:12px;
-      color:#c7d7f4;
+      font-size:11px;
+      color:#cfddf5;
     }
 
     .status{
+      margin-bottom:14px;
       padding:12px 14px;
-      border-radius:14px;
+      border-radius:16px;
       font-size:14px;
       font-weight:800;
-      margin-bottom:14px;
       border:1px solid var(--line);
-      background:#f8fafc;
+      background:#f8fbff;
       color:#334155;
       box-shadow:var(--shadow);
     }
@@ -289,84 +256,124 @@
       color:#991b1b;
     }
 
-    .section-grid{
-      display:grid;
-      gap:18px;
-      grid-template-columns:1.08fr .92fr;
+    .section{
+      margin-bottom:14px;
     }
 
     .card{
-      background:rgba(255,255,255,.88);
+      background:rgba(255,255,255,.9);
       border:1px solid rgba(219,228,239,.95);
-      border-radius:var(--radius-lg);
-      padding:18px;
+      border-radius:26px;
+      padding:16px;
       box-shadow:var(--shadow);
       backdrop-filter: blur(8px);
     }
 
-    .card-dark{
+    .card.dark{
       background:linear-gradient(180deg,#111827,#172033);
-      color:var(--text-light);
+      color:var(--lightText);
       border:1px solid rgba(255,255,255,.06);
-      box-shadow:var(--shadow-pro);
+      box-shadow:var(--shadow-strong);
+    }
+
+    .card-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
     }
 
     .card-title{
-      margin:0 0 12px;
-      font-size:21px;
+      margin:0;
+      font-size:20px;
       font-weight:900;
       letter-spacing:-.01em;
     }
 
     .card-sub{
+      margin:0 0 10px;
       font-size:13px;
       color:var(--muted);
       line-height:1.6;
-      margin-bottom:12px;
     }
 
-    .card-dark .card-sub{
+    .dark .card-sub{
       color:#bfd0ec;
     }
 
-    .stat-grid{
-      display:grid;
-      gap:12px;
-      grid-template-columns:repeat(4,minmax(0,1fr));
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 12px;
+      border-radius:999px;
+      background:#f7fbff;
+      border:1px solid #dce7f3;
+      color:#334155;
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
     }
 
-    .stat{
-      border:1px solid #e4ebf3;
+    .dark .badge{
+      background:rgba(255,255,255,.08);
+      border-color:rgba(255,255,255,.08);
+      color:#dce8ff;
+    }
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+    }
+
+    .summary-box{
+      background:linear-gradient(180deg,#ffffff,#f7fbff);
+      border:1px solid #e1eaf3;
       border-radius:18px;
       padding:14px;
-      background:linear-gradient(180deg,#ffffff,#f8fbff);
-      box-shadow:0 8px 20px rgba(15,23,42,.04);
+      min-width:0;
     }
 
-    .stat-label{
-      font-size:13px;
+    .summary-label{
+      font-size:12px;
       color:var(--muted);
-      margin-bottom:7px;
+      margin-bottom:6px;
     }
 
-    .stat-value{
-      font-size:24px;
+    .summary-value{
+      font-size:22px;
       font-weight:900;
       line-height:1.1;
+      word-break:break-word;
+    }
+
+    .meta-note{
+      margin-top:12px;
+      font-size:12px;
+      color:#64748b;
+      line-height:1.7;
+    }
+
+    .main-grid{
+      display:grid;
+      grid-template-columns:1.02fr .98fr;
+      gap:14px;
     }
 
     .controls{
       display:grid;
+      grid-template-columns:1fr 1fr;
       gap:10px;
-      grid-template-columns:1fr 1fr auto auto;
-      margin-top:12px;
+      margin-bottom:10px;
     }
 
-    .controls2{
+    .controls-2{
       display:grid;
+      grid-template-columns:1fr 1fr 1fr;
       gap:10px;
-      grid-template-columns:1fr 1fr auto;
-      margin-top:12px;
+      margin-bottom:10px;
     }
 
     input, select, textarea, button{
@@ -375,9 +382,9 @@
 
     .input, .select, textarea{
       width:100%;
-      border:1px solid #cdd8e7;
-      border-radius:14px;
-      padding:12px 13px;
+      border:1px solid #cfdae8;
+      border-radius:15px;
+      padding:13px 14px;
       background:#fff;
       color:var(--text);
       outline:none;
@@ -391,12 +398,11 @@
 
     button{
       border:none;
-      border-radius:14px;
-      padding:12px 15px;
+      border-radius:15px;
+      padding:13px 15px;
       font-weight:900;
       cursor:pointer;
       transition:.18s ease;
-      box-shadow:0 8px 18px rgba(15,23,42,.08);
     }
 
     button:hover{
@@ -404,62 +410,55 @@
     }
 
     .btn-primary{
-      background:linear-gradient(135deg,var(--blue),var(--blue-dark));
-      color:white;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:#fff;
+      box-shadow:0 10px 20px rgba(37,99,235,.18);
     }
 
     .btn-ghost{
-      background:#e8eef7;
+      background:#e9eff7;
       color:#0f172a;
     }
 
     .btn-green{
       background:linear-gradient(135deg,#16a34a,#059669);
-      color:white;
+      color:#fff;
+      box-shadow:0 10px 20px rgba(5,150,105,.16);
     }
 
-    .small{
-      font-size:13px;
+    .helper{
+      font-size:12px;
+      color:#c5d3eb;
+      line-height:1.7;
+      margin-bottom:10px;
+    }
+
+    .helper.light{
       color:var(--muted);
-      line-height:1.6;
     }
 
     #map{
       width:100%;
-      height:440px;
+      height:420px;
       border-radius:22px;
-      border:1px solid #d8e4f0;
+      border:1px solid #d9e4f0;
       overflow:hidden;
       background:#e5eef9;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.4);
     }
 
-    .panel-top{
+    .results-top{
       display:flex;
       justify-content:space-between;
-      align-items:center;
       gap:10px;
+      align-items:center;
       flex-wrap:wrap;
       margin-bottom:10px;
     }
 
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      border:1px solid #dbe4ef;
-      background:#f8fbff;
-      color:#334155;
+    .result-summary{
       font-size:13px;
-      font-weight:900;
-    }
-
-    .badge.dark{
-      background:rgba(255,255,255,.08);
-      border-color:rgba(255,255,255,.08);
-      color:#dce8ff;
+      color:var(--muted);
+      line-height:1.6;
     }
 
     .station-list{
@@ -468,11 +467,11 @@
     }
 
     .station{
-      border:1px solid #e5edf6;
-      border-radius:22px;
-      padding:15px;
+      border:1px solid #e3ebf4;
       background:linear-gradient(180deg,#ffffff,#fbfdff);
-      box-shadow:0 10px 22px rgba(15,23,42,.05);
+      border-radius:22px;
+      padding:14px;
+      box-shadow:0 8px 20px rgba(15,23,42,.04);
     }
 
     .station-top{
@@ -484,19 +483,19 @@
     }
 
     .station-name{
-      font-size:18px;
+      font-size:17px;
       font-weight:900;
       line-height:1.35;
     }
 
     .distance{
       white-space:nowrap;
-      font-size:13px;
-      color:#0f172a;
+      padding:7px 10px;
       background:#e0ecff;
       border-radius:999px;
-      padding:7px 10px;
+      font-size:12px;
       font-weight:900;
+      color:#0f172a;
     }
 
     .brand-row{
@@ -509,11 +508,11 @@
     .brand-badge, .source-badge{
       display:inline-flex;
       align-items:center;
-      border-radius:999px;
       padding:6px 10px;
+      border-radius:999px;
       font-size:12px;
       font-weight:900;
-      border:1px solid #dbe4ef;
+      border:1px solid #dce6f1;
     }
 
     .brand-ptt{background:#eff6ff;color:#1d4ed8}
@@ -530,7 +529,7 @@
     .source-default{background:#f8fafc;color:#475569}
 
     .meta{
-      font-size:13px;
+      font-size:12px;
       color:#475569;
       line-height:1.7;
       margin-bottom:10px;
@@ -538,27 +537,30 @@
 
     .fuel-grid{
       display:grid;
+      grid-template-columns:repeat(3,1fr);
       gap:8px;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      margin-bottom:12px;
+      margin-bottom:10px;
     }
 
     .fuel-item{
-      border:1px solid #e4ecf5;
+      border:1px solid #e3ebf4;
       border-radius:16px;
-      padding:11px;
-      background:white;
+      padding:10px;
+      background:#fff;
+      min-width:0;
     }
 
     .fuel-name{
-      font-size:12px;
+      font-size:11px;
       color:var(--muted);
-      margin-bottom:5px;
+      margin-bottom:4px;
     }
 
     .fuel-value{
-      font-size:14px;
+      font-size:13px;
       font-weight:900;
+      line-height:1.2;
+      word-break:break-word;
     }
 
     .fuel-ok{color:var(--green)}
@@ -570,7 +572,7 @@
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      margin-top:6px;
+      margin-top:4px;
     }
 
     .link-btn{
@@ -578,25 +580,13 @@
       align-items:center;
       justify-content:center;
       text-decoration:none;
-      padding:10px 13px;
-      border-radius:13px;
+      padding:11px 13px;
+      border-radius:14px;
       font-size:13px;
       font-weight:900;
-      border:1px solid #dbe4ef;
-      color:white;
-      background:linear-gradient(135deg,var(--blue),var(--blue-dark));
-      box-shadow:0 8px 18px rgba(37,99,235,.18);
-    }
-
-    .empty{
-      text-align:center;
-      padding:28px 14px;
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.7;
-      border:1px dashed #d6e0ea;
-      border-radius:20px;
-      background:#fbfdff;
+      color:#fff;
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      box-shadow:0 10px 20px rgba(37,99,235,.16);
     }
 
     .field{
@@ -605,14 +595,14 @@
 
     .field label{
       display:block;
-      margin-bottom:7px;
+      margin-bottom:6px;
       font-size:13px;
       font-weight:800;
       color:#334155;
     }
 
     textarea{
-      min-height:130px;
+      min-height:120px;
       resize:vertical;
     }
 
@@ -642,40 +632,26 @@
       font-weight:700;
     }
 
-    .footer-note{
-      font-size:12px;
-      color:#64748b;
-      margin-top:10px;
+    .empty{
+      text-align:center;
+      padding:24px 14px;
+      color:var(--muted);
+      font-size:14px;
       line-height:1.7;
+      border:1px dashed #d7e1ec;
+      border-radius:20px;
+      background:#fbfdff;
     }
 
-    .footer-note.light{
-      color:#bfd0ec;
-    }
-
-    @media (max-width:1100px){
-      .hero-grid,
-      .section-grid,
-      .stat-grid{
+    @media (max-width:1024px){
+      .hero-row,
+      .main-grid,
+      .summary-grid{
         grid-template-columns:1fr;
       }
     }
 
-    @media (max-width:860px){
-      .controls, .controls2, .fuel-grid{
-        grid-template-columns:1fr;
-      }
-
-      #map{
-        height:340px;
-      }
-
-      .hero-title{
-        font-size:28px;
-      }
-    }
-
-    @media (max-width:640px){
+    @media (max-width:768px){
       .topbar-right{
         display:none;
       }
@@ -684,25 +660,228 @@
         font-size:19px;
       }
 
-      .avatar-wrap{
-        width:44px;
-        height:44px;
-      }
-
       .hero{
-        padding:20px;
+        padding:16px;
+        border-radius:22px;
       }
 
       .hero-title{
         font-size:24px;
       }
 
+      .hero-stats{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .card{
+        border-radius:22px;
+        padding:14px;
+      }
+
+      .controls,
+      .controls-2,
+      .fuel-grid{
+        grid-template-columns:1fr;
+      }
+
+      #map{
+        height:320px;
+      }
+
       .station-top{
         flex-direction:column;
+        align-items:flex-start;
       }
 
       .distance{
         align-self:flex-start;
+      }
+
+      button{
+        width:100%;
+      }
+
+      .action-row{
+        flex-direction:column;
+      }
+
+      .link-btn{
+        width:100%;
+      }
+    }
+
+    @media (max-width:480px){
+      :root{
+        --header-h:68px;
+      }
+
+      .app{
+        padding:10px;
+      }
+
+      .topbar-inner{
+        padding:0 10px;
+      }
+
+      .avatar-wrap{
+        width:40px;
+        height:40px;
+      }
+
+      .brand-title{
+        font-size:18px;
+      }
+
+      .brand-sub{
+        font-size:11px;
+      }
+
+      .hero{
+        padding:14px;
+        margin-bottom:10px;
+      }
+
+      .hero-kicker{
+        padding:7px 10px;
+        font-size:11px;
+        margin-bottom:10px;
+      }
+
+      .hero-title{
+        font-size:21px;
+        margin-bottom:8px;
+      }
+
+      .hero-desc{
+        font-size:13px;
+        line-height:1.6;
+      }
+
+      .hero-stats{
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+      }
+
+      .hero-stat{
+        padding:11px;
+        border-radius:15px;
+      }
+
+      .hero-stat-label{
+        font-size:10px;
+        margin-bottom:6px;
+      }
+
+      .hero-stat-value{
+        font-size:17px;
+      }
+
+      .hero-stat-sub{
+        font-size:10px;
+      }
+
+      .status{
+        font-size:13px;
+        padding:11px 12px;
+        margin-bottom:10px;
+      }
+
+      .card{
+        padding:12px;
+        border-radius:18px;
+      }
+
+      .card-title{
+        font-size:18px;
+      }
+
+      .card-sub{
+        font-size:12px;
+        margin-bottom:8px;
+      }
+
+      .summary-grid{
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+      }
+
+      .summary-box{
+        padding:11px;
+        border-radius:14px;
+      }
+
+      .summary-label{
+        font-size:11px;
+      }
+
+      .summary-value{
+        font-size:18px;
+      }
+
+      .badge{
+        font-size:11px;
+        padding:7px 10px;
+      }
+
+      .input, .select, textarea{
+        font-size:16px;
+        padding:12px 12px;
+        border-radius:13px;
+      }
+
+      button{
+        padding:12px 13px;
+        border-radius:13px;
+        font-size:15px;
+      }
+
+      #map{
+        height:270px;
+        border-radius:18px;
+      }
+
+      .result-summary,
+      .meta,
+      .helper,
+      .helper.light,
+      .meta-note{
+        font-size:12px;
+      }
+
+      .station{
+        padding:12px;
+        border-radius:18px;
+      }
+
+      .station-name{
+        font-size:15px;
+      }
+
+      .distance{
+        font-size:11px;
+        padding:6px 9px;
+      }
+
+      .brand-badge, .source-badge{
+        font-size:11px;
+        padding:5px 8px;
+      }
+
+      .fuel-item{
+        padding:9px;
+        border-radius:13px;
+      }
+
+      .fuel-name{
+        font-size:10px;
+      }
+
+      .fuel-value{
+        font-size:12px;
+      }
+
+      textarea{
+        min-height:110px;
       }
     }
   </style>
@@ -712,7 +891,7 @@
     <div class="topbar-inner">
       <div class="brand">
         <div class="avatar-wrap">
-          <img src="./child-header.png" alt="NaraMawin" onerror="this.style.display='none'">
+          <img src="child-header.png?v=2" alt="NaraMawin" onerror="this.onerror=null; this.src='https://placehold.co/120x120/png?text=N';">
         </div>
 
         <div class="brand-text">
@@ -728,19 +907,19 @@
     </div>
   </header>
 
-  <div class="wrap">
-    <section class="hero">
-      <div class="hero-grid">
+  <main class="app">
+    <section class="hero section">
+      <div class="hero-row">
         <div class="hero-left">
           <div class="hero-kicker">⚡ PRO Dashboard</div>
-          <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมดูสถานะน้ำมันแบบเรียลไทม์จากไฟล์ข้อมูลของคุณ</h1>
-          <p class="hero-sub">
-            ระบบนี้อ่านข้อมูลจาก <code>status.json</code> แล้วนำไปจับคู่กับสถานีใกล้เคียงบนแผนที่
-            พร้อมทั้งมีฟอร์มให้ผู้ใช้ส่งข้อความเข้าหา Telegram ของคุณได้ทันที
+          <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณแบบใช้งานง่ายบนมือถือ</h1>
+          <p class="hero-desc">
+            หน้าเว็บนี้ออกแบบใหม่ให้ดูเหมือนแอปจริงบนมือถือ ลดความอึดอัดของส่วนบน
+            และยังคงความสามารถค้นหาปั๊มใกล้เคียง ดูสถานะน้ำมัน และส่งข้อความถึงคุณผ่าน Telegram ได้เหมือนเดิม
           </p>
         </div>
 
-        <div class="hero-right">
+        <div class="hero-stats">
           <div class="hero-stat">
             <div class="hero-stat-label">Last Updated</div>
             <div class="hero-stat-value" id="lastUpdatedText">-</div>
@@ -770,127 +949,131 @@
 
     <div id="statusBox" class="status">พร้อมใช้งาน กำลังโหลด status.json...</div>
 
-    <section class="card" style="margin-bottom:18px;">
-      <div class="panel-top">
-        <h2 class="card-title" style="margin:0;">ภาพรวมระบบ</h2>
-        <div class="badge" id="metaBadge">Status Overview</div>
-      </div>
-
-      <div class="stat-grid">
-        <div class="stat">
-          <div class="stat-label">Last Updated</div>
-          <div class="stat-value" id="summaryLastUpdated">-</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Stations</div>
-          <div class="stat-value" id="summaryStationCount">0</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Online</div>
-          <div class="stat-value" id="summaryOnlineCount">0</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Crowd Reports</div>
-          <div class="stat-value" id="summaryCrowdCount">0</div>
-        </div>
-      </div>
-
-      <div class="footer-note" id="metaText" style="margin-top:14px;">-</div>
-    </section>
-
-    <section class="section-grid">
-      <div class="card card-dark">
-        <div class="panel-top">
-          <h2 class="card-title" style="margin:0;">แผนที่และการค้นหา</h2>
-          <div class="badge dark">Nearby Finder</div>
-        </div>
-
-        <div class="card-sub">
-          ระบุพิกัดเอง หรือใช้ GPS จากอุปกรณ์ จากนั้นกดค้นหาปั๊มน้ำมันใกล้คุณ
-        </div>
-
-        <div class="controls">
-          <input id="latInput" class="input" type="number" step="any" placeholder="Latitude">
-          <input id="lngInput" class="input" type="number" step="any" placeholder="Longitude">
-          <button id="gpsBtn" class="btn-primary" type="button">ใช้ตำแหน่งฉัน</button>
-          <button id="bkkBtn" class="btn-ghost" type="button">ใช้กรุงเทพ</button>
-        </div>
-
-        <div class="controls2">
-          <select id="radiusInput" class="select">
-            <option value="3000">ค้นหาในระยะ 3 กม.</option>
-            <option value="5000" selected>ค้นหาในระยะ 5 กม.</option>
-            <option value="10000">ค้นหาในระยะ 10 กม.</option>
-            <option value="20000">ค้นหาในระยะ 20 กม.</option>
-          </select>
-
-          <select id="brandFilter" class="select">
-            <option value="all">ทุกแบรนด์</option>
-            <option value="ptt">PTT</option>
-            <option value="bangchak">Bangchak</option>
-            <option value="shell">Shell</option>
-            <option value="esso">Esso</option>
-            <option value="caltex">Caltex</option>
-            <option value="pt">PT</option>
-            <option value="susco">Susco</option>
-            <option value="irpc">IRPC</option>
-            <option value="other">อื่น ๆ</option>
-          </select>
-
-          <button id="findBtn" class="btn-primary" type="button">ค้นหาปั๊มใกล้ฉัน</button>
-        </div>
-
-        <div class="footer-note light" id="coordText">พิกัดปัจจุบัน: -</div>
-
-        <div id="map" style="margin-top:12px;"></div>
-      </div>
-
+    <section class="section">
       <div class="card">
-        <div class="panel-top">
-          <h2 class="card-title" style="margin:0;">ผลลัพธ์</h2>
-          <div class="badge" id="countBadge">0 สถานี</div>
+        <div class="card-head">
+          <h2 class="card-title">ภาพรวมระบบ</h2>
+          <div class="badge" id="metaBadge">Status Overview</div>
         </div>
 
-        <div class="small" id="summaryText">ยังไม่มีผลลัพธ์</div>
+        <div class="summary-grid">
+          <div class="summary-box">
+            <div class="summary-label">Last Updated</div>
+            <div class="summary-value" id="summaryLastUpdated">-</div>
+          </div>
 
-        <div class="station-list" id="resultList" style="margin-top:12px;">
-          <div class="empty">กด “ค้นหาปั๊มใกล้ฉัน” เพื่อเริ่มต้น</div>
+          <div class="summary-box">
+            <div class="summary-label">Stations</div>
+            <div class="summary-value" id="summaryStationCount">0</div>
+          </div>
+
+          <div class="summary-box">
+            <div class="summary-label">Online</div>
+            <div class="summary-value" id="summaryOnlineCount">0</div>
+          </div>
+
+          <div class="summary-box">
+            <div class="summary-label">Crowd Reports</div>
+            <div class="summary-value" id="summaryCrowdCount">0</div>
+          </div>
+        </div>
+
+        <div class="meta-note" id="metaText">-</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="main-grid">
+        <div class="card dark">
+          <div class="card-head">
+            <h2 class="card-title">แผนที่และการค้นหา</h2>
+            <div class="badge">Nearby Finder</div>
+          </div>
+
+          <p class="card-sub">เลือกตำแหน่ง กำหนดระยะ และค้นหาปั๊มที่ใกล้คุณที่สุด</p>
+
+          <div class="controls">
+            <input id="latInput" class="input" type="number" step="any" placeholder="Latitude">
+            <input id="lngInput" class="input" type="number" step="any" placeholder="Longitude">
+          </div>
+
+          <div class="controls">
+            <button id="gpsBtn" class="btn-primary" type="button">ใช้ตำแหน่งฉัน</button>
+            <button id="bkkBtn" class="btn-ghost" type="button">ใช้กรุงเทพ</button>
+          </div>
+
+          <div class="controls-2">
+            <select id="radiusInput" class="select">
+              <option value="3000">ระยะ 3 กม.</option>
+              <option value="5000" selected>ระยะ 5 กม.</option>
+              <option value="10000">ระยะ 10 กม.</option>
+              <option value="20000">ระยะ 20 กม.</option>
+            </select>
+
+            <select id="brandFilter" class="select">
+              <option value="all">ทุกแบรนด์</option>
+              <option value="ptt">PTT</option>
+              <option value="bangchak">Bangchak</option>
+              <option value="shell">Shell</option>
+              <option value="esso">Esso</option>
+              <option value="caltex">Caltex</option>
+              <option value="pt">PT</option>
+              <option value="susco">Susco</option>
+              <option value="irpc">IRPC</option>
+              <option value="other">อื่น ๆ</option>
+            </select>
+
+            <button id="findBtn" class="btn-primary" type="button">ค้นหาปั๊มใกล้ฉัน</button>
+          </div>
+
+          <div class="helper" id="coordText">พิกัดปัจจุบัน: -</div>
+
+          <div id="map"></div>
+        </div>
+
+        <div class="card">
+          <div class="results-top">
+            <h2 class="card-title" style="margin:0;">ผลลัพธ์</h2>
+            <div class="badge" id="countBadge">0 สถานี</div>
+          </div>
+
+          <div class="result-summary" id="summaryText">ยังไม่มีผลลัพธ์</div>
+
+          <div class="station-list" id="resultList" style="margin-top:12px;">
+            <div class="empty">กด “ค้นหาปั๊มใกล้ฉัน” เพื่อเริ่มต้น</div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="card" style="margin-top:18px;">
-      <div class="panel-top">
-        <h2 class="card-title" style="margin:0;">ส่งข้อความถึงฉัน</h2>
-        <div class="badge">Telegram Message</div>
-      </div>
+    <section class="section">
+      <div class="card">
+        <div class="card-head">
+          <h2 class="card-title">ส่งข้อความถึงฉัน</h2>
+          <div class="badge">Telegram</div>
+        </div>
 
-      <div class="card-sub">
-        กรอกชื่อผู้ส่งและข้อความ จากนั้นกดส่ง ระบบจะส่งเข้า Telegram bot ของคุณทันที
-      </div>
+        <p class="card-sub">กรอกชื่อผู้ส่งและข้อความ แล้วกดส่งได้ทันที</p>
 
-      <div class="field">
-        <label for="senderName">ชื่อ Sender</label>
-        <input id="senderName" class="input" type="text" placeholder="เช่น Kittipan">
-      </div>
+        <div class="field">
+          <label for="senderName">ชื่อ Sender</label>
+          <input id="senderName" class="input" type="text" placeholder="เช่น Kittipan">
+        </div>
 
-      <div class="field">
-        <label for="senderMessage">ข้อความ</label>
-        <textarea id="senderMessage" placeholder="พิมพ์ข้อความที่ต้องการส่ง"></textarea>
-      </div>
+        <div class="field">
+          <label for="senderMessage">ข้อความ</label>
+          <textarea id="senderMessage" placeholder="พิมพ์ข้อความที่ต้องการส่ง"></textarea>
+        </div>
 
-      <div class="action-row" style="margin-top:14px;">
-        <button id="sendTelegramBtn" class="btn-green" type="button">ส่งข้อความ</button>
-      </div>
+        <div class="field">
+          <button id="sendTelegramBtn" class="btn-green" type="button">ส่งข้อความ</button>
+        </div>
 
-      <div id="feedbackError" class="error-box"></div>
-      <div id="feedbackOk" class="ok-box"></div>
-
-      <div class="footer-note">
-        โหมดนี้ส่งเข้า Telegram โดยตรงจากหน้าเว็บ เหมาะสำหรับทดลองใช้งานก่อน
+        <div id="feedbackError" class="error-box"></div>
+        <div id="feedbackOk" class="ok-box"></div>
       </div>
     </section>
-  </div>
+  </main>
 
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -898,11 +1081,8 @@
   ></script>
 
   <script>
-    // =========================
-    // แก้ 2 ค่านี้ก่อนใช้งาน
-    // =========================
-    const BOT_TOKEN = "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw";
-    const CHAT_ID = "5156469590";
+    const BOT_TOKEN = "PUT_YOUR_BOT_TOKEN_HERE";
+    const CHAT_ID = "PUT_YOUR_CHAT_ID_HERE";
 
     let map;
     let mapMarkers = [];
@@ -1384,7 +1564,7 @@ out center tags;
             </div>
           </div>
 
-          <div class="small" style="margin-bottom:10px;">
+          <div class="result-summary" style="margin-bottom:10px;">
             Reporter: ${escapeHtml(reporters || "-")}
           </div>
 
@@ -1408,7 +1588,7 @@ out center tags;
         return;
       }
 
-      if (BOT_TOKEN === "PUT_YOUR_BOT_TOKEN_HERE" || CHAT_ID === "PUT_YOUR_CHAT_ID_HERE") {
+      if (BOT_TOKEN === "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw" || CHAT_ID === "5156469590") {
         showBox("feedbackError", "กรุณาใส่ BOT_TOKEN และ CHAT_ID ใน index.html ก่อน");
         return;
       }
