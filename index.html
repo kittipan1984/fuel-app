@@ -69,13 +69,6 @@
       box-shadow:0 16px 34px rgba(15,23,42,.22);
     }
 
-    .hero-inner{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-    }
-
     .hero-title{
       margin:0;
       font-size:26px;
@@ -95,26 +88,6 @@
       font-size:14px;
       font-weight:700;
       color:#fff;
-    }
-
-    .hero-avatar-wrap{
-      width:72px;
-      height:72px;
-      border-radius:50%;
-      overflow:hidden;
-      border:3px solid rgba(255,255,255,.72);
-      box-shadow:0 8px 18px rgba(0,0,0,.22);
-      background:rgba(255,255,255,.18);
-      flex:0 0 auto;
-    }
-
-    .hero-avatar{
-      width:100%;
-      height:100%;
-      object-fit:contain;
-      object-position:center center;
-      display:block;
-      background:#ffffff22;
     }
 
     .card{
@@ -509,11 +482,6 @@
         height:340px;
       }
 
-      .hero-avatar-wrap{
-        width:60px;
-        height:60px;
-      }
-
       .hero-title{
         font-size:22px;
       }
@@ -523,17 +491,9 @@
 <body>
   <div class="wrap">
     <div class="hero">
-      <div class="hero-inner">
-        <div>
-          <h1 class="hero-title">⛽ Fuel Station Finder PRO</h1>
-          <div class="hero-sub">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมสถานะน้ำมันแบบ real-time จาก status.json และระบบรายงานผู้ใช้</div>
-          <div class="hero-by">By NaraMawin</div>
-        </div>
-
-        <div class="hero-avatar-wrap">
-          <img class="hero-avatar" src="./child-header.png?v=99" alt="avatar">
-        </div>
-      </div>
+      <h1 class="hero-title">⛽ NaraMawin Fuel Finder PRO</h1>
+      <div class="hero-sub">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมสถานะน้ำมันแบบ real-time จาก status.json และระบบรายงานผู้ใช้</div>
+      <div class="hero-by">By NaraMawin</div>
     </div>
 
     <div class="card">
@@ -1132,8 +1092,6 @@ out center tags;
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      console.log("INIT PRO PAGE");
-
       initMap();
       updateCoordText();
       loadStationStatus();
