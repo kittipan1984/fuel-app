@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>No1 App</title>
+  <title>Fuel Finder</title>
 
   <link
     rel="stylesheet"
@@ -23,8 +23,10 @@
       --green:#16a34a;
       --amber:#d97706;
       --red:#dc2626;
+      --header:#0f172a;
       --shadow:0 12px 28px rgba(15,23,42,.08);
       --radius:18px;
+      --header-h:86px;
     }
 
     *{box-sizing:border-box}
@@ -35,83 +37,113 @@
       color:var(--text);
     }
 
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:9999;
+      height:var(--header-h);
+      background:rgba(15,23,42,.96);
+      color:#fff;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(8px);
+    }
+
+    .topbar-inner{
+      max-width:1180px;
+      height:100%;
+      margin:0 auto;
+      padding:10px 16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+
+    .brand-avatar{
+      width:52px;
+      height:52px;
+      border-radius:50%;
+      object-fit:cover;
+      object-position:center;
+      border:2px solid rgba(255,255,255,.15);
+      background:#fff;
+      flex:0 0 auto;
+    }
+
+    .brand-text{
+      min-width:0;
+      line-height:1.15;
+    }
+
+    .brand-title{
+      font-size:24px;
+      font-weight:900;
+      letter-spacing:.2px;
+      white-space:nowrap;
+    }
+
+    .brand-sub{
+      font-size:13px;
+      color:#cbd5e1;
+      margin-top:4px;
+      white-space:nowrap;
+    }
+
+    .topbar-right{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .mini-pill{
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.08);
+      color:#e2e8f0;
+      font-size:12px;
+      font-weight:700;
+      white-space:nowrap;
+    }
+
     .wrap{
       max-width:1180px;
       margin:0 auto;
       padding:16px;
+      padding-top:calc(16px + 6px);
     }
 
     .hero{
-      background:linear-gradient(135deg,#0f172a,#1e3a8a);
-      color:white;
+      background:linear-gradient(135deg,#dbeafe,#eff6ff);
+      border:1px solid #bfdbfe;
       border-radius:24px;
       padding:18px;
       box-shadow:var(--shadow);
       margin-bottom:18px;
-      overflow:hidden;
-    }
-
-    .hero-top{
-      display:flex;
-      align-items:center;
-      gap:16px;
-      flex-wrap:wrap;
-    }
-
-    .hero-img{
-      width:120px;
-      max-width:100%;
-      height:auto;
-      border-radius:16px;
-      background:white;
-      padding:8px;
-      flex:0 0 auto;
-    }
-
-    .hero-text{
-      min-width:260px;
-      flex:1;
     }
 
     .hero-title{
-      margin:0 0 6px;
-      font-size:28px;
+      margin:0 0 8px;
+      font-size:26px;
       font-weight:900;
       line-height:1.15;
+      color:#0f172a;
     }
 
     .hero-sub{
       margin:0;
-      color:#dbeafe;
-      line-height:1.6;
+      color:#334155;
+      line-height:1.7;
       font-size:14px;
-    }
-
-    .grid{
-      display:grid;
-      gap:16px;
-    }
-
-    .grid-2{
-      grid-template-columns:1.1fr .9fr;
-    }
-
-    .grid-3{
-      grid-template-columns:repeat(3,minmax(0,1fr));
-    }
-
-    .card{
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:18px;
-      box-shadow:var(--shadow);
-    }
-
-    .card-title{
-      margin:0 0 12px;
-      font-size:20px;
-      font-weight:900;
     }
 
     .status{
@@ -141,6 +173,29 @@
       background:#fef2f2;
       border-color:#fecaca;
       color:#991b1b;
+    }
+
+    .grid{
+      display:grid;
+      gap:16px;
+    }
+
+    .grid-2{
+      grid-template-columns:1.1fr .9fr;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+
+    .card-title{
+      margin:0 0 12px;
+      font-size:20px;
+      font-weight:900;
     }
 
     .stat-grid{
@@ -383,10 +438,6 @@
       background:linear-gradient(135deg,var(--blue),var(--blue-dark));
     }
 
-    .link-btn.alt{
-      background:linear-gradient(135deg,#334155,#475569);
-    }
-
     .empty{
       text-align:center;
       padding:26px 14px;
@@ -427,6 +478,18 @@
       font-size:13px;
     }
 
+    .ok-box{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      background:#ecfdf5;
+      color:#166534;
+      border:1px solid #bbf7d0;
+      display:none;
+      white-space:pre-wrap;
+      font-size:13px;
+    }
+
     .footer-note{
       font-size:12px;
       color:#64748b;
@@ -441,7 +504,7 @@
     }
 
     @media (max-width:980px){
-      .grid-2,.grid-3,.stat-grid{
+      .grid-2,.stat-grid{
         grid-template-columns:1fr;
       }
 
@@ -453,24 +516,64 @@
         height:340px;
       }
 
-      .hero-title{
-        font-size:24px;
+      .brand-title{
+        font-size:20px;
+      }
+
+      .topbar{
+        height:auto;
+      }
+
+      .topbar-inner{
+        min-height:var(--header-h);
+        align-items:center;
+      }
+    }
+
+    @media (max-width:640px){
+      .topbar-right{
+        display:none;
+      }
+
+      .brand-avatar{
+        width:44px;
+        height:44px;
+      }
+
+      .brand-title{
+        font-size:18px;
+      }
+
+      .brand-sub{
+        font-size:12px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="hero">
-      <div class="hero-top">
-        <img src="./child-header.png" alt="Header" class="hero-img" onerror="this.style.display='none'">
-        <div class="hero-text">
-          <h1 class="hero-title">⛽ No1 App Fuel Finder</h1>
-          <p class="hero-sub">
-            ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมสถานะน้ำมันจาก <code>status.json</code> และเปิด Telegram เพื่อส่ง feedback ได้แบบง่ายและเสถียร
-          </p>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <img src="./child-header.png" alt="NaraMawin" class="brand-avatar" onerror="this.style.display='none'">
+        <div class="brand-text">
+          <div class="brand-title">Fuel Finder</div>
+          <div class="brand-sub">By NaraMawin</div>
         </div>
       </div>
+
+      <div class="topbar-right">
+        <div class="mini-pill" id="headerUpdated">Updated: -</div>
+        <div class="mini-pill" id="headerStations">Stations: 0</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="hero">
+      <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ</h1>
+      <p class="hero-sub">
+        ระบบนี้อ่านข้อมูลจาก <code>status.json</code> และแสดงสถานะน้ำมันบนหน้ารายการสถานี พร้อมส่งข้อความถึง Telegram ของคุณได้จากฟอร์มด้านล่าง
+      </p>
     </div>
 
     <div id="statusBox" class="status">พร้อมใช้งาน กำลังโหลด status.json...</div>
@@ -552,33 +655,27 @@
     </div>
 
     <div class="card" style="margin-top:16px;">
-      <h2 class="card-title">ส่ง Feedback</h2>
-      <div class="small">
-        เวอร์ชันนี้ใช้ Telegram แบบเปิดลิงก์พร้อมข้อความอัตโนมัติ เพื่อให้เสถียรกับ GitHub Pages และไม่ต้องตั้งค่า backend
+      <h2 class="card-title">ส่งข้อความถึงฉัน</h2>
+
+      <div class="field">
+        <label for="senderName">ชื่อ Sender</label>
+        <input id="senderName" class="input" type="text" placeholder="เช่น Kittipan">
       </div>
 
       <div class="field">
-        <label for="feedbackName">ชื่อ</label>
-        <input id="feedbackName" class="input" type="text" placeholder="เช่น Kittipan">
-      </div>
-
-      <div class="field">
-        <label for="feedbackContact">ติดต่อกลับ</label>
-        <input id="feedbackContact" class="input" type="text" placeholder="Line / Email / Telegram / Phone">
-      </div>
-
-      <div class="field">
-        <label for="feedbackMessage">ข้อความ</label>
-        <textarea id="feedbackMessage" placeholder="พิมพ์ปัญหาที่พบ หรือคำแนะนำ"></textarea>
+        <label for="senderMessage">ข้อความ</label>
+        <textarea id="senderMessage" placeholder="พิมพ์ข้อความที่ต้องการส่ง"></textarea>
       </div>
 
       <div class="action-row" style="margin-top:14px;">
-        <button id="openTelegramBtn" class="btn-green" type="button">เปิด Telegram พร้อมข้อความ</button>
+        <button id="sendTelegramBtn" class="btn-green" type="button">ส่งข้อความ</button>
       </div>
 
       <div id="feedbackError" class="error-box"></div>
+      <div id="feedbackOk" class="ok-box"></div>
+
       <div class="footer-note">
-        สำคัญ: เปลี่ยนค่า <code>TELEGRAM_BOT_USERNAME</code> ในไฟล์นี้ให้เป็น username bot ของคุณก่อนใช้งาน
+        โหมดนี้ส่งเข้า Telegram โดยตรงจากหน้าเว็บ เหมาะสำหรับทดลองใช้งานก่อน
       </div>
     </div>
   </div>
@@ -589,7 +686,11 @@
   ></script>
 
   <script>
-    const TELEGRAM_BOT_USERNAME = "FuelStationFinderBot";
+    // =========================
+    // แก้ 2 ค่านี้ก่อนใช้งาน
+    // =========================
+    const BOT_TOKEN = "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw";
+    const CHAT_ID = "5156469590";
 
     let map;
     let mapMarkers = [];
@@ -614,7 +715,7 @@
       statusBox.textContent = message;
     }
 
-    function showError(id, message) {
+    function showBox(id, message) {
       const el = document.getElementById(id);
       if (!el) return;
       el.style.display = message ? "block" : "none";
@@ -864,19 +965,20 @@
           stations: data.stations
         };
 
-        document.getElementById("lastUpdatedText").textContent =
-          stationStatusData.meta.lastUpdatedBkk || "-";
+        const lastUpdated = stationStatusData.meta.lastUpdatedBkk || "-";
+        const stationCount = stationStatusData.stations.length;
+        const onlineCount = stationStatusData.stations.filter(s =>
+          Object.values(s.fuels || {}).some(v => v === "available" || v === "low")
+        ).length;
+        const crowdCount = stationStatusData.stations.filter(s => s.crowdsource?.enabled).length;
 
-        document.getElementById("stationCountText").textContent =
-          stationStatusData.stations.length;
+        document.getElementById("lastUpdatedText").textContent = lastUpdated;
+        document.getElementById("stationCountText").textContent = stationCount;
+        document.getElementById("onlineCountText").textContent = onlineCount;
+        document.getElementById("crowdCountText").textContent = crowdCount;
 
-        document.getElementById("onlineCountText").textContent =
-          stationStatusData.stations.filter(s =>
-            Object.values(s.fuels || {}).some(v => v === "available" || v === "low")
-          ).length;
-
-        document.getElementById("crowdCountText").textContent =
-          stationStatusData.stations.filter(s => s.crowdsource?.enabled).length;
+        document.getElementById("headerUpdated").textContent = `Updated: ${lastUpdated}`;
+        document.getElementById("headerStations").textContent = `Stations: ${stationCount}`;
 
         document.getElementById("metaText").textContent =
           `Source: ${stationStatusData.meta.source || "-"} | Version: ${stationStatusData.meta.version || "-"} | Notes: ${stationStatusData.meta.notes || "-"}`;
@@ -1076,34 +1178,64 @@ out center tags;
       });
     }
 
-    function openTelegramFeedback() {
-      showError("feedbackError", "");
+    async function sendToTelegram() {
+      showBox("feedbackError", "");
+      showBox("feedbackOk", "");
 
-      const name = document.getElementById("feedbackName").value.trim() || "Anonymous";
-      const contact = document.getElementById("feedbackContact").value.trim() || "-";
-      const message = document.getElementById("feedbackMessage").value.trim();
+      const senderName = document.getElementById("senderName").value.trim() || "Anonymous";
+      const senderMessage = document.getElementById("senderMessage").value.trim();
 
-      if (!message) {
-        showError("feedbackError", "กรุณากรอกข้อความก่อน");
+      if (!senderMessage) {
+        showBox("feedbackError", "กรุณากรอกข้อความก่อน");
         return;
       }
 
-      if (TELEGRAM_BOT_USERNAME === "YOUR_BOT_USERNAME") {
-        showError("feedbackError", "กรุณาแก้ TELEGRAM_BOT_USERNAME ใน index.html ก่อนใช้งาน");
+      if (BOT_TOKEN === "PUT_YOUR_BOT_TOKEN_HERE" || CHAT_ID === "PUT_YOUR_CHAT_ID_HERE") {
+        showBox("feedbackError", "กรุณาใส่ BOT_TOKEN และ CHAT_ID ใน index.html ก่อน");
         return;
       }
 
       const text =
-`📩 Feedback from No1 App
-Name: ${name}
-Contact: ${contact}
-Message: ${message}
+`📩 New Message from Fuel Finder
+
+Sender: ${senderName}
+Message: ${senderMessage}
 Page: ${window.location.href}
 Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
 
-      const encoded = encodeURIComponent(text);
-      const url = `https://t.me/${TELEGRAM_BOT_USERNAME}?text=${encoded}`;
-      window.open(url, "_blank");
+      const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+      const btn = document.getElementById("sendTelegramBtn");
+      btn.disabled = true;
+      btn.textContent = "กำลังส่ง...";
+
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            chat_id: CHAT_ID,
+            text: text
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.ok) {
+          throw new Error(data.description || `HTTP ${res.status}`);
+        }
+
+        document.getElementById("senderMessage").value = "";
+        showBox("feedbackOk", "ส่งข้อความสำเร็จ");
+      } catch (err) {
+        console.error(err);
+        showBox("feedbackError", "ส่งข้อความไม่สำเร็จ\n" + (err.message || String(err)));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "ส่งข้อความ";
+      }
     }
 
     function useBrowserGPS() {
@@ -1145,7 +1277,7 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
 
       document.getElementById("gpsBtn").addEventListener("click", useBrowserGPS);
       document.getElementById("findBtn").addEventListener("click", findNearbyStations);
-      document.getElementById("openTelegramBtn").addEventListener("click", openTelegramFeedback);
+      document.getElementById("sendTelegramBtn").addEventListener("click", sendToTelegram);
 
       document.getElementById("bkkBtn").addEventListener("click", () => {
         currentLat = 13.7563;
