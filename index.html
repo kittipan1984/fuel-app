@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Fuel Finder</title>
 
   <link
@@ -32,7 +32,7 @@
       --radius:22px;
       --shadow:0 12px 30px rgba(15,23,42,.08);
       --shadow-strong:0 18px 45px rgba(2,8,23,.22);
-      --header-h:74px;
+      --header-h:72px;
     }
 
     *{box-sizing:border-box}
@@ -46,12 +46,14 @@
         linear-gradient(180deg,var(--bg),var(--bg2));
     }
 
+    a{color:inherit}
+
     .topbar{
       position:sticky;
       top:0;
       z-index:9999;
       height:var(--header-h);
-      background:rgba(11,18,32,.88);
+      background:rgba(11,18,32,.90);
       backdrop-filter:blur(14px);
       border-bottom:1px solid rgba(255,255,255,.08);
       box-shadow:0 8px 24px rgba(2,8,23,.18);
@@ -110,6 +112,8 @@
       display:flex;
       gap:8px;
       align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
 
     .mini-pill{
@@ -127,6 +131,7 @@
       max-width:1180px;
       margin:0 auto;
       padding:14px;
+      padding-bottom:90px;
     }
 
     .hero{
@@ -244,7 +249,7 @@
     .section{ margin-bottom:14px; }
 
     .card{
-      background:rgba(255,255,255,.9);
+      background:rgba(255,255,255,.92);
       border:1px solid rgba(219,228,239,.95);
       border-radius:26px;
       padding:16px;
@@ -304,7 +309,7 @@
 
     .summary-grid{
       display:grid;
-      grid-template-columns:repeat(2,1fr);
+      grid-template-columns:repeat(3,1fr);
       gap:10px;
     }
 
@@ -338,7 +343,7 @@
 
     .main-grid{
       display:grid;
-      grid-template-columns:1.02fr .98fr;
+      grid-template-columns:1.04fr .96fr;
       gap:14px;
     }
 
@@ -408,6 +413,15 @@
       background:linear-gradient(135deg,#2563eb,#1d4ed8);
       color:#fff;
       box-shadow:0 10px 20px rgba(37,99,235,.16);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
+      min-height:46px;
+      padding:0 15px;
+      border-radius:15px;
+      font-size:14px;
+      font-weight:900;
     }
 
     .helper{
@@ -417,11 +431,9 @@
       margin-bottom:10px;
     }
 
-    .helper.light{ color:var(--muted); }
-
     #map{
       width:100%;
-      height:420px;
+      height:430px;
       border-radius:22px;
       border:1px solid #d9e4f0;
       overflow:hidden;
@@ -513,6 +525,10 @@
       margin-top:4px;
     }
 
+    .action-row > *{
+      flex:1 1 160px;
+    }
+
     .field{ margin-top:12px; }
 
     .field label{
@@ -565,6 +581,40 @@
       background:#fbfdff;
     }
 
+    .bottom-nav{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:12px;
+      z-index:9998;
+      width:min(520px, calc(100% - 20px));
+      background:rgba(11,18,32,.92);
+      backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 14px 34px rgba(2,8,23,.28);
+      border-radius:22px;
+      padding:8px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+    }
+
+    .nav-btn{
+      border:none;
+      border-radius:16px;
+      background:rgba(255,255,255,.06);
+      color:#e8f0ff;
+      font-weight:900;
+      font-size:12px;
+      padding:12px 10px;
+      cursor:pointer;
+    }
+
+    .nav-btn.active{
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:#fff;
+    }
+
     @media (max-width:1024px){
       .hero-grid,
       .main-grid{
@@ -587,6 +637,8 @@
       .distance{ align-self:flex-start; }
       button{ width:100%; }
       .action-row{ flex-direction:column; }
+      .action-row > *{ flex:1 1 auto; width:100%; }
+      .btn-fuel{ width:100%; }
     }
 
     @media (max-width:480px){
@@ -604,6 +656,7 @@
       .status{ font-size:13px; padding:11px 12px; margin-bottom:10px; }
       .card{ padding:12px; border-radius:18px; }
       .card-title{ font-size:18px; }
+      .summary-grid{ grid-template-columns:1fr; }
       .summary-box{ padding:11px; border-radius:14px; }
       .summary-value{ font-size:18px; }
       .input, .select, textarea{
@@ -614,6 +667,14 @@
       #map{ height:270px; border-radius:18px; }
       .station{ padding:12px; border-radius:18px; }
       .station-name{ font-size:15px; }
+      .bottom-nav{
+        bottom:10px;
+        border-radius:18px;
+      }
+      .nav-btn{
+        font-size:11px;
+        padding:11px 8px;
+      }
     }
   </style>
 </head>
@@ -622,7 +683,7 @@
     <div class="topbar-inner">
       <div class="brand">
         <div class="avatar-wrap">
-          <img src="child-header.png?v=3" alt="NaraMawin" onerror="this.onerror=null; this.src='https://placehold.co/120x120/png?text=N';">
+          <img src="child-header.png?v=4" alt="NaraMawin" onerror="this.onerror=null; this.src='https://placehold.co/120x120/png?text=N';">
         </div>
         <div>
           <div class="brand-title">Fuel Finder</div>
@@ -638,14 +699,13 @@
   </header>
 
   <main class="app">
-    <section class="hero section">
+    <section class="hero section" id="section-home">
       <div class="hero-grid">
         <div>
-          <div class="hero-kicker">⚡ PRO Dashboard</div>
+          <div class="hero-kicker">⚡ PRO+ FINAL</div>
           <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมลิงก์ดูสถานะจริงจาก Fuel Now</h1>
           <p class="hero-desc">
-            เวอร์ชันนี้เก็บ UI สวยและฟังก์ชันหลักไว้ แต่ไม่แสดง status ปลอมอีกแล้ว
-            ปั๊มที่เห็นมาจากแผนที่จริง และปุ่ม “ดูสถานะจริง” จะพาไปดูข้อมูลจาก Fuel Now
+            เวอร์ชันนี้เป็นตัวจบงาน: หน้าเว็บสวย ใช้งานง่ายบนมือถือ มีแผนที่ รายชื่อปั๊ม ปุ่มนำทาง ปุ่มดูสถานะจริง และฟอร์มส่งข้อความถึงคุณ โดยไม่ใช้ fake fuel status
           </p>
         </div>
 
@@ -679,14 +739,18 @@
     <section class="section">
       <div class="card">
         <div class="card-head">
-          <h2 class="card-title">ภาพรวมระบบ</h2>
-          <div class="badge">Real UX Mode</div>
+          <h2 class="card-title">Dashboard</h2>
+          <div class="badge">Completed Version</div>
         </div>
 
         <div class="summary-grid">
           <div class="summary-box">
             <div class="summary-label">Updated date time</div>
             <div class="summary-value" id="summaryUpdated">-</div>
+          </div>
+          <div class="summary-box">
+            <div class="summary-label">Search status</div>
+            <div class="summary-value" id="summarySearch">Ready</div>
           </div>
           <div class="summary-box">
             <div class="summary-label">ผลการค้นหา</div>
@@ -700,7 +764,7 @@
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="section-map">
       <div class="main-grid">
         <div class="card dark">
           <div class="card-head">
@@ -749,7 +813,7 @@
           <div id="map"></div>
         </div>
 
-        <div class="card">
+        <div class="card" id="section-results">
           <div class="results-top">
             <h2 class="card-title" style="margin:0;">ผลลัพธ์</h2>
             <div class="badge" id="countBadge">0 ปั๊ม</div>
@@ -764,7 +828,7 @@
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="section-contact">
       <div class="card">
         <div class="card-head">
           <h2 class="card-title">ส่งข้อความถึงฉัน</h2>
@@ -793,9 +857,16 @@
     </section>
   </main>
 
+  <nav class="bottom-nav" aria-label="Quick navigation">
+    <button class="nav-btn active" data-target="section-home">Home</button>
+    <button class="nav-btn" data-target="section-map">Map</button>
+    <button class="nav-btn" data-target="section-contact">Contact</button>
+  </nav>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <script>
+    // ========= ใส่ข้อมูลของคุณตรงนี้ =========
     const BOT_TOKEN = "PUT_YOUR_BOT_TOKEN_HERE";
     const CHAT_ID = "PUT_YOUR_CHAT_ID_HERE";
 
@@ -839,6 +910,7 @@
       document.getElementById("heroRadius").textContent = radiusKm;
 
       document.getElementById("summaryUpdated").textContent = stamp;
+      document.getElementById("summarySearch").textContent = searchStatus;
       document.getElementById("summaryFound").textContent = found + " ปั๊ม";
 
       document.getElementById("headerUpdated").textContent = "Updated: " + stamp;
@@ -1023,6 +1095,7 @@ out center tags;
         }).filter(s => Number.isFinite(s.lat) && Number.isFinite(s.lng));
 
         lastStations.sort((a, b) => a.distanceKm - b.distanceKm);
+
         applyFiltersAndRender();
         setStatus(`ค้นหาสำเร็จ พบ ${lastStations.length} ปั๊ม`, "ok");
         updateDashboard(lastStations.length, "Ready");
@@ -1085,12 +1158,12 @@ out center tags;
           <div class="meta">
             ที่อยู่: ${escapeHtml(s.address || "-")}<br>
             พิกัด: ${s.lat.toFixed(6)}, ${s.lng.toFixed(6)}<br>
-            สถานะน้ำมันบนเว็บนี้: ไม่แสดงค่าปลอม
+            สถานะบนเว็บนี้: ใช้ปุ่มด้านล่างเพื่อดูสถานะจริงจาก Fuel Now
           </div>
 
           <div class="action-row">
-            <a class="btn-primary" style="text-decoration:none;text-align:center;" href="${dirLink(s.lat, s.lng)}" target="_blank" rel="noopener noreferrer">นำทาง</a>
-            <a class="btn-fuel" style="text-decoration:none;text-align:center;" href="${fuelNowLink(s.lat, s.lng, s.name)}" target="_blank" rel="noopener noreferrer">ดูสถานะจริง</a>
+            <a class="btn-fuel" href="${dirLink(s.lat, s.lng)}" target="_blank" rel="noopener noreferrer">นำทาง</a>
+            <a class="btn-fuel" href="${fuelNowLink(s.lat, s.lng, s.name)}" target="_blank" rel="noopener noreferrer">ดูสถานะจริง</a>
           </div>
         `;
         resultList.appendChild(el);
@@ -1179,6 +1252,21 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
       );
     }
 
+    function setupBottomNav() {
+      const navButtons = document.querySelectorAll(".nav-btn");
+      navButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          navButtons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const targetId = btn.getAttribute("data-target");
+          const target = document.getElementById(targetId);
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      });
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       map = L.map("map", { zoomControl: true }).setView([13.7563, 100.5018], 12);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -1189,10 +1277,12 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
       addUserMarker(currentLat, currentLng);
       updateCoordText();
       updateDashboard(0, "Ready");
+      setupBottomNav();
 
       document.getElementById("gpsBtn").addEventListener("click", useBrowserGPS);
       document.getElementById("findBtn").addEventListener("click", findNearbyStations);
       document.getElementById("sendTelegramBtn").addEventListener("click", sendToTelegram);
+
       document.getElementById("bkkBtn").addEventListener("click", () => {
         currentLat = 13.7563;
         currentLng = 100.5018;
@@ -1206,6 +1296,11 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
 
       brandFilter.addEventListener("change", () => {
         if (lastStations.length) applyFiltersAndRender();
+      });
+
+      radiusInput.addEventListener("change", () => {
+        const radiusKm = (Number(radiusInput.value || 5000) / 1000).toString() + " กม.";
+        document.getElementById("heroRadius").textContent = radiusKm;
       });
     });
   </script>
