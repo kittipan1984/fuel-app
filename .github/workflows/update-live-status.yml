@@ -8,23 +8,41 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   update-live-status:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: "20"
+          node-version: "22"
+
+      - name: Debug files
+        run: |
+          pwd
+          ls -la
+          echo "---- scripts ----"
+          ls -la scripts || true
+          echo "---- stations.json head ----"
+          head -n 40 stations.json || true
+          echo "DOEB_API present? -> ${{ secrets.DOEB_API != '' }}"
 
       - name: Generate live-status.json
         env:
           DOEB_API: ${{ secrets.DOEB_API }}
         run: node scripts/build-live-status.mjs
+
+      - name: Show generated file
+        run: |
+          echo "---- live-status.json ----"
+          head -n 80 live-status.json || true
 
       - name: Commit changes
         run: |
