@@ -1,274 +1,140 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Fuel Finder Pro+ | KittipanS.</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fuel Finder PRO MAX</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont;
+  background:#0f172a;
+  color:#fff;
+}
 
-  <style>
-    :root {
-      --bg: #f0f4f8;
-      --dark: #0f172a;
-      --blue: #2563eb;
-      --green: #16a34a;
-      --card: #ffffff;
-      --text: #1e293b;
-      --shadow: 0 10px 25px rgba(0,0,0,0.05);
-    }
+header{
+  position:sticky;
+  top:0;
+  background:#020617;
+  padding:15px;
+  text-align:center;
+  font-weight:700;
+  z-index:10;
+}
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      background-color: var(--bg);
-      color: var(--text);
-      padding-bottom: 80px;
-    }
+.container{
+  padding:10px;
+}
 
-    /* Header Styling */
-    .topbar {
-      background: var(--dark);
-      color: white;
-      padding: 15px 20px;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
+.card{
+  background:#1e293b;
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
 
-    .brand { display: flex; align-items: center; gap: 12px; }
-    .brand img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--blue); }
-    .brand-title { font-weight: 900; font-size: 20px; }
+.title{
+  font-weight:700;
+}
 
-    .app-container { max-width: 1000px; margin: 20px auto; padding: 0 15px; }
+.sub{
+  font-size:12px;
+  color:#94a3b8;
+}
 
-    /* Hero Section */
-    .hero {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      color: white;
-      padding: 30px;
-      border-radius: 24px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
+.fuel{
+  margin-top:8px;
+  display:flex;
+  gap:8px;
+}
 
-    /* Map Styling */
-    #map {
-      height: 400px;
-      width: 100%;
-      border-radius: 20px;
-      margin-bottom: 20px;
-      border: 4px solid white;
-      box-shadow: var(--shadow);
-    }
+.badge{
+  flex:1;
+  padding:8px;
+  border-radius:8px;
+  text-align:center;
+  font-size:12px;
+  font-weight:700;
+}
 
-    /* Controls */
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-      margin-bottom: 20px;
-    }
-
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-    
-    input, select, button {
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      font-size: 14px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .btn-main { background: var(--blue); color: white; border: none; font-weight: bold; cursor: pointer; }
-    .btn-gps { background: var(--green); color: white; border: none; font-weight: bold; cursor: pointer; }
-
-    /* Station Card */
-    .station-card {
-      background: white;
-      border-radius: 18px;
-      padding: 20px;
-      margin-bottom: 15px;
-      border-left: 8px solid var(--blue);
-      box-shadow: var(--shadow);
-    }
-
-    .doeb-box {
-      background: #fffbe6;
-      border: 1px solid #ffe58f;
-      padding: 12px;
-      border-radius: 12px;
-      margin: 12px 0;
-    }
-
-    .btn-live {
-      display: block;
-      text-align: center;
-      background: #ff5722;
-      color: white;
-      text-decoration: none;
-      padding: 12px;
-      border-radius: 10px;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    .btn-nav {
-      display: inline-block;
-      background: #f1f5f9;
-      color: #475569;
-      text-decoration: none;
-      padding: 8px 15px;
-      border-radius: 8px;
-      font-size: 13px;
-      margin-top: 5px;
-    }
-
-    #toast {
-      position: fixed;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.8);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 30px;
-      display: none;
-      z-index: 10000;
-    }
-
-    @media (max-width: 600px) {
-      .grid-3 { grid-template-columns: 1fr; }
-    }
-  </style>
+.green{background:#16a34a;}
+.red{background:#dc2626;}
+.gray{background:#64748b;}
+</style>
 </head>
+
 <body>
 
-  <header class="topbar">
-    <div class="brand">
-      <img src="https://placehold.co/100x100/png?text=K" alt="KittipanS">
-      <div class="brand-title">Fuel Finder Pro+</div>
-    </div>
-    <div id="status-tag" style="font-size: 12px; background: #1e293b; padding: 5px 10px; border-radius: 10px;">Ready</div>
-  </header>
+<header>
+🔥 Fuel Finder PRO MAX
+</header>
 
-  <div class="app-container">
-    <section class="hero">
-      <h2 style="margin:0;">ค้นหาปั๊มน้ำมันระยอง</h2>
-      <p style="opacity: 0.8; font-size: 14px;">ระบบ Smart Sync กับกรมธุรกิจพลังงาน (DOEB) โดย KittipanS.</p>
-    </section>
+<div class="container" id="list">
+Loading...
+</div>
 
-    <div class="card">
-      <div class="grid-3">
-        <button class="btn-gps" onclick="getLocation()">📍 ใช้ตำแหน่งปัจจุบัน</button>
-        <select id="radius">
-          <option value="5">รัศมี 5 กม.</option>
-          <option value="10">รัศมี 10 กม.</option>
-          <option value="20">รัศมี 20 กม.</option>
-        </select>
-        <button class="btn-main" onclick="searchStations()">🔍 ค้นหาปั๊มใกล้ฉัน</button>
+<script>
+const API = "https://script.google.com/macros/s/AKfycbyKeHguKsQGCZm0t-DDUa4To0V_Xtxtowhv3XNq6AVTgA-TYSFYAtbHp3MwVBsnKIhYTw/exec";
+
+function color(v){
+  if(v==="ปกติ") return "green";
+  if(v==="หมด") return "red";
+  return "gray";
+}
+
+async function getFuel(s){
+  try{
+    const url = `${API}?name=${encodeURIComponent(s.name)}&brand=${encodeURIComponent(s.brandLabel)}&province=${encodeURIComponent(s.province)}&amphoe=${encodeURIComponent(s.district)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    return {
+      g95: data?.G95 || "ไม่รู้",
+      diesel: data?.D || "ไม่รู้"
+    };
+
+  }catch(e){
+    return {g95:"error",diesel:"error"};
+  }
+}
+
+async function render(){
+
+  const res = await fetch("stations.json");
+  const stations = await res.json();
+
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  for(const s of stations){
+
+    const div = document.createElement("div");
+    div.className="card";
+
+    div.innerHTML = `
+      <div class="title">${s.name}</div>
+      <div class="sub">${s.brandLabel} • ${s.province}</div>
+
+      <div id="fuel-${s.id}" class="fuel">
+        <div class="badge gray">⏳ Loading</div>
       </div>
-      <div id="location-text" style="font-size: 12px; color: #666; text-align: center;">ยังไม่ได้ระบุตำแหน่ง</div>
-    </div>
+    `;
 
-    <div id="map"></div>
+    list.appendChild(div);
 
-    <div id="results">
-      <div style="text-align: center; color: #94a3b8; padding: 40px;">กดค้นหาเพื่อดูรายชื่อปั๊มที่เปิดให้บริการ</div>
-    </div>
-  </div>
+    // โหลด realtime ทีละปั๊ม
+    const f = await getFuel(s);
 
-  <div id="toast">คัดลอกแล้ว!</div>
+    document.getElementById(`fuel-${s.id}`).innerHTML = `
+      <div class="badge ${color(f.g95)}">G95<br>${f.g95}</div>
+      <div class="badge ${color(f.diesel)}">Diesel<br>${f.diesel}</div>
+    `;
+  }
+}
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+render();
+</script>
 
-  <script>
-    let map, userMarker;
-    let userLat = 12.6814, userLng = 101.1077; // พิกัดระยองเริ่มต้น
-
-    // 1. จำลองฐานข้อมูลปั๊ม (ในโปรเจกต์จริงคุณดึงจาก stations.json ได้)
-    const stations = [
-        { name: "ปตท. สาขาโรงแยกก๊าซ", brand: "PTT", lat: 12.6850, lng: 101.1300 },
-        { name: "บางจาก มาบตาพุด", brand: "Bangchak", lat: 12.6814, lng: 101.1711 },
-        { name: "ปตท. ห้วยโป่ง", brand: "PTT", lat: 12.6950, lng: 101.1450 },
-        { name: "เชลล์ มาบตาพุด", brand: "Shell", lat: 12.6780, lng: 101.1550 }
-    ];
-
-    // Initialize Map
-    map = L.map('map').setView([userLat, userLng], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-    function getLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(pos => {
-                userLat = pos.coords.latitude;
-                userLng = pos.coords.longitude;
-                document.getElementById('location-text').innerText = `พิกัดปัจจุบัน: ${userLat.toFixed(4)}, ${userLng.toFixed(4)}`;
-                
-                if (userMarker) map.removeLayer(userMarker);
-                userMarker = L.circle([userLat, userLng], {radius: 200}).addTo(map).bindPopup("คุณอยู่ที่นี่");
-                map.setView([userLat, userLng], 14);
-            });
-        }
-    }
-
-    function searchStations() {
-        const resultsDiv = document.getElementById('results');
-        resultsDiv.innerHTML = '';
-        
-        stations.forEach(s => {
-            const dist = calculateDistance(userLat, userLng, s.lat, s.lng).toFixed(2);
-            const radiusLimit = document.getElementById('radius').value;
-
-            if (dist <= radiusLimit) {
-                // ลิงก์ตรงไปที่หน้าพิกัดนั้นของ DOEB
-                const doebUrl = `https://fuel-now.doeb.go.th/?lat=${s.lat}&lng=${s.lng}&q=${encodeURIComponent(s.name)}`;
-                
-                const card = document.createElement('div');
-                card.className = 'station-card';
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; align-items:start;">
-                        <div>
-                            <strong style="font-size:18px;">${s.name}</strong><br>
-                            <span style="color:#64748b; font-size:13px;">แบรนด์: ${s.brand} | 📍 ห่างจากคุณ ${dist} กม.</span>
-                        </div>
-                        <button onclick="copyToClipboard('${s.name}')" style="width:auto; padding:5px 10px; font-size:11px;">📋 Copy</button>
-                    </div>
-
-                    <div class="doeb-box">
-                        <div style="font-weight:bold; color:#856404; font-size:13px;">📊 สถานะ Real-time จากกรมธุรกิจพลังงาน</div>
-                        <p style="font-size:12px; margin:5px 0;">กดปุ่มด้านล่างเพื่อส่องดูสถานะ "ปกติ/หมด" ของปั๊มนี้ทันที</p>
-                        <a href="${doebUrl}" target="_blank" class="btn-live">👁️ ส่องสถานะน้ำมัน LIVE</a>
-                    </div>
-
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}" target="_blank" class="btn-nav">🚩 นำทางด้วย Google Maps</a>
-                `;
-                resultsDiv.appendChild(card);
-                L.marker([s.lat, s.lng]).addTo(map).bindPopup(s.name);
-            }
-        });
-    }
-
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const dLat = (lat2-lat1) * Math.PI / 180;
-        const dLon = (lon2-lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    }
-
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text);
-        const toast = document.getElementById('toast');
-        toast.style.display = 'block';
-        setTimeout(() => toast.style.display = 'none', 2000);
-    }
-  </script>
 </body>
 </html>
