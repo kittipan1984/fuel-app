@@ -21,9 +21,9 @@
       --line:#dbe4ef;
       --blue:#2563eb;
       --blue2:#1d4ed8;
-      --cyan:#22d3ee;
       --green:#16a34a;
-      --red:#dc2626;
+      --green2:#059669;
+      --cyan:#22d3ee;
       --dark:#0b1220;
       --lightText:#eef4ff;
       --lightMuted:#b8cae8;
@@ -400,7 +400,7 @@
     }
 
     .btn-green{
-      background:linear-gradient(135deg,#16a34a,#059669);
+      background:linear-gradient(135deg,var(--green),var(--green2));
       color:#fff;
       box-shadow:0 10px 20px rgba(5,150,105,.16);
     }
@@ -420,6 +420,11 @@
       box-shadow:0 10px 20px rgba(37,99,235,.16);
       border:none;
       cursor:pointer;
+      text-align:center;
+    }
+
+    .btn-link.secondary{
+      background:linear-gradient(135deg,#0f172a,#334155);
     }
 
     .helper{
@@ -527,6 +532,55 @@
       flex:1 1 160px;
     }
 
+    .helper-box{
+      margin-top:10px;
+      padding:12px;
+      border-radius:14px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+    }
+
+    .helper-title{
+      font-weight:800;
+      margin-bottom:6px;
+      font-size:13px;
+    }
+
+    .helper-text{
+      font-size:12px;
+      color:#475569;
+      line-height:1.6;
+    }
+
+    .helper-name{
+      margin-top:8px;
+      font-weight:800;
+      font-size:14px;
+      color:#0f172a;
+    }
+
+    .helper-actions{
+      display:flex;
+      gap:6px;
+      margin-top:10px;
+      flex-wrap:wrap;
+    }
+
+    .mini-btn{
+      border:none;
+      border-radius:10px;
+      background:#0ea5e9;
+      color:#fff;
+      font-weight:700;
+      padding:10px 12px;
+      cursor:pointer;
+      font-size:12px;
+    }
+
+    .mini-btn.green{
+      background:#22c55e;
+    }
+
     .field{ margin-top:12px; }
 
     .field label{
@@ -613,6 +667,23 @@
       color:#fff;
     }
 
+    #toast{
+      position:fixed;
+      bottom:90px;
+      left:50%;
+      transform:translateX(-50%);
+      background:#0f172a;
+      color:#fff;
+      padding:12px 16px;
+      border-radius:12px;
+      font-weight:700;
+      display:none;
+      z-index:99999;
+      box-shadow:0 10px 30px rgba(0,0,0,0.3);
+      max-width:90%;
+      text-align:center;
+    }
+
     @media (max-width:1024px){
       .hero-grid,
       .main-grid{
@@ -637,6 +708,8 @@
       .action-row{ flex-direction:column; }
       .action-row > *{ flex:1 1 auto; width:100%; }
       .btn-link{ width:100%; }
+      .helper-actions{ flex-direction:column; }
+      .mini-btn{ width:100%; }
     }
 
     @media (max-width:480px){
@@ -681,7 +754,7 @@
     <div class="topbar-inner">
       <div class="brand">
         <div class="avatar-wrap">
-          <img src="child-header.png?v=3" alt="NaraMawin" onerror="this.onerror=null; this.src='https://placehold.co/120x120/png?text=N';">
+          <img src="child-header.png?v=4" alt="NaraMawin" onerror="this.onerror=null; this.src='https://placehold.co/120x120/png?text=N';">
         </div>
         <div>
           <div class="brand-title">Fuel Finder</div>
@@ -700,10 +773,10 @@
     <section class="hero section" id="section-home">
       <div class="hero-grid">
         <div>
-          <div class="hero-kicker">⚡ PRO+ FINAL</div>
-          <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมเปิดสถานะจริงจาก Fuel Now</h1>
+          <div class="hero-kicker">⚡ PRO MAX</div>
+          <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมช่วยเปิด Fuel Now ให้เร็วที่สุด</h1>
           <p class="hero-desc">
-            เวอร์ชันนี้ใช้ข้อมูลปั๊มจากไฟล์ของคุณเองเพื่อให้ค้นหาได้เร็วและเสถียร ส่วนสถานะน้ำมันจริงจะเปิดจาก Fuel Now โดยตรง เพื่อให้ข้อมูลซื่อสัตย์และไม่หลอกผู้ใช้
+            เวอร์ชันนี้ไม่พยายามแสดงสถานะปลอม และไม่พยายามควบคุม DOEB เกินจริง แต่ช่วยให้คุณเปิด Dashboard แล้วค้นหาปั๊มเดิมได้เร็วมากด้วย auto-copy และ helper panel
           </p>
         </div>
 
@@ -757,7 +830,7 @@
         </div>
 
         <div class="meta-note">
-          หน้าเว็บนี้ใช้ JSON แค่สำหรับรายชื่อปั๊มและพิกัดเท่านั้น ไม่เก็บสถานะน้ำมันในระบบของเรา
+          หน้าเว็บนี้ใช้ JSON สำหรับรายชื่อปั๊มและพิกัดเท่านั้น ส่วนสถานะจริงให้เปิดจาก Fuel Now และวางชื่อปั๊มที่คัดลอกไปในแท็บ Dashboard
         </div>
       </div>
     </section>
@@ -861,6 +934,8 @@
     <button class="nav-btn" data-target="section-contact">Contact</button>
   </nav>
 
+  <div id="toast">Copied</div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <script>
@@ -889,6 +964,25 @@
     const countBadge = document.getElementById("countBadge");
     const summaryText = document.getElementById("summaryText");
     const coordText = document.getElementById("coordText");
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.display = "block";
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        t.style.display = "none";
+      }, 2200);
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text || "");
+        showToast("คัดลอกแล้ว: " + text);
+      } catch (err) {
+        showToast("คัดลอกไม่สำเร็จ");
+      }
+    }
 
     function setStatus(message, type = "") {
       statusBox.className = "status" + (type ? " " + type : "");
@@ -935,6 +1029,14 @@
         .replaceAll("'", "&#039;");
     }
 
+    function escapeJsString(text) {
+      return String(text ?? "")
+        .replaceAll("\\", "\\\\")
+        .replaceAll("'", "\\'")
+        .replaceAll("\n", " ")
+        .replaceAll("\r", " ");
+    }
+
     function normalizeBrand(value = "") {
       const text = String(value).toLowerCase().trim();
       if (text === "ptt") return "ptt";
@@ -979,9 +1081,31 @@
       return `https://www.google.com/maps/dir/?api=1&origin=${currentLat},${currentLng}&destination=${toLat},${toLng}&travelmode=driving`;
     }
 
-    function fuelNowLink(toLat, toLng, stationName) {
-      const q = encodeURIComponent(stationName || "สถานีบริการน้ำมัน");
-      return `https://fuel-now.doeb.go.th/?lat=${toLat}&lng=${toLng}&q=${q}`;
+    function fuelNowLinkGeneric(toLat, toLng) {
+      return `https://fuel-now.doeb.go.th/?lat=${toLat}&lng=${toLng}&q=${encodeURIComponent("สถานีบริการน้ำมัน")}`;
+    }
+
+    function fuelNowLinkBrand(toLat, toLng, brandKey, stationName) {
+      const brandText = brandLabel(brandKey, stationName);
+      return `https://fuel-now.doeb.go.th/?lat=${toLat}&lng=${toLng}&q=${encodeURIComponent(brandText)}`;
+    }
+
+    async function openFuelSmart(name, lat, lng) {
+      await copyText(name);
+      showToast("คัดลอกชื่อปั๊มแล้ว → ไปวางในแท็บ Dashboard");
+      const url = fuelNowLinkGeneric(lat, lng);
+      setTimeout(() => {
+        window.open(url, "_blank");
+      }, 450);
+    }
+
+    async function openFuelSmartBrand(name, lat, lng, brandKey) {
+      await copyText(name);
+      showToast("คัดลอกชื่อปั๊มแล้ว → เปิด Fuel Now แบบแบรนด์");
+      const url = fuelNowLinkBrand(lat, lng, brandKey, name);
+      setTimeout(() => {
+        window.open(url, "_blank");
+      }, 450);
     }
 
     async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
@@ -1020,10 +1144,9 @@
       userMarker.bindPopup("<b>ตำแหน่งของคุณ</b>");
     }
 
-    function openFuelModalFromPopup(encodedName, lat, lng) {
-      const name = decodeURIComponent(encodedName || "");
-      const url = fuelNowLink(Number(lat), Number(lng), name);
-      window.open(url, "_blank", "noopener,noreferrer");
+    function openFuelFromPopup(lat, lng, brandKey, encodedName) {
+      const stationName = decodeURIComponent(encodedName || "");
+      openFuelSmart(stationName, Number(lat), Number(lng));
     }
 
     function addStationMarkers(stations) {
@@ -1033,7 +1156,7 @@
           <b>${escapeHtml(s.name)}</b><br>
           ระยะทาง: ${s.distanceKm.toFixed(2)} กม.<br>
           แบรนด์: ${escapeHtml(brandLabel(s.brand, s.name))}<br><br>
-          <button onclick="openFuelModalFromPopup('${encodeURIComponent(s.name)}','${s.lat}','${s.lng}')" style="padding:8px 10px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;">ดูสถานะจริง</button>
+          <button onclick="openFuelFromPopup('${s.lat}','${s.lng}','${s.brand}','${encodeURIComponent(s.name)}')" style="padding:8px 10px;border:none;border-radius:8px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;">เปิด Dashboard</button>
         `);
         mapMarkers.push(marker);
       });
@@ -1062,7 +1185,9 @@
             brand: normalizeBrand(item.brand || ""),
             lat: Number(item.lat),
             lng: Number(item.lng),
-            address: String(item.address || "").trim()
+            address: String(item.address || "").trim(),
+            province: String(item.province || "").trim(),
+            district: String(item.district || "").trim()
           }))
           .filter(item => item.name && Number.isFinite(item.lat) && Number.isFinite(item.lng));
 
@@ -1132,7 +1257,9 @@
       }
 
       stations.forEach((s) => {
-        const fuelUrl = fuelNowLink(s.lat, s.lng, s.name);
+        const dirUrl = dirLink(s.lat, s.lng);
+        const copyNameJs = escapeJsString(s.name);
+
         const el = document.createElement("div");
         el.className = "station";
         el.innerHTML = `
@@ -1147,13 +1274,29 @@
 
           <div class="meta">
             ที่อยู่: ${escapeHtml(s.address || "-")}<br>
+            จังหวัด: ${escapeHtml(s.province || "-")}<br>
+            อำเภอ: ${escapeHtml(s.district || "-")}<br>
             พิกัด: ${s.lat.toFixed(6)}, ${s.lng.toFixed(6)}<br>
             สถานะน้ำมันบนเว็บนี้: ไม่แสดงค่าปลอม
           </div>
 
           <div class="action-row">
-            <a class="btn-link" href="${dirLink(s.lat, s.lng)}" target="_blank" rel="noopener noreferrer">นำทาง</a>
-            <a class="btn-link" href="${fuelUrl}" target="_blank" rel="noopener noreferrer">ดูสถานะจริง</a>
+            <a class="btn-link secondary" href="${dirUrl}" target="_blank" rel="noopener noreferrer">นำทาง</a>
+            <button class="btn-link" type="button" onclick="openFuelSmart('${copyNameJs}', ${s.lat}, ${s.lng})">เปิด Dashboard</button>
+            <button class="btn-link" type="button" onclick="openFuelSmartBrand('${copyNameJs}', ${s.lat}, ${s.lng}, '${s.brand}')">เปิดแบบแบรนด์</button>
+          </div>
+
+          <div class="helper-box">
+            <div class="helper-title">⚡ Smart Search (Dashboard)</div>
+            <div class="helper-text">กดปุ่มด้านบน ระบบจะคัดลอกชื่อปั๊มให้ทันที แล้วเปิด Fuel Now จากนั้นไปที่แท็บ Dashboard แล้ววางชื่อปั๊มได้เลย</div>
+            <div class="helper-name">${escapeHtml(s.name)}</div>
+
+            <div class="helper-actions">
+              <button class="mini-btn" type="button" onclick="copyText('${copyNameJs}')">📋 Copy ชื่อปั๊ม</button>
+              <button class="mini-btn" type="button" onclick="copyText('${escapeJsString(s.province || "")}')">จังหวัด</button>
+              <button class="mini-btn" type="button" onclick="copyText('${escapeJsString(s.district || "")}')">อำเภอ</button>
+              <button class="mini-btn green" type="button" onclick="copyText('${escapeJsString(s.name + " " + (s.province || ""))}')">Copy All</button>
+            </div>
           </div>
         `;
         resultList.appendChild(el);
@@ -1278,7 +1421,10 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
       });
     });
 
-    window.openFuelModalFromPopup = openFuelModalFromPopup;
+    window.openFuelFromPopup = openFuelFromPopup;
+    window.copyText = copyText;
+    window.openFuelSmart = openFuelSmart;
+    window.openFuelSmartBrand = openFuelSmartBrand;
   </script>
 </body>
 </html>
