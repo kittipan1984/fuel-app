@@ -1,1707 +1,225 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Fuel Finder</title>
-
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    crossorigin=""
-  />
-
-  <style>
-    :root{
-      --bg:#edf3fb;
-      --bg2:#f7faff;
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --line:#dbe4ef;
-      --blue:#2563eb;
-      --blue2:#1d4ed8;
-      --cyan:#22d3ee;
-      --green:#16a34a;
-      --amber:#d97706;
-      --red:#dc2626;
-      --dark:#0b1220;
-      --dark2:#111a2d;
-      --lightText:#eef4ff;
-      --lightMuted:#b8cae8;
-      --radius:22px;
-      --shadow:0 12px 30px rgba(15,23,42,.08);
-      --shadow-strong:0 18px 45px rgba(2,8,23,.22);
-      --header-h:76px;
-    }
-
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0}
-    body{
-      font-family:Arial, Helvetica, sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(37,99,235,.08), transparent 22%),
-        radial-gradient(circle at top right, rgba(34,211,238,.08), transparent 18%),
-        linear-gradient(180deg,var(--bg),var(--bg2));
-    }
-
-    .topbar{
-      position:sticky;
-      top:0;
-      z-index:9999;
-      height:var(--header-h);
-      background:rgba(11,18,32,.88);
-      backdrop-filter:blur(14px);
-      border-bottom:1px solid rgba(255,255,255,.08);
-      box-shadow:0 8px 24px rgba(2,8,23,.18);
-    }
-
-    .topbar-inner{
-      max-width:1180px;
-      height:100%;
-      margin:0 auto;
-      padding:0 14px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      min-width:0;
-    }
-
-    .avatar-wrap{
-      width:46px;
-      height:46px;
-      border-radius:50%;
-      overflow:hidden;
-      flex:0 0 auto;
-      background:#fff;
-      border:2px solid rgba(255,255,255,.16);
-      box-shadow:
-        0 0 0 3px rgba(255,255,255,.04),
-        0 0 18px rgba(34,211,238,.16);
-    }
-
-    .avatar-wrap img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    .brand-text{
-      min-width:0;
-      line-height:1.1;
-    }
-
-    .brand-title{
-      color:#fff;
-      font-size:22px;
-      font-weight:900;
-      letter-spacing:.2px;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .brand-sub{
-      color:var(--lightMuted);
-      font-size:12px;
-      margin-top:4px;
-      white-space:nowrap;
-    }
-
-    .topbar-right{
-      display:flex;
-      gap:8px;
-      align-items:center;
-    }
-
-    .mini-pill{
-      padding:7px 10px;
-      border-radius:999px;
-      background:rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.06);
-      color:#e7efff;
-      font-size:12px;
-      font-weight:800;
-      white-space:nowrap;
-    }
-
-    .app{
-      max-width:1180px;
-      margin:0 auto;
-      padding:14px;
-    }
-
-    .hero{
-      background:
-        radial-gradient(circle at 85% 20%, rgba(34,211,238,.18), transparent 16%),
-        radial-gradient(circle at 15% 10%, rgba(59,130,246,.16), transparent 18%),
-        linear-gradient(135deg,#0f172a,#172554 70%, #0f172a);
-      color:#fff;
-      border-radius:28px;
-      padding:20px;
-      box-shadow:var(--shadow-strong);
-      margin-bottom:14px;
-      overflow:hidden;
-    }
-
-    .hero-row{
-      display:grid;
-      grid-template-columns:1.1fr .9fr;
-      gap:14px;
-      align-items:stretch;
-    }
-
-    .hero-left{
-      min-width:0;
-    }
-
-    .hero-kicker{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:999px;
-      padding:8px 12px;
-      font-size:12px;
-      font-weight:900;
-      color:#dce8ff;
-      margin-bottom:12px;
-    }
-
-    .hero-title{
-      margin:0 0 10px;
-      font-size:32px;
-      line-height:1.08;
-      font-weight:900;
-      letter-spacing:-.02em;
-    }
-
-    .hero-desc{
-      margin:0;
-      color:#d8e5ff;
-      font-size:14px;
-      line-height:1.7;
-      max-width:62ch;
-    }
-
-    .hero-stats{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:10px;
-    }
-
-    .hero-stat{
-      background:rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:18px;
-      padding:14px;
-    }
-
-    .hero-stat-label{
-      font-size:11px;
-      color:#bfd2f3;
-      margin-bottom:8px;
-    }
-
-    .hero-stat-value{
-      font-size:22px;
-      font-weight:900;
-      color:#fff;
-      line-height:1.1;
-      margin-bottom:4px;
-    }
-
-    .hero-stat-sub{
-      font-size:11px;
-      color:#cfddf5;
-    }
-
-    .status{
-      margin-bottom:14px;
-      padding:12px 14px;
-      border-radius:16px;
-      font-size:14px;
-      font-weight:800;
-      border:1px solid var(--line);
-      background:#f8fbff;
-      color:#334155;
-      box-shadow:var(--shadow);
-    }
-
-    .status.ok{
-      background:#ecfdf5;
-      border-color:#bbf7d0;
-      color:#166534;
-    }
-
-    .status.warn{
-      background:#fff7ed;
-      border-color:#fed7aa;
-      color:#9a3412;
-    }
-
-    .status.error{
-      background:#fef2f2;
-      border-color:#fecaca;
-      color:#991b1b;
-    }
-
-    .section{
-      margin-bottom:14px;
-    }
-
-    .card{
-      background:rgba(255,255,255,.9);
-      border:1px solid rgba(219,228,239,.95);
-      border-radius:26px;
-      padding:16px;
-      box-shadow:var(--shadow);
-      backdrop-filter: blur(8px);
-    }
-
-    .card.dark{
-      background:linear-gradient(180deg,#111827,#172033);
-      color:var(--lightText);
-      border:1px solid rgba(255,255,255,.06);
-      box-shadow:var(--shadow-strong);
-    }
-
-    .card-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-bottom:10px;
-    }
-
-    .card-title{
-      margin:0;
-      font-size:20px;
-      font-weight:900;
-      letter-spacing:-.01em;
-    }
-
-    .card-sub{
-      margin:0 0 10px;
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.6;
-    }
-
-    .dark .card-sub{
-      color:#bfd0ec;
-    }
-
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      padding:8px 12px;
-      border-radius:999px;
-      background:#f7fbff;
-      border:1px solid #dce7f3;
-      color:#334155;
-      font-size:12px;
-      font-weight:900;
-      white-space:nowrap;
-    }
-
-    .dark .badge{
-      background:rgba(255,255,255,.08);
-      border-color:rgba(255,255,255,.08);
-      color:#dce8ff;
-    }
-
-    .summary-grid{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:10px;
-    }
-
-    .summary-box{
-      background:linear-gradient(180deg,#ffffff,#f7fbff);
-      border:1px solid #e1eaf3;
-      border-radius:18px;
-      padding:14px;
-      min-width:0;
-    }
-
-    .summary-label{
-      font-size:12px;
-      color:var(--muted);
-      margin-bottom:6px;
-    }
-
-    .summary-value{
-      font-size:22px;
-      font-weight:900;
-      line-height:1.1;
-      word-break:break-word;
-    }
-
-    .meta-note{
-      margin-top:12px;
-      font-size:12px;
-      color:#64748b;
-      line-height:1.7;
-    }
-
-    .main-grid{
-      display:grid;
-      grid-template-columns:1.02fr .98fr;
-      gap:14px;
-    }
-
-    .controls{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-bottom:10px;
-    }
-
-    .controls-2{
-      display:grid;
-      grid-template-columns:1fr 1fr 1fr;
-      gap:10px;
-      margin-bottom:10px;
-    }
-
-    input, select, textarea, button{
-      font:inherit;
-    }
-
-    .input, .select, textarea{
-      width:100%;
-      border:1px solid #cfdae8;
-      border-radius:15px;
-      padding:13px 14px;
-      background:#fff;
-      color:var(--text);
-      outline:none;
-      transition:.18s ease;
-    }
-
-    .input:focus, .select:focus, textarea:focus{
-      border-color:#93c5fd;
-      box-shadow:0 0 0 4px rgba(59,130,246,.12);
-    }
-
-    button{
-      border:none;
-      border-radius:15px;
-      padding:13px 15px;
-      font-weight:900;
-      cursor:pointer;
-      transition:.18s ease;
-    }
-
-    button:hover{
-      transform:translateY(-1px);
-    }
-
-    .btn-primary{
-      background:linear-gradient(135deg,var(--blue),var(--blue2));
-      color:#fff;
-      box-shadow:0 10px 20px rgba(37,99,235,.18);
-    }
-
-    .btn-ghost{
-      background:#e9eff7;
-      color:#0f172a;
-    }
-
-    .btn-green{
-      background:linear-gradient(135deg,#16a34a,#059669);
-      color:#fff;
-      box-shadow:0 10px 20px rgba(5,150,105,.16);
-    }
-
-    .helper{
-      font-size:12px;
-      color:#c5d3eb;
-      line-height:1.7;
-      margin-bottom:10px;
-    }
-
-    .helper.light{
-      color:var(--muted);
-    }
-
-    #map{
-      width:100%;
-      height:420px;
-      border-radius:22px;
-      border:1px solid #d9e4f0;
-      overflow:hidden;
-      background:#e5eef9;
-    }
-
-    .results-top{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-      margin-bottom:10px;
-    }
-
-    .result-summary{
-      font-size:13px;
-      color:var(--muted);
-      line-height:1.6;
-    }
-
-    .station-list{
-      display:grid;
-      gap:12px;
-    }
-
-    .station{
-      border:1px solid #e3ebf4;
-      background:linear-gradient(180deg,#ffffff,#fbfdff);
-      border-radius:22px;
-      padding:14px;
-      box-shadow:0 8px 20px rgba(15,23,42,.04);
-    }
-
-    .station-top{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      align-items:flex-start;
-      margin-bottom:8px;
-    }
-
-    .station-name{
-      font-size:17px;
-      font-weight:900;
-      line-height:1.35;
-    }
-
-    .distance{
-      white-space:nowrap;
-      padding:7px 10px;
-      background:#e0ecff;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:900;
-      color:#0f172a;
-    }
-
-    .brand-row{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-bottom:8px;
-    }
-
-    .brand-badge, .source-badge{
-      display:inline-flex;
-      align-items:center;
-      padding:6px 10px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:900;
-      border:1px solid #dce6f1;
-    }
-
-    .brand-ptt{background:#eff6ff;color:#1d4ed8}
-    .brand-bangchak{background:#ecfdf5;color:#15803d}
-    .brand-shell{background:#fff7ed;color:#c2410c}
-    .brand-esso{background:#eff6ff;color:#1e40af}
-    .brand-caltex{background:#eef2ff;color:#4338ca}
-    .brand-pt{background:#f5f3ff;color:#7c3aed}
-    .brand-susco{background:#fef2f2;color:#b91c1c}
-    .brand-irpc{background:#ecfeff;color:#0f766e}
-    .brand-other{background:#f8fafc;color:#334155}
-
-    .source-crowd{background:#ecfeff;color:#0f766e}
-    .source-default{background:#f8fafc;color:#475569}
-
-    .meta{
-      font-size:12px;
-      color:#475569;
-      line-height:1.7;
-      margin-bottom:10px;
-    }
-
-    .fuel-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:8px;
-      margin-bottom:10px;
-    }
-
-    .fuel-item{
-      border:1px solid #e3ebf4;
-      border-radius:16px;
-      padding:10px;
-      background:#fff;
-      min-width:0;
-    }
-
-    .fuel-name{
-      font-size:11px;
-      color:var(--muted);
-      margin-bottom:4px;
-    }
-
-    .fuel-value{
-      font-size:13px;
-      font-weight:900;
-      line-height:1.2;
-      word-break:break-word;
-    }
-
-    .fuel-ok{color:var(--green)}
-    .fuel-low{color:var(--amber)}
-    .fuel-out{color:var(--red)}
-    .fuel-unknown{color:#475569}
-
-    .action-row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:4px;
-    }
-
-    .link-btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      text-decoration:none;
-      padding:11px 13px;
-      border-radius:14px;
-      font-size:13px;
-      font-weight:900;
-      color:#fff;
-      background:linear-gradient(135deg,var(--blue),var(--blue2));
-      box-shadow:0 10px 20px rgba(37,99,235,.16);
-    }
-
-    .field{
-      margin-top:12px;
-    }
-
-    .field label{
-      display:block;
-      margin-bottom:6px;
-      font-size:13px;
-      font-weight:800;
-      color:#334155;
-    }
-
-    textarea{
-      min-height:120px;
-      resize:vertical;
-    }
-
-    .error-box{
-      margin-top:10px;
-      padding:11px 12px;
-      border-radius:14px;
-      background:#fef2f2;
-      color:#991b1b;
-      border:1px solid #fecaca;
-      display:none;
-      white-space:pre-wrap;
-      font-size:13px;
-      font-weight:700;
-    }
-
-    .ok-box{
-      margin-top:10px;
-      padding:11px 12px;
-      border-radius:14px;
-      background:#ecfdf5;
-      color:#166534;
-      border:1px solid #bbf7d0;
-      display:none;
-      white-space:pre-wrap;
-      font-size:13px;
-      font-weight:700;
-    }
-
-    .empty{
-      text-align:center;
-      padding:24px 14px;
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.7;
-      border:1px dashed #d7e1ec;
-      border-radius:20px;
-      background:#fbfdff;
-    }
-
-    @media (max-width:1024px){
-      .hero-row,
-      .main-grid,
-      .summary-grid{
-        grid-template-columns:1fr;
-      }
-    }
-
-    @media (max-width:768px){
-      .topbar-right{
-        display:none;
-      }
-
-      .brand-title{
-        font-size:19px;
-      }
-
-      .hero{
-        padding:16px;
-        border-radius:22px;
-      }
-
-      .hero-title{
-        font-size:24px;
-      }
-
-      .hero-stats{
-        grid-template-columns:repeat(2,1fr);
-      }
-
-      .card{
-        border-radius:22px;
-        padding:14px;
-      }
-
-      .controls,
-      .controls-2,
-      .fuel-grid{
-        grid-template-columns:1fr;
-      }
-
-      #map{
-        height:320px;
-      }
-
-      .station-top{
-        flex-direction:column;
-        align-items:flex-start;
-      }
-
-      .distance{
-        align-self:flex-start;
-      }
-
-      button{
-        width:100%;
-      }
-
-      .action-row{
-        flex-direction:column;
-      }
-
-      .link-btn{
-        width:100%;
-      }
-    }
-
-    @media (max-width:480px){
-      :root{
-        --header-h:68px;
-      }
-
-      .app{
-        padding:10px;
-      }
-
-      .topbar-inner{
-        padding:0 10px;
-      }
-
-      .avatar-wrap{
-        width:40px;
-        height:40px;
-      }
-
-      .brand-title{
-        font-size:18px;
-      }
-
-      .brand-sub{
-        font-size:11px;
-      }
-
-      .hero{
-        padding:14px;
-        margin-bottom:10px;
-      }
-
-      .hero-kicker{
-        padding:7px 10px;
-        font-size:11px;
-        margin-bottom:10px;
-      }
-
-      .hero-title{
-        font-size:21px;
-        margin-bottom:8px;
-      }
-
-      .hero-desc{
-        font-size:13px;
-        line-height:1.6;
-      }
-
-      .hero-stats{
-        grid-template-columns:1fr 1fr;
-        gap:8px;
-      }
-
-      .hero-stat{
-        padding:11px;
-        border-radius:15px;
-      }
-
-      .hero-stat-label{
-        font-size:10px;
-        margin-bottom:6px;
-      }
-
-      .hero-stat-value{
-        font-size:17px;
-      }
-
-      .hero-stat-sub{
-        font-size:10px;
-      }
-
-      .status{
-        font-size:13px;
-        padding:11px 12px;
-        margin-bottom:10px;
-      }
-
-      .card{
-        padding:12px;
-        border-radius:18px;
-      }
-
-      .card-title{
-        font-size:18px;
-      }
-
-      .card-sub{
-        font-size:12px;
-        margin-bottom:8px;
-      }
-
-      .summary-grid{
-        grid-template-columns:1fr 1fr;
-        gap:8px;
-      }
-
-      .summary-box{
-        padding:11px;
-        border-radius:14px;
-      }
-
-      .summary-label{
-        font-size:11px;
-      }
-
-      .summary-value{
-        font-size:18px;
-      }
-
-      .badge{
-        font-size:11px;
-        padding:7px 10px;
-      }
-
-      .input, .select, textarea{
-        font-size:16px;
-        padding:12px 12px;
-        border-radius:13px;
-      }
-
-      button{
-        padding:12px 13px;
-        border-radius:13px;
-        font-size:15px;
-      }
-
-      #map{
-        height:270px;
-        border-radius:18px;
-      }
-
-      .result-summary,
-      .meta,
-      .helper,
-      .helper.light,
-      .meta-note{
-        font-size:12px;
-      }
-
-      .station{
-        padding:12px;
-        border-radius:18px;
-      }
-
-      .station-name{
-        font-size:15px;
-      }
-
-      .distance{
-        font-size:11px;
-        padding:6px 9px;
-      }
-
-      .brand-badge, .source-badge{
-        font-size:11px;
-        padding:5px 8px;
-      }
-
-      .fuel-item{
-        padding:9px;
-        border-radius:13px;
-      }
-
-      .fuel-name{
-        font-size:10px;
-      }
-
-      .fuel-value{
-        font-size:12px;
-      }
-
-      textarea{
-        min-height:110px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fuel Finder</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  background:#0f172a;
+  color:#fff;
+}
+
+/* HEADER */
+.topbar{
+  position:fixed;
+  top:0;
+  width:100%;
+  height:70px;
+  background:#111827;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 14px;
+  z-index:999;
+  border-bottom:1px solid #1f2937;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.avatar{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  overflow:hidden;
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.brand-text{
+  line-height:1.1;
+}
+
+.brand-title{
+  font-weight:800;
+  font-size:16px;
+}
+
+.brand-sub{
+  font-size:11px;
+  color:#9ca3af;
+}
+
+/* MAP */
+#map{
+  position:absolute;
+  top:70px;
+  bottom:0;
+  width:100%;
+}
+
+/* BOTTOM SHEET */
+.sheet{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#111827;
+  border-top-left-radius:16px;
+  border-top-right-radius:16px;
+  padding:12px;
+  max-height:45%;
+  overflow:auto;
+}
+
+.station{
+  padding:10px;
+  border-bottom:1px solid #1f2937;
+}
+
+.station-name{
+  font-weight:700;
+}
+
+.btn{
+  margin-top:6px;
+  padding:8px 10px;
+  border-radius:8px;
+  border:none;
+  font-weight:700;
+  width:100%;
+}
+
+.btn-nav{
+  background:#22c55e;
+}
+
+.btn-fuel{
+  background:#3b82f6;
+  margin-top:6px;
+}
+</style>
 </head>
+
 <body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand">
-        <div class="avatar-wrap">
-          <img src="child-header.png?v=2" alt="NaraMawin" onerror="this.onerror=null; this.src='https://placehold.co/120x120/png?text=N';">
-        </div>
 
-        <div class="brand-text">
-          <div class="brand-title">Fuel Finder</div>
-          <div class="brand-sub">By NaraMawin</div>
-        </div>
-      </div>
-
-      <div class="topbar-right">
-        <div class="mini-pill" id="headerUpdated">Updated: -</div>
-        <div class="mini-pill" id="headerStations">Stations: 0</div>
-      </div>
+<div class="topbar">
+  <div class="brand">
+    <div class="avatar">
+      <img src="child-header.png" onerror="this.src='https://placehold.co/100x100'">
     </div>
-  </header>
+    <div class="brand-text">
+      <div class="brand-title">Fuel Finder</div>
+      <div class="brand-sub">By NaraMawin</div>
+    </div>
+  </div>
+</div>
 
-  <main class="app">
-    <section class="hero section">
-      <div class="hero-row">
-        <div class="hero-left">
-          <div class="hero-kicker">⚡ PRO Dashboard</div>
-          <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณแบบใช้งานง่ายบนมือถือ</h1>
-          <p class="hero-desc">
-            หน้าเว็บนี้ออกแบบใหม่ให้ดูเหมือนแอปจริงบนมือถือ ลดความอึดอัดของส่วนบน
-            และยังคงความสามารถค้นหาปั๊มใกล้เคียง ดูสถานะน้ำมัน และส่งข้อความถึงคุณผ่าน Telegram ได้เหมือนเดิม
-          </p>
-        </div>
+<div id="map"></div>
 
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-label">Last Updated</div>
-            <div class="hero-stat-value" id="lastUpdatedText">-</div>
-            <div class="hero-stat-sub">อัปเดตล่าสุด</div>
-          </div>
+<div class="sheet" id="sheet">
+  <div>🔄 กำลังค้นหาปั๊ม...</div>
+</div>
 
-          <div class="hero-stat">
-            <div class="hero-stat-label">Stations</div>
-            <div class="hero-stat-value" id="stationCountText">0</div>
-            <div class="hero-stat-sub">สถานีในระบบ</div>
-          </div>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-          <div class="hero-stat">
-            <div class="hero-stat-label">Online</div>
-            <div class="hero-stat-value" id="onlineCountText">0</div>
-            <div class="hero-stat-sub">พร้อมให้บริการ</div>
-          </div>
+<script>
+let map = L.map('map').setView([13.736717,100.523186], 12);
 
-          <div class="hero-stat">
-            <div class="hero-stat-label">Crowd Reports</div>
-            <div class="hero-stat-value" id="crowdCountText">0</div>
-            <div class="hero-stat-sub">ข้อมูลจากผู้ใช้</div>
-          </div>
-        </div>
-      </div>
-    </section>
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© OpenStreetMap'
+}).addTo(map);
 
-    <div id="statusBox" class="status">พร้อมใช้งาน กำลังโหลด status.json...</div>
+navigator.geolocation.getCurrentPosition(pos=>{
+  const lat = pos.coords.latitude;
+  const lng = pos.coords.longitude;
 
-    <section class="section">
-      <div class="card">
-        <div class="card-head">
-          <h2 class="card-title">ภาพรวมระบบ</h2>
-          <div class="badge" id="metaBadge">Status Overview</div>
-        </div>
+  map.setView([lat,lng],14);
 
-        <div class="summary-grid">
-          <div class="summary-box">
-            <div class="summary-label">Last Updated</div>
-            <div class="summary-value" id="summaryLastUpdated">-</div>
-          </div>
+  loadStations(lat,lng);
+});
 
-          <div class="summary-box">
-            <div class="summary-label">Stations</div>
-            <div class="summary-value" id="summaryStationCount">0</div>
-          </div>
+async function loadStations(lat,lng){
 
-          <div class="summary-box">
-            <div class="summary-label">Online</div>
-            <div class="summary-value" id="summaryOnlineCount">0</div>
-          </div>
+  const query = `
+  [out:json];
+  (
+    node["amenity"="fuel"](around:5000,${lat},${lng});
+  );
+  out;
+  `;
 
-          <div class="summary-box">
-            <div class="summary-label">Crowd Reports</div>
-            <div class="summary-value" id="summaryCrowdCount">0</div>
-          </div>
-        </div>
+  const url = "https://overpass-api.de/api/interpreter?data="+encodeURIComponent(query);
 
-        <div class="meta-note" id="metaText">-</div>
-      </div>
-    </section>
+  const res = await fetch(url);
+  const data = await res.json();
 
-    <section class="section">
-      <div class="main-grid">
-        <div class="card dark">
-          <div class="card-head">
-            <h2 class="card-title">แผนที่และการค้นหา</h2>
-            <div class="badge">Nearby Finder</div>
-          </div>
+  const list = [];
 
-          <p class="card-sub">เลือกตำแหน่ง กำหนดระยะ และค้นหาปั๊มที่ใกล้คุณที่สุด</p>
+  data.elements.forEach(e=>{
+    const name = e.tags.name || "Unknown";
 
-          <div class="controls">
-            <input id="latInput" class="input" type="number" step="any" placeholder="Latitude">
-            <input id="lngInput" class="input" type="number" step="any" placeholder="Longitude">
-          </div>
+    L.marker([e.lat,e.lon]).addTo(map)
+      .bindPopup(name);
 
-          <div class="controls">
-            <button id="gpsBtn" class="btn-primary" type="button">ใช้ตำแหน่งฉัน</button>
-            <button id="bkkBtn" class="btn-ghost" type="button">ใช้กรุงเทพ</button>
-          </div>
-
-          <div class="controls-2">
-            <select id="radiusInput" class="select">
-              <option value="3000">ระยะ 3 กม.</option>
-              <option value="5000" selected>ระยะ 5 กม.</option>
-              <option value="10000">ระยะ 10 กม.</option>
-              <option value="20000">ระยะ 20 กม.</option>
-            </select>
-
-            <select id="brandFilter" class="select">
-              <option value="all">ทุกแบรนด์</option>
-              <option value="ptt">PTT</option>
-              <option value="bangchak">Bangchak</option>
-              <option value="shell">Shell</option>
-              <option value="esso">Esso</option>
-              <option value="caltex">Caltex</option>
-              <option value="pt">PT</option>
-              <option value="susco">Susco</option>
-              <option value="irpc">IRPC</option>
-              <option value="other">อื่น ๆ</option>
-            </select>
-
-            <button id="findBtn" class="btn-primary" type="button">ค้นหาปั๊มใกล้ฉัน</button>
-          </div>
-
-          <div class="helper" id="coordText">พิกัดปัจจุบัน: -</div>
-
-          <div id="map"></div>
-        </div>
-
-        <div class="card">
-          <div class="results-top">
-            <h2 class="card-title" style="margin:0;">ผลลัพธ์</h2>
-            <div class="badge" id="countBadge">0 สถานี</div>
-          </div>
-
-          <div class="result-summary" id="summaryText">ยังไม่มีผลลัพธ์</div>
-
-          <div class="station-list" id="resultList" style="margin-top:12px;">
-            <div class="empty">กด “ค้นหาปั๊มใกล้ฉัน” เพื่อเริ่มต้น</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="card">
-        <div class="card-head">
-          <h2 class="card-title">ส่งข้อความถึงฉัน</h2>
-          <div class="badge">Telegram</div>
-        </div>
-
-        <p class="card-sub">กรอกชื่อผู้ส่งและข้อความ แล้วกดส่งได้ทันที</p>
-
-        <div class="field">
-          <label for="senderName">ชื่อ Sender</label>
-          <input id="senderName" class="input" type="text" placeholder="เช่น Kittipan">
-        </div>
-
-        <div class="field">
-          <label for="senderMessage">ข้อความ</label>
-          <textarea id="senderMessage" placeholder="พิมพ์ข้อความที่ต้องการส่ง"></textarea>
-        </div>
-
-        <div class="field">
-          <button id="sendTelegramBtn" class="btn-green" type="button">ส่งข้อความ</button>
-        </div>
-
-        <div id="feedbackError" class="error-box"></div>
-        <div id="feedbackOk" class="ok-box"></div>
-      </div>
-    </section>
-  </main>
-
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    crossorigin=""
-  ></script>
-
-  <script>
-    const BOT_TOKEN = "PUT_YOUR_BOT_TOKEN_HERE";
-    const CHAT_ID = "PUT_YOUR_CHAT_ID_HERE";
-
-    let map;
-    let mapMarkers = [];
-    let userMarker = null;
-    let currentLat = 13.7563;
-    let currentLng = 100.5018;
-    let stationStatusData = { meta: {}, stations: [] };
-    let lastStations = [];
-
-    const statusBox = document.getElementById("statusBox");
-    const latInput = document.getElementById("latInput");
-    const lngInput = document.getElementById("lngInput");
-    const radiusInput = document.getElementById("radiusInput");
-    const brandFilter = document.getElementById("brandFilter");
-    const resultList = document.getElementById("resultList");
-    const countBadge = document.getElementById("countBadge");
-    const summaryText = document.getElementById("summaryText");
-    const coordText = document.getElementById("coordText");
-
-    function setStatus(message, type = "") {
-      statusBox.className = "status" + (type ? " " + type : "");
-      statusBox.textContent = message;
-    }
-
-    function showBox(id, message) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.style.display = message ? "block" : "none";
-      el.textContent = message || "";
-    }
-
-    function escapeHtml(text) {
-      return String(text ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function updateCoordText() {
-      coordText.textContent = `พิกัดปัจจุบัน: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
-      latInput.value = currentLat.toFixed(6);
-      lngInput.value = currentLng.toFixed(6);
-    }
-
-    function normalizeText(value) {
-      return String(value || "")
-        .toLowerCase()
-        .replace(/[^\u0E00-\u0E7Fa-z0-9]/g, "");
-    }
-
-    function detectBrand(name, tags = {}) {
-      const text = `${name || ""} ${tags.brand || ""} ${tags.operator || ""}`.toLowerCase();
-      if (text.includes("ptt")) return "ptt";
-      if (text.includes("บางจาก") || text.includes("bangchak")) return "bangchak";
-      if (text.includes("shell") || text.includes("เชลล์")) return "shell";
-      if (text.includes("esso") || text.includes("เอสโซ่")) return "esso";
-      if (text.includes("caltex") || text.includes("คาลเท็กซ์")) return "caltex";
-      if (text.includes("pt ") || text.startsWith("pt") || text.includes("พีที")) return "pt";
-      if (text.includes("susco") || text.includes("ซัสโก้")) return "susco";
-      if (text.includes("irpc")) return "irpc";
-      return "other";
-    }
-
-    function brandLabel(brandKey, name, tags = {}) {
-      const map = {
-        ptt: "PTT",
-        bangchak: "Bangchak",
-        shell: "Shell",
-        esso: "Esso",
-        caltex: "Caltex",
-        pt: "PT",
-        susco: "Susco",
-        irpc: "IRPC",
-        other: tags.brand || tags.operator || name || "อื่น ๆ"
-      };
-      return map[brandKey] || "อื่น ๆ";
-    }
-
-    function fuelText(status) {
-      const s = String(status || "unknown").toLowerCase();
-      if (s === "available") return "มี";
-      if (s === "low") return "ใกล้หมด";
-      if (s === "out") return "หมด";
-      return "ไม่ทราบ";
-    }
-
-    function fuelClass(status) {
-      const s = String(status || "unknown").toLowerCase();
-      if (s === "available") return "fuel-ok";
-      if (s === "low") return "fuel-low";
-      if (s === "out") return "fuel-out";
-      return "fuel-unknown";
-    }
-
-    function haversineKm(lat1, lon1, lat2, lon2) {
-      const toRad = deg => deg * Math.PI / 180;
-      const R = 6371;
-      const dLat = toRad(lat2 - lat1);
-      const dLon = toRad(lon2 - lon1);
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      return 2 * R * Math.asin(Math.sqrt(a));
-    }
-
-    function dirLink(fromLat, fromLng, toLat, toLng) {
-      return `https://www.google.com/maps/dir/?api=1&origin=${fromLat},${fromLng}&destination=${toLat},${toLng}&travelmode=driving`;
-    }
-
-    async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
-      try {
-        const res = await fetch(url, { ...options, signal: controller.signal });
-        clearTimeout(timer);
-        return res;
-      } catch (err) {
-        clearTimeout(timer);
-        throw err;
-      }
-    }
-
-    function initMap() {
-      map = L.map("map", { zoomControl: true }).setView([13.7563, 100.5018], 12);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors"
-      }).addTo(map);
-
-      addUserMarker(currentLat, currentLng);
-    }
-
-    function clearMapMarkers() {
-      mapMarkers.forEach(m => map.removeLayer(m));
-      mapMarkers = [];
-      if (userMarker) {
-        map.removeLayer(userMarker);
-        userMarker = null;
-      }
-    }
-
-    function addUserMarker(lat, lng) {
-      userMarker = L.marker([lat, lng]).addTo(map);
-      userMarker.bindPopup("<b>ตำแหน่งของคุณ</b>");
-    }
-
-    function addStationMarkers(stations) {
-      const selectedBrand = brandFilter.value;
-      let filtered = [...stations];
-
-      if (selectedBrand !== "all") {
-        filtered = filtered.filter(s => s.brandKey === selectedBrand);
-      }
-
-      filtered.forEach((s) => {
-        const popupHtml = `
-          <b>${escapeHtml(s.name)}</b><br>
-          ระยะทาง: ${s.distanceKm.toFixed(2)} กม.<br>
-          แก๊สโซฮอล์ 95: ${fuelText(s.statusInfo.fuels.gasohol95)}<br>
-          แก๊สโซฮอล์ 91: ${fuelText(s.statusInfo.fuels.gasohol91)}<br>
-          ดีเซล B7: ${fuelText(s.statusInfo.fuels.dieselB7)}<br>
-          ดีเซล B10: ${fuelText(s.statusInfo.fuels.dieselB10)}<br>
-          ดีเซล: ${fuelText(s.statusInfo.fuels.diesel)}
-        `;
-        const marker = L.marker([s.lat, s.lng]).addTo(map);
-        marker.bindPopup(popupHtml);
-        mapMarkers.push(marker);
-      });
-
-      if (filtered.length > 0) {
-        const bounds = L.latLngBounds(filtered.map(s => [s.lat, s.lng]));
-        if (currentLat && currentLng) bounds.extend([currentLat, currentLng]);
-        map.fitBounds(bounds.pad(0.15));
-      } else if (currentLat && currentLng) {
-        map.setView([currentLat, currentLng], 12);
-      }
-    }
-
-    function bestStationMatch(station) {
-      const stations = Array.isArray(stationStatusData.stations) ? stationStatusData.stations : [];
-      const stationNameNorm = normalizeText(station.name);
-      let best = null;
-      let bestScore = -1;
-
-      stations.forEach(item => {
-        const names = [];
-        if (item.name) names.push(item.name);
-        if (Array.isArray(item.matchKeys)) names.push(...item.matchKeys);
-
-        let score = 0;
-        names.forEach(name => {
-          const n = normalizeText(name);
-          if (!n) return;
-          if (n === stationNameNorm) score = Math.max(score, 100);
-          else if (stationNameNorm.includes(n) || n.includes(stationNameNorm)) score = Math.max(score, 80);
-          else {
-            const brand = detectBrand(station.name, station.tags);
-            if (brand !== "other" && normalizeText(name).includes(brand)) score = Math.max(score, 40);
-          }
-        });
-
-        if (score > bestScore) {
-          bestScore = score;
-          best = item;
-        }
-      });
-
-      return bestScore >= 40 ? best : null;
-    }
-
-    function getStationFuelStatus(station) {
-      const matched = bestStationMatch(station);
-
-      if (!matched) {
-        return {
-          matchedName: null,
-          fuels: {
-            gasohol95: "unknown",
-            gasohol91: "unknown",
-            dieselB7: "unknown",
-            dieselB10: "unknown",
-            diesel: "unknown"
-          },
-          crowdsource: {
-            enabled: false,
-            confidence: 0,
-            sampleSize: 0,
-            reporters: []
-          }
-        };
-      }
-
-      return {
-        matchedName: matched.name || null,
-        fuels: {
-          gasohol95: matched.fuels?.gasohol95 || "unknown",
-          gasohol91: matched.fuels?.gasohol91 || "unknown",
-          dieselB7: matched.fuels?.dieselB7 || "unknown",
-          dieselB10: matched.fuels?.dieselB10 || "unknown",
-          diesel: matched.fuels?.diesel || "unknown"
-        },
-        crowdsource: {
-          enabled: !!matched.crowdsource?.enabled,
-          confidence: Number(matched.crowdsource?.confidence || 0),
-          sampleSize: Number(matched.crowdsource?.sampleSize || 0),
-          reporters: Array.isArray(matched.crowdsource?.reporters) ? matched.crowdsource.reporters : []
-        }
-      };
-    }
-
-    async function loadStationStatus() {
-      try {
-        setStatus("กำลังโหลด status.json...", "");
-        const res = await fetchWithTimeout("./status.json?t=" + Date.now(), {}, 15000);
-        if (!res.ok) throw new Error("โหลด status.json ไม่สำเร็จ: HTTP " + res.status);
-
-        const data = await res.json();
-
-        if (!data || typeof data !== "object") {
-          throw new Error("status.json ไม่ใช่ object");
-        }
-
-        if (!Array.isArray(data.stations)) {
-          throw new Error("status.json ไม่มี stations ที่เป็น array");
-        }
-
-        stationStatusData = {
-          meta: data.meta || {},
-          stations: data.stations
-        };
-
-        const lastUpdated = stationStatusData.meta.lastUpdatedBkk || "-";
-        const stationCount = stationStatusData.stations.length;
-        const onlineCount = stationStatusData.stations.filter(s =>
-          Object.values(s.fuels || {}).some(v => v === "available" || v === "low")
-        ).length;
-        const crowdCount = stationStatusData.stations.filter(s => s.crowdsource?.enabled).length;
-
-        document.getElementById("lastUpdatedText").textContent = lastUpdated;
-        document.getElementById("stationCountText").textContent = stationCount;
-        document.getElementById("onlineCountText").textContent = onlineCount;
-        document.getElementById("crowdCountText").textContent = crowdCount;
-
-        document.getElementById("summaryLastUpdated").textContent = lastUpdated;
-        document.getElementById("summaryStationCount").textContent = stationCount;
-        document.getElementById("summaryOnlineCount").textContent = onlineCount;
-        document.getElementById("summaryCrowdCount").textContent = crowdCount;
-
-        document.getElementById("headerUpdated").textContent = `Updated: ${lastUpdated}`;
-        document.getElementById("headerStations").textContent = `Stations: ${stationCount}`;
-        document.getElementById("metaBadge").textContent = stationStatusData.meta.version || "Status Overview";
-
-        document.getElementById("metaText").textContent =
-          `Source: ${stationStatusData.meta.source || "-"} | Version: ${stationStatusData.meta.version || "-"} | Notes: ${stationStatusData.meta.notes || "-"}`;
-
-        setStatus("โหลด status.json สำเร็จ", "ok");
-      } catch (err) {
-        console.error(err);
-        setStatus("โหลด status.json ล้มเหลว", "error");
-        document.getElementById("metaText").textContent = err.message;
-      }
-    }
-
-    async function overpassQuery(query) {
-      const endpoints = [
-        "https://overpass-api.de/api/interpreter",
-        "https://overpass.kumi.systems/api/interpreter"
-      ];
-
-      let lastError = null;
-
-      for (const endpoint of endpoints) {
-        try {
-          const res = await fetchWithTimeout(endpoint, {
-            method: "POST",
-            headers: {
-              "Content-Type": "text/plain;charset=UTF-8"
-            },
-            body: query
-          }, 25000);
-
-          if (!res.ok) throw new Error(`Overpass HTTP ${res.status}`);
-          return await res.json();
-        } catch (err) {
-          lastError = err;
-        }
-      }
-
-      throw lastError || new Error("Overpass failed");
-    }
-
-    async function findNearbyStations() {
-      try {
-        currentLat = Number(latInput.value);
-        currentLng = Number(lngInput.value);
-
-        if (!Number.isFinite(currentLat) || !Number.isFinite(currentLng)) {
-          throw new Error("กรุณาระบุพิกัดให้ถูกต้องก่อน");
-        }
-
-        updateCoordText();
-        setStatus("กำลังค้นหาปั๊มน้ำมันใกล้คุณ...", "");
-        countBadge.textContent = "กำลังค้นหา...";
-        summaryText.textContent = "กำลังโหลดผลลัพธ์";
-
-        const radius = Number(radiusInput.value || 5000);
-
-        const query = `
-[out:json][timeout:20];
-(
-  node["amenity"="fuel"](around:${radius},${currentLat},${currentLng});
-  way["amenity"="fuel"](around:${radius},${currentLat},${currentLng});
-  relation["amenity"="fuel"](around:${radius},${currentLat},${currentLng});
-);
-out center tags;
-`;
-
-        const data = await overpassQuery(query);
-        const elements = Array.isArray(data.elements) ? data.elements : [];
-
-        lastStations = elements.map((el) => {
-          const lat = Number(el.lat ?? (el.center && el.center.lat));
-          const lng = Number(el.lon ?? (el.center && el.center.lon));
-          const tags = el.tags || {};
-          const name = tags.name || tags.brand || "สถานีบริการน้ำมัน";
-
-          const address = [
-            tags["addr:housenumber"],
-            tags["addr:street"],
-            tags["addr:district"],
-            tags["addr:province"]
-          ].filter(Boolean).join(" ");
-
-          const station = {
-            id: `${el.type}-${el.id}`,
-            name,
-            lat,
-            lng,
-            tags,
-            address,
-            brandKey: detectBrand(name, tags),
-            distanceKm: haversineKm(currentLat, currentLng, lat, lng)
-          };
-
-          station.statusInfo = getStationFuelStatus(station);
-          return station;
-        }).filter(s => Number.isFinite(s.lat) && Number.isFinite(s.lng));
-
-        lastStations.sort((a, b) => a.distanceKm - b.distanceKm);
-
-        clearMapMarkers();
-        addUserMarker(currentLat, currentLng);
-        addStationMarkers(lastStations);
-        renderStations(lastStations);
-
-        countBadge.textContent = `${lastStations.length} สถานี`;
-        summaryText.textContent = `พบ ${lastStations.length} สถานี เรียงจากใกล้ไปไกล`;
-        setStatus(`โหลดสำเร็จ พบ ${lastStations.length} สถานี`, "ok");
-      } catch (err) {
-        console.error(err);
-        setStatus("โหลดข้อมูลล้มเหลว", "warn");
-        countBadge.textContent = "0 สถานี";
-        summaryText.textContent = "ยังโหลดผลลัพธ์ไม่ได้";
-        resultList.innerHTML = `<div class="empty">ยังไม่สามารถโหลดข้อมูลได้ในตอนนี้<br>${escapeHtml(err.message || "Unknown error")}</div>`;
-      }
-    }
-
-    function renderStations(stations) {
-      const selectedBrand = brandFilter.value;
-      let filtered = [...stations];
-
-      if (selectedBrand !== "all") {
-        filtered = filtered.filter(s => s.brandKey === selectedBrand);
-      }
-
-      resultList.innerHTML = "";
-
-      if (!filtered.length) {
-        resultList.innerHTML = `<div class="empty">ไม่มีผลลัพธ์ในตอนนี้</div>`;
-        return;
-      }
-
-      filtered.forEach((s) => {
-        const brandText = brandLabel(s.brandKey, s.name, s.tags);
-        const crowdEnabled = !!s.statusInfo.crowdsource.enabled;
-        const crowdLabel = crowdEnabled ? "Crowdsource" : "Default";
-        const confidence = Number(s.statusInfo.crowdsource.confidence || 0);
-        const sampleSize = Number(s.statusInfo.crowdsource.sampleSize || 0);
-        const reporters = Array.isArray(s.statusInfo.crowdsource.reporters)
-          ? s.statusInfo.crowdsource.reporters.join(", ")
-          : "";
-
-        const el = document.createElement("div");
-        el.className = "station";
-        el.innerHTML = `
-          <div class="station-top">
-            <div class="station-name">${escapeHtml(s.name)}</div>
-            <div class="distance">${s.distanceKm.toFixed(2)} กม.</div>
-          </div>
-
-          <div class="brand-row">
-            <div class="brand-badge brand-${s.brandKey}">${escapeHtml(brandText)}</div>
-            <div class="source-badge ${crowdEnabled ? "source-crowd" : "source-default"}">${crowdLabel}</div>
-          </div>
-
-          <div class="meta">
-            ที่อยู่: ${escapeHtml(s.address || "-")}<br>
-            พิกัด: ${s.lat.toFixed(6)}, ${s.lng.toFixed(6)}<br>
-            จับคู่กับสถานะ: ${escapeHtml(s.statusInfo.matchedName || "ไม่พบใน status.json")}
-          </div>
-
-          <div class="fuel-grid">
-            <div class="fuel-item">
-              <div class="fuel-name">Gasohol 95</div>
-              <div class="fuel-value ${fuelClass(s.statusInfo.fuels.gasohol95)}">${fuelText(s.statusInfo.fuels.gasohol95)}</div>
-            </div>
-            <div class="fuel-item">
-              <div class="fuel-name">Gasohol 91</div>
-              <div class="fuel-value ${fuelClass(s.statusInfo.fuels.gasohol91)}">${fuelText(s.statusInfo.fuels.gasohol91)}</div>
-            </div>
-            <div class="fuel-item">
-              <div class="fuel-name">Diesel B7</div>
-              <div class="fuel-value ${fuelClass(s.statusInfo.fuels.dieselB7)}">${fuelText(s.statusInfo.fuels.dieselB7)}</div>
-            </div>
-            <div class="fuel-item">
-              <div class="fuel-name">Diesel B10</div>
-              <div class="fuel-value ${fuelClass(s.statusInfo.fuels.dieselB10)}">${fuelText(s.statusInfo.fuels.dieselB10)}</div>
-            </div>
-            <div class="fuel-item">
-              <div class="fuel-name">Diesel</div>
-              <div class="fuel-value ${fuelClass(s.statusInfo.fuels.diesel)}">${fuelText(s.statusInfo.fuels.diesel)}</div>
-            </div>
-            <div class="fuel-item">
-              <div class="fuel-name">Crowd Confidence</div>
-              <div class="fuel-value">${confidence}% (${sampleSize})</div>
-            </div>
-          </div>
-
-          <div class="result-summary" style="margin-bottom:10px;">
-            Reporter: ${escapeHtml(reporters || "-")}
-          </div>
-
-          <div class="action-row">
-            <a class="link-btn" href="${dirLink(currentLat, currentLng, s.lat, s.lng)}" target="_blank" rel="noopener noreferrer">นำทาง</a>
-          </div>
-        `;
-        resultList.appendChild(el);
-      });
-    }
-
-    async function sendToTelegram() {
-      showBox("feedbackError", "");
-      showBox("feedbackOk", "");
-
-      const senderName = document.getElementById("senderName").value.trim() || "Anonymous";
-      const senderMessage = document.getElementById("senderMessage").value.trim();
-
-      if (!senderMessage) {
-        showBox("feedbackError", "กรุณากรอกข้อความก่อน");
-        return;
-      }
-
-      if (BOT_TOKEN === "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw" || CHAT_ID === "5156469590") {
-        showBox("feedbackError", "กรุณาใส่ BOT_TOKEN และ CHAT_ID ใน index.html ก่อน");
-        return;
-      }
-
-      const text =
-`📩 New Message from Fuel Finder
-
-Sender: ${senderName}
-Message: ${senderMessage}
-Page: ${window.location.href}
-Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
-
-      const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-
-      const btn = document.getElementById("sendTelegramBtn");
-      btn.disabled = true;
-      btn.textContent = "กำลังส่ง...";
-
-      try {
-        const res = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            chat_id: CHAT_ID,
-            text: text
-          })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || !data.ok) {
-          throw new Error(data.description || `HTTP ${res.status}`);
-        }
-
-        document.getElementById("senderMessage").value = "";
-        showBox("feedbackOk", "ส่งข้อความสำเร็จ");
-      } catch (err) {
-        console.error(err);
-        showBox("feedbackError", "ส่งข้อความไม่สำเร็จ\n" + (err.message || String(err)));
-      } finally {
-        btn.disabled = false;
-        btn.textContent = "ส่งข้อความ";
-      }
-    }
-
-    function useBrowserGPS() {
-      if (!navigator.geolocation) {
-        setStatus("อุปกรณ์นี้ไม่รองรับ GPS", "warn");
-        return;
-      }
-
-      setStatus("กำลังขอตำแหน่งจากอุปกรณ์...", "");
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          currentLat = pos.coords.latitude;
-          currentLng = pos.coords.longitude;
-          updateCoordText();
-
-          clearMapMarkers();
-          addUserMarker(currentLat, currentLng);
-          map.setView([currentLat, currentLng], 13);
-
-          if (lastStations.length) {
-            renderStations(lastStations);
-            addStationMarkers(lastStations);
-          }
-
-          setStatus("ใช้ตำแหน่งจากอุปกรณ์สำเร็จ", "ok");
-        },
-        (err) => {
-          console.error(err);
-          setStatus("ดึงตำแหน่งไม่สำเร็จ", "warn");
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    }
-
-    document.addEventListener("DOMContentLoaded", async () => {
-      initMap();
-      updateCoordText();
-      await loadStationStatus();
-
-      document.getElementById("gpsBtn").addEventListener("click", useBrowserGPS);
-      document.getElementById("findBtn").addEventListener("click", findNearbyStations);
-      document.getElementById("sendTelegramBtn").addEventListener("click", sendToTelegram);
-
-      document.getElementById("bkkBtn").addEventListener("click", () => {
-        currentLat = 13.7563;
-        currentLng = 100.5018;
-        updateCoordText();
-        clearMapMarkers();
-        addUserMarker(currentLat, currentLng);
-        map.setView([currentLat, currentLng], 12);
-
-        if (lastStations.length) {
-          renderStations(lastStations);
-          addStationMarkers(lastStations);
-        }
-
-        setStatus("ใช้พิกัดกรุงเทพแล้ว", "ok");
-      });
-
-      brandFilter.addEventListener("change", () => {
-        if (lastStations.length) {
-          renderStations(lastStations);
-          clearMapMarkers();
-          if (currentLat && currentLng) addUserMarker(currentLat, currentLng);
-          addStationMarkers(lastStations);
-        }
-      });
+    list.push({
+      name,
+      lat:e.lat,
+      lon:e.lon
     });
-  </script>
+  });
+
+  renderList(list, lat, lng);
+}
+
+function renderList(list, lat, lng){
+  const el = document.getElementById("sheet");
+
+  if(list.length===0){
+    el.innerHTML="❌ ไม่พบปั๊ม";
+    return;
+  }
+
+  el.innerHTML = `
+  <div>พบ ${list.length} ปั๊มในระยะ 5 กม.</div>
+  ` + list.map(s=>`
+    <div class="station">
+      <div class="station-name">${s.name}</div>
+
+      <button class="btn btn-nav"
+        onclick="nav(${s.lat},${s.lon})">
+        นำทาง
+      </button>
+
+      <button class="btn btn-fuel"
+        onclick="openFuel(${lat},${lng})">
+        ดูสถานะน้ำมันจริง
+      </button>
+    </div>
+  `).join("");
+}
+
+function nav(lat,lon){
+  window.open(`https://www.google.com/maps?q=${lat},${lon}`,"_blank");
+}
+
+function openFuel(lat,lng){
+  window.open(`https://fuel-now.doeb.go.th/?lat=${lat}&lng=${lng}`,"_blank");
+}
+</script>
+
 </body>
 </html>
