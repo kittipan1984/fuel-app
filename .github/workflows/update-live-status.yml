@@ -34,5 +34,4 @@ jobs:
           git diff --cached --quiet || git commit -m "chore: update live fuel status"
 
       - name: Push changes
-        run: |
-          git push
+        run: git push
