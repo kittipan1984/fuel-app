@@ -794,7 +794,7 @@
     <div class="topbar-inner">
       <div class="brand">
         <div class="avatar-wrap">
-          <img src="child-header.png?v=6" alt="NaraMawin" onerror="this.onerror=null; this.src='https://placehold.co/120x120/png?text=N';">
+          <img src="child-header.png?v=7" alt="NaraMawin" onerror="this.onerror=null; this.src='https://placehold.co/120x120/png?text=N';">
         </div>
         <div>
           <div class="brand-title">Fuel Finder</div>
@@ -813,10 +813,10 @@
     <section class="hero section" id="section-home">
       <div class="hero-grid">
         <div>
-          <div class="hero-kicker">⚡ PRO MAX LIVE</div>
-          <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมช่วยเปิด Fuel Now ให้เร็วที่สุด</h1>
+          <div class="hero-kicker">⚡ PRO MAX + ACTIONS</div>
+          <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมสถานะที่อัปเดตผ่าน GitHub Action</h1>
           <p class="hero-desc">
-            เวอร์ชันนี้คง UI เดิมของคุณไว้ และเพิ่มการลองดึงสถานะจริงผ่าน Google Apps Script โดยไม่แสดงสถานะปลอม ถ้าดึงไม่ได้ ระบบเดิมก็ยังใช้ต่อได้ตามปกติ
+            เวอร์ชันนี้คง UI เดิมของคุณไว้ และอ่านข้อมูลสถานะจากไฟล์ live-status.json ที่ถูกอัปเดตอัตโนมัติเป็นรอบ ๆ โดย GitHub Action
           </p>
         </div>
 
@@ -851,7 +851,7 @@
       <div class="card">
         <div class="card-head">
           <h2 class="card-title">Dashboard</h2>
-          <div class="badge">Completed Version</div>
+          <div class="badge">GitHub Action Mode</div>
         </div>
 
         <div class="summary-grid">
@@ -869,8 +869,8 @@
           </div>
         </div>
 
-        <div class="meta-note">
-          หน้าเว็บนี้ใช้ JSON สำหรับรายชื่อปั๊มและพิกัดเท่านั้น ส่วนสถานะจริงถ้าดึงได้ จะขึ้นในกล่องสถานะของแต่ละปั๊มด้านล่าง
+        <div class="meta-note" id="liveMetaNote">
+          หน้าเว็บนี้ใช้ JSON สำหรับรายชื่อปั๊มและอ่านสถานะจาก live-status.json
         </div>
       </div>
     </section>
@@ -979,16 +979,14 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <script>
-    // ===== แก้ 3 บรรทัดนี้ =====
+    // ===== แก้ 2 บรรทัดนี้ =====
     const BOT_TOKEN = "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw";
     const CHAT_ID = "5156469590";
-    const DOEB_API = "https://script.google.com/macros/s/AKfycbyKeHguKsQGCZm0t-DDUa4To0V_Xtxtowhv3XNq6AVTgA-TYSFYAtbHp3MwVBsnKIhYTw/exec";
 
     const STATIONS_URL = "./stations.json";
+    const LIVE_STATUS_URL = "./live-status.json";
     const DEFAULT_LAT = 13.7563;
     const DEFAULT_LNG = 100.5018;
-    const LIVE_CACHE_MS = 5 * 60 * 1000;
-    const LIVE_BATCH_SIZE = 4;
 
     let map;
     let mapMarkers = [];
@@ -997,7 +995,8 @@
     let currentLng = DEFAULT_LNG;
     let allStations = [];
     let filteredStations = [];
-    const liveCache = new Map();
+    let liveStatusMap = {};
+    let liveUpdatedAt = null;
 
     const statusBox = document.getElementById("statusBox");
     const latInput = document.getElementById("latInput");
@@ -1107,10 +1106,6 @@
         other: stationName || "อื่น ๆ"
       };
       return map[brandKey] || "อื่น ๆ";
-    }
-
-    function brandLabelUpper(brandKey, stationName) {
-      return brandLabel(brandKey, stationName).toUpperCase();
     }
 
     function haversineKm(lat1, lon1, lat2, lon2) {
@@ -1249,204 +1244,57 @@
       }
     }
 
-    function normalizeCompare(v) {
-      return String(v || "")
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, " ")
-        .replace(/[()\-_/]/g, " ");
-    }
+    async function loadLiveStatusFile() {
+      try {
+        const res = await fetchWithTimeout(`${LIVE_STATUS_URL}?t=${Date.now()}`, {}, 15000);
+        if (!res.ok) throw new Error(`โหลด live-status.json ไม่สำเร็จ: HTTP ${res.status}`);
+        const data = await res.json();
+        liveStatusMap = data?.stations || {};
+        liveUpdatedAt = data?.updated_at || null;
 
-    function similarityScore(station, row) {
-      let score = 0;
-
-      const sName = normalizeCompare(station.name);
-      const rName = normalizeCompare(row.name);
-      const sProvince = normalizeCompare(station.province);
-      const rProvince = normalizeCompare(row.province);
-      const sDistrict = normalizeCompare(station.district);
-      const rDistrict = normalizeCompare(row.amphoe || row.district);
-      const sBrand = normalizeCompare(station.brandLabel || brandLabelUpper(station.brand, station.name));
-      const rBrand = normalizeCompare(row.brand);
-
-      if (rName === sName) score += 100;
-      else if (rName && sName && (rName.includes(sName) || sName.includes(rName))) score += 60;
-
-      if (sProvince && rProvince && sProvince === rProvince) score += 20;
-      if (sDistrict && rDistrict && sDistrict === rDistrict) score += 20;
-      if (sBrand && rBrand && sBrand === rBrand) score += 15;
-
-      return score;
-    }
-
-    function chooseBestRow(station, rows) {
-      if (!Array.isArray(rows) || !rows.length) return null;
-      let best = null;
-      let bestScore = -1;
-
-      for (const row of rows) {
-        const score = similarityScore(station, row);
-        if (score > bestScore) {
-          bestScore = score;
-          best = row;
+        const meta = document.getElementById("liveMetaNote");
+        if (meta && liveUpdatedAt) {
+          meta.textContent = `หน้าเว็บนี้ใช้ JSON สำหรับรายชื่อปั๊มและอ่านสถานะจาก live-status.json | ล่าสุด: ${new Date(liveUpdatedAt).toLocaleString("th-TH")}`;
         }
+        return data;
+      } catch (err) {
+        console.error(err);
+        liveStatusMap = {};
+        liveUpdatedAt = null;
+        return null;
       }
-
-      return { row: best, score: bestScore };
-    }
-
-    async function fetchDoebAttempt(params) {
-      const qs = new URLSearchParams();
-      if (params.name) qs.set("name", params.name);
-      if (params.brand) qs.set("brand", params.brand);
-      if (params.province) qs.set("province", params.province);
-      if (params.amphoe) qs.set("amphoe", params.amphoe);
-
-      const res = await fetch(`${DOEB_API}?${qs.toString()}`);
-      return await res.json();
-    }
-
-    async function getLiveFuel(station) {
-      const cacheKey = JSON.stringify({
-        name: station.name,
-        brand: station.brandLabel || brandLabelUpper(station.brand, station.name),
-        province: station.province,
-        district: station.district
-      });
-
-      const cached = liveCache.get(cacheKey);
-      if (cached && (Date.now() - cached.ts < LIVE_CACHE_MS)) {
-        return cached.value;
-      }
-
-      const attempts = [
-        {
-          name: station.name,
-          brand: station.brandLabel || brandLabelUpper(station.brand, station.name),
-          province: station.province,
-          amphoe: station.district
-        },
-        {
-          name: station.name,
-          brand: station.brandLabel || brandLabelUpper(station.brand, station.name),
-          province: station.province,
-          amphoe: ""
-        },
-        {
-          name: station.name,
-          brand: "",
-          province: station.province,
-          amphoe: station.district
-        },
-        {
-          name: station.name,
-          brand: "",
-          province: station.province,
-          amphoe: ""
-        },
-        {
-          name: station.name,
-          brand: "",
-          province: "",
-          amphoe: ""
-        }
-      ];
-
-      let bestHit = null;
-
-      for (const attempt of attempts) {
-        try {
-          const data = await fetchDoebAttempt(attempt);
-
-          const rows = data?.parsed?.rows;
-          if (data?.ok && data?.parsed?.matched && Array.isArray(rows) && rows.length) {
-            const chosen = chooseBestRow(station, rows);
-            if (chosen && chosen.row) {
-              bestHit = {
-                ok: true,
-                g95: chosen.row.g95 || "ไม่รู้",
-                diesel: chosen.row.diesel || "ไม่รู้",
-                g91: chosen.row.g91 || "ไม่รู้",
-                e20: chosen.row.e20 || "ไม่รู้",
-                e85: chosen.row.e85 || "ไม่รู้",
-                updated: new Date().toLocaleString("th-TH"),
-                note: `match score ${chosen.score}`
-              };
-              if (chosen.score >= 100) break;
-            }
-          }
-        } catch (_) {
-          // continue fallback attempts
-        }
-      }
-
-      const finalValue = bestHit || {
-        ok: false,
-        g95: "ไม่พบข้อมูล",
-        diesel: "ไม่พบข้อมูล",
-        g91: "ไม่พบข้อมูล",
-        e20: "ไม่พบข้อมูล",
-        e85: "ไม่พบข้อมูล",
-        note: "query ไม่คืนข้อมูลรายปั๊มที่ match ได้"
-      };
-
-      liveCache.set(cacheKey, { ts: Date.now(), value: finalValue });
-      return finalValue;
     }
 
     function fuelColor(v) {
       if (v === "ปกติ") return "#16a34a";
       if (v === "หมด") return "#dc2626";
-      if (v === "ไม่ระบุ") return "#64748b";
-      if (v === "ไม่พบข้อมูล") return "#64748b";
-      if (v === "ไม่รู้") return "#64748b";
       return "#64748b";
     }
 
-    function renderLiveBox(status) {
+    function renderLiveBoxFromFile(station) {
+      const live = liveStatusMap[station.id];
+
+      if (!live) {
+        return `
+          <div class="doeb-live-title">📊 สถานะน้ำมันปัจจุบัน</div>
+          <div class="doeb-live-grid">
+            <div class="fuel-pill" style="background:#64748b;">G95<br>ไม่พบข้อมูล</div>
+            <div class="fuel-pill" style="background:#64748b;">Diesel<br>ไม่พบข้อมูล</div>
+          </div>
+          <div class="fuel-sub">ยังไม่มีข้อมูลล่าสุด</div>
+        `;
+      }
+
       return `
         <div class="doeb-live-title">📊 สถานะน้ำมันปัจจุบัน</div>
         <div class="doeb-live-grid">
-          <div class="fuel-pill" style="background:${fuelColor(status.g95)};">
-            G95<br>${escapeHtml(status.g95)}
-          </div>
-          <div class="fuel-pill" style="background:${fuelColor(status.diesel)};">
-            Diesel<br>${escapeHtml(status.diesel)}
-          </div>
+          <div class="fuel-pill" style="background:${fuelColor(live.g95)};">G95<br>${escapeHtml(live.g95 || "ไม่พบข้อมูล")}</div>
+          <div class="fuel-pill" style="background:${fuelColor(live.diesel)};">Diesel<br>${escapeHtml(live.diesel || "ไม่พบข้อมูล")}</div>
         </div>
         <div class="fuel-sub">
-          ${status.ok ? `อัปเดต: ${escapeHtml(status.updated)}` : `หมายเหตุ: ${escapeHtml(status.note || "ไม่พบข้อมูล")}`}
+          ${liveUpdatedAt ? `อัปเดต: ${escapeHtml(new Date(liveUpdatedAt).toLocaleString("th-TH"))}` : ""}
         </div>
       `;
-    }
-
-    async function refreshLiveBox(station) {
-      const box = document.getElementById(`fuel-${station.id}`);
-      if (!box) return;
-
-      box.innerHTML = `
-        <div class="doeb-live-title">📊 สถานะน้ำมันปัจจุบัน</div>
-        <div class="doeb-live-grid">
-          <div class="fuel-pill" style="background:#64748b;">G95<br>Loading</div>
-          <div class="fuel-pill" style="background:#64748b;">Diesel<br>Loading</div>
-        </div>
-        <div class="fuel-sub">กำลัง query ข้อมูล...</div>
-      `;
-
-      const live = await getLiveFuel(station);
-      box.innerHTML = renderLiveBox(live);
-    }
-
-    async function refreshFuelStatusFast(stations) {
-      const queue = [...stations];
-      const workers = Array.from({ length: Math.min(LIVE_BATCH_SIZE, queue.length) }, async () => {
-        while (queue.length) {
-          const station = queue.shift();
-          if (!station) break;
-          await refreshLiveBox(station);
-        }
-      });
-      await Promise.all(workers);
     }
 
     function findNearbyStations() {
@@ -1488,8 +1336,6 @@
 
         setStatus(`ค้นหาสำเร็จ พบ ${filteredStations.length} ปั๊ม`, "ok");
         updateDashboard(filteredStations.length, "Ready");
-
-        refreshFuelStatusFast(filteredStations);
       } catch (err) {
         console.error(err);
         resultList.innerHTML = `<div class="empty">${escapeHtml(err.message || "เกิดข้อผิดพลาด")}</div>`;
@@ -1529,7 +1375,7 @@
             จังหวัด: ${escapeHtml(s.province || "-")}<br>
             อำเภอ: ${escapeHtml(s.district || "-")}<br>
             พิกัด: ${s.lat.toFixed(6)}, ${s.lng.toFixed(6)}<br>
-            สถานะน้ำมันบนเว็บนี้: ไม่แสดงค่าปลอม
+            สถานะน้ำมันบนเว็บนี้: อ่านจาก live-status.json
           </div>
 
           <div class="action-row">
@@ -1552,12 +1398,7 @@
           </div>
 
           <div class="doeb-live-box" id="fuel-${s.id}">
-            <div class="doeb-live-title">📊 สถานะน้ำมันปัจจุบัน</div>
-            <div class="doeb-live-grid">
-              <div class="fuel-pill" style="background:#64748b;">G95<br>Waiting</div>
-              <div class="fuel-pill" style="background:#64748b;">Diesel<br>Waiting</div>
-            </div>
-            <div class="fuel-sub">จะโหลดเมื่อคุณค้นหาปั๊ม</div>
+            ${renderLiveBoxFromFile(s)}
           </div>
         `;
         resultList.appendChild(el);
@@ -1661,6 +1502,7 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
       setupBottomNav();
 
       await loadStations();
+      await loadLiveStatusFile();
 
       document.getElementById("gpsBtn").addEventListener("click", useBrowserGPS);
       document.getElementById("findBtn").addEventListener("click", findNearbyStations);
