@@ -422,10 +422,6 @@
       cursor:pointer;
     }
 
-    .btn-link.secondary{
-      background:linear-gradient(135deg,#0f172a,#334155);
-    }
-
     .helper{
       font-size:12px;
       color:#c5d3eb;
@@ -617,132 +613,6 @@
       color:#fff;
     }
 
-    /* Modal */
-    .modal{
-      position:fixed;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:10000;
-      background:rgba(2,8,23,.58);
-      backdrop-filter:blur(6px);
-      padding:16px;
-    }
-
-    .modal.show{
-      display:flex;
-    }
-
-    .modal-card{
-      width:min(1100px, 100%);
-      height:min(82vh, 900px);
-      background:#fff;
-      border-radius:24px;
-      box-shadow:0 18px 45px rgba(2,8,23,.28);
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-    }
-
-    .modal-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:14px 16px;
-      border-bottom:1px solid #e5edf6;
-      background:#f8fbff;
-    }
-
-    .modal-title{
-      font-size:16px;
-      font-weight:900;
-      color:#0f172a;
-      line-height:1.3;
-    }
-
-    .modal-sub{
-      font-size:12px;
-      color:#64748b;
-      margin-top:4px;
-    }
-
-    .modal-actions{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-
-    .modal-btn{
-      border:none;
-      border-radius:12px;
-      padding:10px 12px;
-      font-size:13px;
-      font-weight:900;
-      cursor:pointer;
-    }
-
-    .modal-btn.primary{
-      background:linear-gradient(135deg,var(--blue),var(--blue2));
-      color:#fff;
-    }
-
-    .modal-btn.ghost{
-      background:#e9eff7;
-      color:#0f172a;
-    }
-
-    .modal-body{
-      position:relative;
-      flex:1;
-      background:#fff;
-    }
-
-    .modal-iframe{
-      width:100%;
-      height:100%;
-      border:0;
-      background:#fff;
-    }
-
-    .iframe-overlay{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:linear-gradient(180deg,#ffffff,#f8fbff);
-      padding:20px;
-      text-align:center;
-    }
-
-    .iframe-box{
-      max-width:520px;
-    }
-
-    .iframe-title{
-      font-size:20px;
-      font-weight:900;
-      color:#0f172a;
-      margin-bottom:10px;
-    }
-
-    .iframe-desc{
-      font-size:14px;
-      line-height:1.7;
-      color:#475569;
-      margin-bottom:16px;
-    }
-
-    .iframe-actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:center;
-    }
-
     @media (max-width:1024px){
       .hero-grid,
       .main-grid{
@@ -767,22 +637,6 @@
       .action-row{ flex-direction:column; }
       .action-row > *{ flex:1 1 auto; width:100%; }
       .btn-link{ width:100%; }
-      .modal{
-        padding:10px;
-      }
-      .modal-card{
-        height:min(88vh, 900px);
-        border-radius:18px;
-      }
-      .modal-head{
-        padding:12px;
-      }
-      .modal-actions{
-        width:100%;
-      }
-      .modal-btn{
-        flex:1 1 120px;
-      }
     }
 
     @media (max-width:480px){
@@ -819,9 +673,6 @@
         font-size:11px;
         padding:11px 8px;
       }
-      .iframe-title{
-        font-size:18px;
-      }
     }
   </style>
 </head>
@@ -830,7 +681,7 @@
     <div class="topbar-inner">
       <div class="brand">
         <div class="avatar-wrap">
-          <img src="child-header.png?v=2" alt="NaraMawin" onerror="this.onerror=null; this.src='https://placehold.co/120x120/png?text=N';">
+          <img src="child-header.png?v=3" alt="NaraMawin" onerror="this.onerror=null; this.src='https://placehold.co/120x120/png?text=N';">
         </div>
         <div>
           <div class="brand-title">Fuel Finder</div>
@@ -850,9 +701,9 @@
       <div class="hero-grid">
         <div>
           <div class="hero-kicker">⚡ PRO+ FINAL</div>
-          <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อม modal ดูสถานะจริงจาก Fuel Now</h1>
+          <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมเปิดสถานะจริงจาก Fuel Now</h1>
           <p class="hero-desc">
-            เวอร์ชันนี้พยายามเปิด Fuel Now ใน modal ภายในหน้าเดียวก่อน ถ้าเว็บนั้นไม่อนุญาตให้ฝัง ระบบจะมี fallback ให้เปิดหน้าใหม่ทันที โดยไม่แสดงสถานะปลอมบนหน้าเว็บเรา
+            เวอร์ชันนี้ใช้ข้อมูลปั๊มจากไฟล์ของคุณเองเพื่อให้ค้นหาได้เร็วและเสถียร ส่วนสถานะน้ำมันจริงจะเปิดจาก Fuel Now โดยตรง เพื่อให้ข้อมูลซื่อสัตย์และไม่หลอกผู้ใช้
           </p>
         </div>
 
@@ -1010,50 +861,13 @@
     <button class="nav-btn" data-target="section-contact">Contact</button>
   </nav>
 
-  <!-- Modal -->
-  <div class="modal" id="fuelModal" aria-hidden="true">
-    <div class="modal-card">
-      <div class="modal-head">
-        <div>
-          <div class="modal-title" id="modalTitle">ดูสถานะจริง</div>
-          <div class="modal-sub" id="modalSub">Fuel Now</div>
-        </div>
-        <div class="modal-actions">
-          <button class="modal-btn primary" id="modalOpenNewBtn" type="button">เปิดหน้าใหม่</button>
-          <button class="modal-btn ghost" id="modalCloseBtn" type="button">ปิด</button>
-        </div>
-      </div>
-
-      <div class="modal-body">
-        <iframe
-          id="fuelIframe"
-          class="modal-iframe"
-          referrerpolicy="no-referrer"
-          loading="lazy"
-          title="Fuel Now"
-        ></iframe>
-
-        <div class="iframe-overlay" id="iframeOverlay">
-          <div class="iframe-box">
-            <div class="iframe-title" id="iframeOverlayTitle">กำลังโหลด Fuel Now</div>
-            <div class="iframe-desc" id="iframeOverlayDesc">
-              หาก Fuel Now ไม่อนุญาตให้เปิดในกรอบนี้ คุณยังสามารถกดปุ่ม “เปิดหน้าใหม่” ได้ทันที
-            </div>
-            <div class="iframe-actions">
-              <button class="modal-btn primary" id="overlayOpenNewBtn" type="button">เปิดหน้าใหม่</button>
-              <button class="modal-btn ghost" id="overlayCloseBtn" type="button">ปิด</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <script>
-    const BOT_TOKEN = "PUT_YOUR_BOT_TOKEN_HERE";
-    const CHAT_ID = "PUT_YOUR_CHAT_ID_HERE";
+    // ===== แก้ 2 บรรทัดนี้ =====
+    const BOT_TOKEN = "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw";
+    const CHAT_ID = "5156469590";
+
     const STATIONS_URL = "./stations.json";
     const DEFAULT_LAT = 13.7563;
     const DEFAULT_LNG = 100.5018;
@@ -1065,8 +879,6 @@
     let currentLng = DEFAULT_LNG;
     let allStations = [];
     let filteredStations = [];
-    let currentFuelUrl = "";
-    let iframeTimeout = null;
 
     const statusBox = document.getElementById("statusBox");
     const latInput = document.getElementById("latInput");
@@ -1077,14 +889,6 @@
     const countBadge = document.getElementById("countBadge");
     const summaryText = document.getElementById("summaryText");
     const coordText = document.getElementById("coordText");
-
-    const fuelModal = document.getElementById("fuelModal");
-    const fuelIframe = document.getElementById("fuelIframe");
-    const iframeOverlay = document.getElementById("iframeOverlay");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalSub = document.getElementById("modalSub");
-    const iframeOverlayTitle = document.getElementById("iframeOverlayTitle");
-    const iframeOverlayDesc = document.getElementById("iframeOverlayDesc");
 
     function setStatus(message, type = "") {
       statusBox.className = "status" + (type ? " " + type : "");
@@ -1216,6 +1020,12 @@
       userMarker.bindPopup("<b>ตำแหน่งของคุณ</b>");
     }
 
+    function openFuelModalFromPopup(encodedName, lat, lng) {
+      const name = decodeURIComponent(encodedName || "");
+      const url = fuelNowLink(Number(lat), Number(lng), name);
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+
     function addStationMarkers(stations) {
       stations.forEach((s) => {
         const marker = L.marker([s.lat, s.lng]).addTo(map);
@@ -1343,60 +1153,12 @@
 
           <div class="action-row">
             <a class="btn-link" href="${dirLink(s.lat, s.lng)}" target="_blank" rel="noopener noreferrer">นำทาง</a>
-            <button class="btn-link" type="button" data-name="${escapeHtml(s.name)}" data-url="${fuelUrl}" onclick="openFuelModal('${escapeHtml(s.name)}','${fuelUrl}')">ดูสถานะจริง</button>
+            <a class="btn-link" href="${fuelUrl}" target="_blank" rel="noopener noreferrer">ดูสถานะจริง</a>
           </div>
         `;
         resultList.appendChild(el);
       });
     }
-
-    function openFuelModalFromPopup(encodedName, lat, lng) {
-      const name = decodeURIComponent(encodedName || "");
-      const url = fuelNowLink(Number(lat), Number(lng), name);
-      openFuelModal(name, url);
-    }
-
-    function openFuelModal(stationName, fuelUrl) {
-      currentFuelUrl = fuelUrl;
-      modalTitle.textContent = stationName || "ดูสถานะจริง";
-      modalSub.textContent = "Fuel Now";
-      iframeOverlayTitle.textContent = "กำลังพยายามเปิด Fuel Now ในหน้านี้";
-      iframeOverlayDesc.textContent = "หากเว็บปลายทางไม่อนุญาตให้เปิดในกรอบนี้ คุณยังสามารถกด “เปิดหน้าใหม่” ได้ทันที";
-      iframeOverlay.style.display = "flex";
-      fuelIframe.removeAttribute("src");
-      fuelModal.classList.add("show");
-      fuelModal.setAttribute("aria-hidden", "false");
-
-      if (iframeTimeout) clearTimeout(iframeTimeout);
-
-      setTimeout(() => {
-        fuelIframe.src = fuelUrl;
-      }, 100);
-
-      iframeTimeout = setTimeout(() => {
-        iframeOverlayTitle.textContent = "ถ้ายังไม่เห็นเนื้อหา อาจต้องเปิดหน้าใหม่";
-        iframeOverlayDesc.textContent = "บางเว็บไซต์ไม่อนุญาตให้ฝังใน iframe หากด้านล่างยังว่างหรือไม่โหลด ให้กด “เปิดหน้าใหม่”";
-      }, 3500);
-    }
-
-    function closeFuelModal() {
-      fuelModal.classList.remove("show");
-      fuelModal.setAttribute("aria-hidden", "true");
-      if (iframeTimeout) clearTimeout(iframeTimeout);
-      fuelIframe.removeAttribute("src");
-      iframeOverlay.style.display = "flex";
-    }
-
-    function openFuelInNewTab() {
-      if (!currentFuelUrl) return;
-      window.open(currentFuelUrl, "_blank", "noopener,noreferrer");
-    }
-
-    fuelIframe.addEventListener("load", () => {
-      // ถ้าโหลดได้จริง จะซ่อน overlay
-      iframeOverlay.style.display = "none";
-      if (iframeTimeout) clearTimeout(iframeTimeout);
-    });
 
     async function sendToTelegram() {
       showBox("feedbackError", "");
@@ -1410,7 +1172,7 @@
         return;
       }
 
-      if (BOT_TOKEN === "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw" || CHAT_ID === "5156469590") {
+      if (BOT_TOKEN === "PUT_YOUR_NEW_BOT_TOKEN_HERE" || CHAT_ID === "PUT_YOUR_CHAT_ID_HERE") {
         showBox("feedbackError", "กรุณาใส่ BOT_TOKEN และ CHAT_ID ใน index.html ก่อน");
         return;
       }
@@ -1466,7 +1228,7 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
           clearMapMarkers();
           addUserMarker(currentLat, currentLng);
           map.setView([currentLat, currentLng], 13);
-          setStatus("ใช้ตำแหน่งจากอุปกรณ์สำเร็จ", "ok");
+          setStatus("ใช้ตำแหน่งจากอุปกรณ์สำเร็จ กดค้นหาปั๊มใกล้ฉันต่อได้เลย", "ok");
         },
         () => {
           setStatus("ดึงตำแหน่งไม่สำเร็จ", "warn");
@@ -1487,21 +1249,6 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
         });
       });
     }
-
-    document.getElementById("modalCloseBtn").addEventListener("click", closeFuelModal);
-    document.getElementById("overlayCloseBtn").addEventListener("click", closeFuelModal);
-    document.getElementById("modalOpenNewBtn").addEventListener("click", openFuelInNewTab);
-    document.getElementById("overlayOpenNewBtn").addEventListener("click", openFuelInNewTab);
-
-    fuelModal.addEventListener("click", (e) => {
-      if (e.target === fuelModal) closeFuelModal();
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && fuelModal.classList.contains("show")) {
-        closeFuelModal();
-      }
-    });
 
     document.addEventListener("DOMContentLoaded", async () => {
       initMap();
@@ -1531,7 +1278,6 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
       });
     });
 
-    window.openFuelModal = openFuelModal;
     window.openFuelModalFromPopup = openFuelModalFromPopup;
   </script>
 </body>
