@@ -1,37 +1,11 @@
-[
-  {
-    "name": "PTT Rayong Office Area",
-    "brand": "ptt",
-    "lat": 12.7224852,
-    "lng": 101.2194946,
-    "address": "Rayong"
-  },
-  {
-    "name": "Bangchak Rayong",
-    "brand": "bangchak",
-    "lat": 12.7095000,
-    "lng": 101.2152000,
-    "address": "Rayong"
-  },
-  {
-    "name": "Caltex Rayong",
-    "brand": "caltex",
-    "lat": 12.7188000,
-    "lng": 101.2280000,
-    "address": "Rayong"
-  },
-  {
-    "name": "Shell Rayong",
-    "brand": "shell",
-    "lat": 12.7309000,
-    "lng": 101.2103000,
-    "address": "Rayong"
-  },
-  {
-    "name": "PT Rayong",
-    "brand": "pt",
-    "lat": 12.7163000,
-    "lng": 101.2057000,
-    "address": "Rayong"
-  }
-]
+{
+  "id": "station-001",
+  "name": "บริษัท เอสอ็น ออลจำกัด สาขา 1",
+  "brand": "bangchak",
+  "brandLabel": "BANGCHAK",
+  "province": "ปทุมธานี",
+  "district": "เมืองปทุมธานี",
+  "lat": 14.0201,
+  "lng": 100.5254,
+  "address": "ปทุมธานี"
+}
