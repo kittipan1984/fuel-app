@@ -1,225 +1,1213 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fuel Finder</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fuel Finder</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  />
 
-<style>
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-  background:#0f172a;
-  color:#fff;
-}
+  <style>
+    :root{
+      --bg:#edf3fb;
+      --bg2:#f8fbff;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:#dbe4ef;
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --cyan:#22d3ee;
+      --green:#16a34a;
+      --amber:#d97706;
+      --red:#dc2626;
+      --dark:#0b1220;
+      --dark2:#111a2d;
+      --lightText:#eef4ff;
+      --lightMuted:#b8cae8;
+      --radius:22px;
+      --shadow:0 12px 30px rgba(15,23,42,.08);
+      --shadow-strong:0 18px 45px rgba(2,8,23,.22);
+      --header-h:74px;
+    }
 
-/* HEADER */
-.topbar{
-  position:fixed;
-  top:0;
-  width:100%;
-  height:70px;
-  background:#111827;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 14px;
-  z-index:999;
-  border-bottom:1px solid #1f2937;
-}
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:Arial, Helvetica, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.08), transparent 22%),
+        radial-gradient(circle at top right, rgba(34,211,238,.08), transparent 18%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+    }
 
-.brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:9999;
+      height:var(--header-h);
+      background:rgba(11,18,32,.88);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      box-shadow:0 8px 24px rgba(2,8,23,.18);
+    }
 
-.avatar{
-  width:40px;
-  height:40px;
-  border-radius:50%;
-  overflow:hidden;
-}
+    .topbar-inner{
+      max-width:1180px;
+      height:100%;
+      margin:0 auto;
+      padding:0 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
 
-.avatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
 
-.brand-text{
-  line-height:1.1;
-}
+    .avatar-wrap{
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      overflow:hidden;
+      flex:0 0 auto;
+      background:#fff;
+      border:2px solid rgba(255,255,255,.16);
+      box-shadow:0 0 18px rgba(34,211,238,.16);
+    }
 
-.brand-title{
-  font-weight:800;
-  font-size:16px;
-}
+    .avatar-wrap img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
 
-.brand-sub{
-  font-size:11px;
-  color:#9ca3af;
-}
+    .brand-title{
+      color:#fff;
+      font-size:21px;
+      font-weight:900;
+      line-height:1.1;
+    }
 
-/* MAP */
-#map{
-  position:absolute;
-  top:70px;
-  bottom:0;
-  width:100%;
-}
+    .brand-sub{
+      color:var(--lightMuted);
+      font-size:12px;
+      margin-top:4px;
+    }
 
-/* BOTTOM SHEET */
-.sheet{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:#111827;
-  border-top-left-radius:16px;
-  border-top-right-radius:16px;
-  padding:12px;
-  max-height:45%;
-  overflow:auto;
-}
+    .topbar-right{
+      display:flex;
+      gap:8px;
+      align-items:center;
+    }
 
-.station{
-  padding:10px;
-  border-bottom:1px solid #1f2937;
-}
+    .mini-pill{
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.06);
+      color:#e7efff;
+      font-size:12px;
+      font-weight:800;
+      white-space:nowrap;
+    }
 
-.station-name{
-  font-weight:700;
-}
+    .app{
+      max-width:1180px;
+      margin:0 auto;
+      padding:14px;
+    }
 
-.btn{
-  margin-top:6px;
-  padding:8px 10px;
-  border-radius:8px;
-  border:none;
-  font-weight:700;
-  width:100%;
-}
+    .hero{
+      background:
+        radial-gradient(circle at 85% 20%, rgba(34,211,238,.18), transparent 16%),
+        radial-gradient(circle at 15% 10%, rgba(59,130,246,.16), transparent 18%),
+        linear-gradient(135deg,#0f172a,#172554 70%, #0f172a);
+      color:#fff;
+      border-radius:28px;
+      padding:18px;
+      box-shadow:var(--shadow-strong);
+      margin-bottom:14px;
+      overflow:hidden;
+    }
 
-.btn-nav{
-  background:#22c55e;
-}
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:14px;
+      align-items:stretch;
+    }
 
-.btn-fuel{
-  background:#3b82f6;
-  margin-top:6px;
-}
-</style>
+    .hero-kicker{
+      display:inline-flex;
+      align-items:center;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:900;
+      color:#dce8ff;
+      margin-bottom:12px;
+    }
+
+    .hero-title{
+      margin:0 0 10px;
+      font-size:30px;
+      line-height:1.08;
+      font-weight:900;
+      letter-spacing:-.02em;
+    }
+
+    .hero-desc{
+      margin:0;
+      color:#d8e5ff;
+      font-size:14px;
+      line-height:1.7;
+      max-width:62ch;
+    }
+
+    .hero-stats{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+    }
+
+    .hero-stat{
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      padding:14px;
+    }
+
+    .hero-stat-label{
+      font-size:11px;
+      color:#bfd2f3;
+      margin-bottom:8px;
+    }
+
+    .hero-stat-value{
+      font-size:20px;
+      font-weight:900;
+      color:#fff;
+      line-height:1.15;
+      margin-bottom:4px;
+      word-break:break-word;
+    }
+
+    .hero-stat-sub{
+      font-size:11px;
+      color:#cfddf5;
+    }
+
+    .status{
+      margin-bottom:14px;
+      padding:12px 14px;
+      border-radius:16px;
+      font-size:14px;
+      font-weight:800;
+      border:1px solid var(--line);
+      background:#f8fbff;
+      color:#334155;
+      box-shadow:var(--shadow);
+    }
+
+    .status.ok{
+      background:#ecfdf5;
+      border-color:#bbf7d0;
+      color:#166534;
+    }
+
+    .status.warn{
+      background:#fff7ed;
+      border-color:#fed7aa;
+      color:#9a3412;
+    }
+
+    .status.error{
+      background:#fef2f2;
+      border-color:#fecaca;
+      color:#991b1b;
+    }
+
+    .section{ margin-bottom:14px; }
+
+    .card{
+      background:rgba(255,255,255,.9);
+      border:1px solid rgba(219,228,239,.95);
+      border-radius:26px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .card.dark{
+      background:linear-gradient(180deg,#111827,#172033);
+      color:var(--lightText);
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:var(--shadow-strong);
+    }
+
+    .card-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+
+    .card-title{
+      margin:0;
+      font-size:20px;
+      font-weight:900;
+    }
+
+    .card-sub{
+      margin:0 0 10px;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .dark .card-sub{ color:#bfd0ec; }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 12px;
+      border-radius:999px;
+      background:#f7fbff;
+      border:1px solid #dce7f3;
+      color:#334155;
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .dark .badge{
+      background:rgba(255,255,255,.08);
+      border-color:rgba(255,255,255,.08);
+      color:#dce8ff;
+    }
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+    }
+
+    .summary-box{
+      background:linear-gradient(180deg,#ffffff,#f7fbff);
+      border:1px solid #e1eaf3;
+      border-radius:18px;
+      padding:14px;
+      min-width:0;
+    }
+
+    .summary-label{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
+    .summary-value{
+      font-size:20px;
+      font-weight:900;
+      line-height:1.1;
+      word-break:break-word;
+    }
+
+    .meta-note{
+      margin-top:12px;
+      font-size:12px;
+      color:#64748b;
+      line-height:1.7;
+    }
+
+    .main-grid{
+      display:grid;
+      grid-template-columns:1.02fr .98fr;
+      gap:14px;
+    }
+
+    .controls{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .controls-2{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    input, select, textarea, button{
+      font:inherit;
+    }
+
+    .input, .select, textarea{
+      width:100%;
+      border:1px solid #cfdae8;
+      border-radius:15px;
+      padding:13px 14px;
+      background:#fff;
+      color:var(--text);
+      outline:none;
+      transition:.18s ease;
+    }
+
+    .input:focus, .select:focus, textarea:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(59,130,246,.12);
+    }
+
+    button{
+      border:none;
+      border-radius:15px;
+      padding:13px 15px;
+      font-weight:900;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+
+    button:hover{ transform:translateY(-1px); }
+
+    .btn-primary{
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:#fff;
+      box-shadow:0 10px 20px rgba(37,99,235,.18);
+    }
+
+    .btn-ghost{
+      background:#e9eff7;
+      color:#0f172a;
+    }
+
+    .btn-green{
+      background:linear-gradient(135deg,#16a34a,#059669);
+      color:#fff;
+      box-shadow:0 10px 20px rgba(5,150,105,.16);
+    }
+
+    .btn-fuel{
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 10px 20px rgba(37,99,235,.16);
+    }
+
+    .helper{
+      font-size:12px;
+      color:#c5d3eb;
+      line-height:1.7;
+      margin-bottom:10px;
+    }
+
+    .helper.light{ color:var(--muted); }
+
+    #map{
+      width:100%;
+      height:420px;
+      border-radius:22px;
+      border:1px solid #d9e4f0;
+      overflow:hidden;
+      background:#e5eef9;
+    }
+
+    .results-top{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+
+    .result-summary{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .station-list{
+      display:grid;
+      gap:12px;
+    }
+
+    .station{
+      border:1px solid #e3ebf4;
+      background:linear-gradient(180deg,#ffffff,#fbfdff);
+      border-radius:22px;
+      padding:14px;
+      box-shadow:0 8px 20px rgba(15,23,42,.04);
+    }
+
+    .station-top{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      margin-bottom:8px;
+    }
+
+    .station-name{
+      font-size:17px;
+      font-weight:900;
+      line-height:1.35;
+    }
+
+    .distance{
+      white-space:nowrap;
+      padding:7px 10px;
+      background:#e0ecff;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      color:#0f172a;
+    }
+
+    .brand-row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+
+    .brand-badge{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      border:1px solid #dce6f1;
+      background:#f8fafc;
+      color:#334155;
+    }
+
+    .meta{
+      font-size:12px;
+      color:#475569;
+      line-height:1.7;
+      margin-bottom:10px;
+    }
+
+    .action-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:4px;
+    }
+
+    .field{ margin-top:12px; }
+
+    .field label{
+      display:block;
+      margin-bottom:6px;
+      font-size:13px;
+      font-weight:800;
+      color:#334155;
+    }
+
+    textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    .error-box{
+      margin-top:10px;
+      padding:11px 12px;
+      border-radius:14px;
+      background:#fef2f2;
+      color:#991b1b;
+      border:1px solid #fecaca;
+      display:none;
+      white-space:pre-wrap;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .ok-box{
+      margin-top:10px;
+      padding:11px 12px;
+      border-radius:14px;
+      background:#ecfdf5;
+      color:#166534;
+      border:1px solid #bbf7d0;
+      display:none;
+      white-space:pre-wrap;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .empty{
+      text-align:center;
+      padding:24px 14px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+      border:1px dashed #d7e1ec;
+      border-radius:20px;
+      background:#fbfdff;
+    }
+
+    @media (max-width:1024px){
+      .hero-grid,
+      .main-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:768px){
+      .topbar-right{ display:none; }
+      .brand-title{ font-size:19px; }
+      .hero{ padding:16px; border-radius:22px; }
+      .hero-title{ font-size:24px; }
+      .hero-stats{ grid-template-columns:repeat(2,1fr); }
+      .controls, .controls-2{ grid-template-columns:1fr; }
+      #map{ height:320px; }
+      .station-top{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .distance{ align-self:flex-start; }
+      button{ width:100%; }
+      .action-row{ flex-direction:column; }
+    }
+
+    @media (max-width:480px){
+      :root{ --header-h:68px; }
+      .app{ padding:10px; }
+      .topbar-inner{ padding:0 10px; }
+      .avatar-wrap{ width:40px; height:40px; }
+      .brand-title{ font-size:18px; }
+      .brand-sub{ font-size:11px; }
+      .hero{ padding:14px; margin-bottom:10px; }
+      .hero-title{ font-size:21px; margin-bottom:8px; }
+      .hero-desc{ font-size:13px; line-height:1.6; }
+      .hero-stat{ padding:11px; border-radius:15px; }
+      .hero-stat-value{ font-size:17px; }
+      .status{ font-size:13px; padding:11px 12px; margin-bottom:10px; }
+      .card{ padding:12px; border-radius:18px; }
+      .card-title{ font-size:18px; }
+      .summary-box{ padding:11px; border-radius:14px; }
+      .summary-value{ font-size:18px; }
+      .input, .select, textarea{
+        font-size:16px;
+        padding:12px 12px;
+        border-radius:13px;
+      }
+      #map{ height:270px; border-radius:18px; }
+      .station{ padding:12px; border-radius:18px; }
+      .station-name{ font-size:15px; }
+    }
+  </style>
 </head>
-
 <body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="avatar-wrap">
+          <img src="child-header.png?v=3" alt="NaraMawin" onerror="this.onerror=null; this.src='https://placehold.co/120x120/png?text=N';">
+        </div>
+        <div>
+          <div class="brand-title">Fuel Finder</div>
+          <div class="brand-sub">By NaraMawin</div>
+        </div>
+      </div>
 
-<div class="topbar">
-  <div class="brand">
-    <div class="avatar">
-      <img src="child-header.png" onerror="this.src='https://placehold.co/100x100'">
+      <div class="topbar-right">
+        <div class="mini-pill" id="headerUpdated">Updated: -</div>
+        <div class="mini-pill" id="headerFound">Found: 0</div>
+      </div>
     </div>
-    <div class="brand-text">
-      <div class="brand-title">Fuel Finder</div>
-      <div class="brand-sub">By NaraMawin</div>
-    </div>
-  </div>
-</div>
+  </header>
 
-<div id="map"></div>
+  <main class="app">
+    <section class="hero section">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-kicker">⚡ PRO Dashboard</div>
+          <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมลิงก์ดูสถานะจริงจาก Fuel Now</h1>
+          <p class="hero-desc">
+            เวอร์ชันนี้เก็บ UI สวยและฟังก์ชันหลักไว้ แต่ไม่แสดง status ปลอมอีกแล้ว
+            ปั๊มที่เห็นมาจากแผนที่จริง และปุ่ม “ดูสถานะจริง” จะพาไปดูข้อมูลจาก Fuel Now
+          </p>
+        </div>
 
-<div class="sheet" id="sheet">
-  <div>🔄 กำลังค้นหาปั๊ม...</div>
-</div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-label">Updated</div>
+            <div class="hero-stat-value" id="heroUpdated">-</div>
+            <div class="hero-stat-sub">เวลาอัปเดตหน้าจอ</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-label">Search Status</div>
+            <div class="hero-stat-value" id="heroSearchStatus">Ready</div>
+            <div class="hero-stat-sub">สถานะการค้นหา</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-label">Found Stations</div>
+            <div class="hero-stat-value" id="heroFound">0</div>
+            <div class="hero-stat-sub">จำนวนปั๊มที่พบ</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-label">Radius</div>
+            <div class="hero-stat-value" id="heroRadius">5 กม.</div>
+            <div class="hero-stat-sub">ระยะค้นหาปัจจุบัน</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <div id="statusBox" class="status">พร้อมใช้งาน</div>
 
-<script>
-let map = L.map('map').setView([13.736717,100.523186], 12);
+    <section class="section">
+      <div class="card">
+        <div class="card-head">
+          <h2 class="card-title">ภาพรวมระบบ</h2>
+          <div class="badge">Real UX Mode</div>
+        </div>
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  attribution:'© OpenStreetMap'
-}).addTo(map);
+        <div class="summary-grid">
+          <div class="summary-box">
+            <div class="summary-label">Updated date time</div>
+            <div class="summary-value" id="summaryUpdated">-</div>
+          </div>
+          <div class="summary-box">
+            <div class="summary-label">ผลการค้นหา</div>
+            <div class="summary-value" id="summaryFound">0 ปั๊ม</div>
+          </div>
+        </div>
 
-navigator.geolocation.getCurrentPosition(pos=>{
-  const lat = pos.coords.latitude;
-  const lng = pos.coords.longitude;
+        <div class="meta-note">
+          แผนที่และรายชื่อปั๊มมาจาก OpenStreetMap/Overpass ส่วนสถานะน้ำมันจริงให้กดปุ่ม “ดูสถานะจริง” เพื่อเปิด Fuel Now
+        </div>
+      </div>
+    </section>
 
-  map.setView([lat,lng],14);
+    <section class="section">
+      <div class="main-grid">
+        <div class="card dark">
+          <div class="card-head">
+            <h2 class="card-title">แผนที่และการค้นหา</h2>
+            <div class="badge">Nearby Finder</div>
+          </div>
 
-  loadStations(lat,lng);
-});
+          <p class="card-sub">เลือกตำแหน่ง กำหนดระยะ และค้นหาปั๊มที่ใกล้คุณที่สุด</p>
 
-async function loadStations(lat,lng){
+          <div class="controls">
+            <input id="latInput" class="input" type="number" step="any" placeholder="Latitude">
+            <input id="lngInput" class="input" type="number" step="any" placeholder="Longitude">
+          </div>
 
-  const query = `
-  [out:json];
-  (
-    node["amenity"="fuel"](around:5000,${lat},${lng});
-  );
-  out;
-  `;
+          <div class="controls">
+            <button id="gpsBtn" class="btn-primary" type="button">ใช้ตำแหน่งฉัน</button>
+            <button id="bkkBtn" class="btn-ghost" type="button">ใช้กรุงเทพ</button>
+          </div>
 
-  const url = "https://overpass-api.de/api/interpreter?data="+encodeURIComponent(query);
+          <div class="controls-2">
+            <select id="radiusInput" class="select">
+              <option value="1000">ระยะ 1 กม.</option>
+              <option value="3000">ระยะ 3 กม.</option>
+              <option value="5000" selected>ระยะ 5 กม.</option>
+              <option value="10000">ระยะ 10 กม.</option>
+            </select>
 
-  const res = await fetch(url);
-  const data = await res.json();
+            <select id="brandFilter" class="select">
+              <option value="all">ทุกแบรนด์</option>
+              <option value="ptt">PTT</option>
+              <option value="bangchak">Bangchak</option>
+              <option value="shell">Shell</option>
+              <option value="esso">Esso</option>
+              <option value="caltex">Caltex</option>
+              <option value="pt">PT</option>
+              <option value="susco">Susco</option>
+              <option value="irpc">IRPC</option>
+              <option value="other">อื่น ๆ</option>
+            </select>
 
-  const list = [];
+            <button id="findBtn" class="btn-primary" type="button">ค้นหาปั๊มใกล้ฉัน</button>
+          </div>
 
-  data.elements.forEach(e=>{
-    const name = e.tags.name || "Unknown";
+          <div class="helper" id="coordText">พิกัดปัจจุบัน: -</div>
 
-    L.marker([e.lat,e.lon]).addTo(map)
-      .bindPopup(name);
+          <div id="map"></div>
+        </div>
 
-    list.push({
-      name,
-      lat:e.lat,
-      lon:e.lon
+        <div class="card">
+          <div class="results-top">
+            <h2 class="card-title" style="margin:0;">ผลลัพธ์</h2>
+            <div class="badge" id="countBadge">0 ปั๊ม</div>
+          </div>
+
+          <div class="result-summary" id="summaryText">ยังไม่มีผลลัพธ์</div>
+
+          <div class="station-list" id="resultList" style="margin-top:12px;">
+            <div class="empty">กด “ค้นหาปั๊มใกล้ฉัน” เพื่อเริ่มต้น</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card">
+        <div class="card-head">
+          <h2 class="card-title">ส่งข้อความถึงฉัน</h2>
+          <div class="badge">Telegram</div>
+        </div>
+
+        <p class="card-sub">กรอกชื่อผู้ส่งและข้อความ แล้วกดส่งได้ทันที</p>
+
+        <div class="field">
+          <label for="senderName">ชื่อ Sender</label>
+          <input id="senderName" class="input" type="text" placeholder="เช่น Kittipan">
+        </div>
+
+        <div class="field">
+          <label for="senderMessage">ข้อความ</label>
+          <textarea id="senderMessage" placeholder="พิมพ์ข้อความที่ต้องการส่ง"></textarea>
+        </div>
+
+        <div class="field">
+          <button id="sendTelegramBtn" class="btn-green" type="button">ส่งข้อความ</button>
+        </div>
+
+        <div id="feedbackError" class="error-box"></div>
+        <div id="feedbackOk" class="ok-box"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+  <script>
+    const BOT_TOKEN = "PUT_YOUR_BOT_TOKEN_HERE";
+    const CHAT_ID = "PUT_YOUR_CHAT_ID_HERE";
+
+    let map;
+    let mapMarkers = [];
+    let userMarker = null;
+    let currentLat = 13.7563;
+    let currentLng = 100.5018;
+    let lastStations = [];
+
+    const statusBox = document.getElementById("statusBox");
+    const latInput = document.getElementById("latInput");
+    const lngInput = document.getElementById("lngInput");
+    const radiusInput = document.getElementById("radiusInput");
+    const brandFilter = document.getElementById("brandFilter");
+    const resultList = document.getElementById("resultList");
+    const countBadge = document.getElementById("countBadge");
+    const summaryText = document.getElementById("summaryText");
+    const coordText = document.getElementById("coordText");
+
+    function setStatus(message, type = "") {
+      statusBox.className = "status" + (type ? " " + type : "");
+      statusBox.textContent = message;
+    }
+
+    function showBox(id, message) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.display = message ? "block" : "none";
+      el.textContent = message || "";
+    }
+
+    function updateDashboard(found = 0, searchStatus = "Ready") {
+      const now = new Date();
+      const stamp = now.toLocaleString("th-TH");
+      const radiusKm = (Number(radiusInput.value || 5000) / 1000).toString() + " กม.";
+
+      document.getElementById("heroUpdated").textContent = stamp;
+      document.getElementById("heroSearchStatus").textContent = searchStatus;
+      document.getElementById("heroFound").textContent = String(found);
+      document.getElementById("heroRadius").textContent = radiusKm;
+
+      document.getElementById("summaryUpdated").textContent = stamp;
+      document.getElementById("summaryFound").textContent = found + " ปั๊ม";
+
+      document.getElementById("headerUpdated").textContent = "Updated: " + stamp;
+      document.getElementById("headerFound").textContent = "Found: " + found;
+    }
+
+    function updateCoordText() {
+      coordText.textContent = `พิกัดปัจจุบัน: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+      latInput.value = currentLat.toFixed(6);
+      lngInput.value = currentLng.toFixed(6);
+    }
+
+    function escapeHtml(text) {
+      return String(text ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function detectBrand(name = "", tags = {}) {
+      const text = `${name} ${tags.brand || ""} ${tags.operator || ""}`.toLowerCase();
+      if (text.includes("ptt")) return "ptt";
+      if (text.includes("บางจาก") || text.includes("bangchak")) return "bangchak";
+      if (text.includes("shell") || text.includes("เชลล์")) return "shell";
+      if (text.includes("esso") || text.includes("เอสโซ่")) return "esso";
+      if (text.includes("caltex") || text.includes("คาลเท็กซ์")) return "caltex";
+      if (text.includes("pt ") || text.startsWith("pt") || text.includes("พีที")) return "pt";
+      if (text.includes("susco") || text.includes("ซัสโก้")) return "susco";
+      if (text.includes("irpc")) return "irpc";
+      return "other";
+    }
+
+    function brandLabel(brandKey, name, tags = {}) {
+      const map = {
+        ptt: "PTT",
+        bangchak: "Bangchak",
+        shell: "Shell",
+        esso: "Esso",
+        caltex: "Caltex",
+        pt: "PT",
+        susco: "Susco",
+        irpc: "IRPC",
+        other: tags.brand || tags.operator || name || "อื่น ๆ"
+      };
+      return map[brandKey] || "อื่น ๆ";
+    }
+
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      const toRad = deg => deg * Math.PI / 180;
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return 2 * R * Math.asin(Math.sqrt(a));
+    }
+
+    function dirLink(toLat, toLng) {
+      return `https://www.google.com/maps/dir/?api=1&origin=${currentLat},${currentLng}&destination=${toLat},${toLng}&travelmode=driving`;
+    }
+
+    function fuelNowLink(toLat, toLng, stationName) {
+      const q = encodeURIComponent(stationName || "");
+      return `https://fuel-now.doeb.go.th/?lat=${toLat}&lng=${toLng}&q=${q}`;
+    }
+
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 20000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, { ...options, signal: controller.signal });
+        clearTimeout(timer);
+        return res;
+      } catch (err) {
+        clearTimeout(timer);
+        throw err;
+      }
+    }
+
+    function initMap() {
+      map = L.map("map", { zoomControl: true }).setView([13.7563, 100.5018], 12);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors"
+      }).addTo(map);
+
+      addUserMarker(currentLat, currentLng);
+    }
+
+    function clearMapMarkers() {
+      mapMarkers.forEach(m => map.removeLayer(m));
+      mapMarkers = [];
+      if (userMarker) {
+        map.removeLayer(userMarker);
+        userMarker = null;
+      }
+    }
+
+    function addUserMarker(lat, lng) {
+      userMarker = L.marker([lat, lng]).addTo(map);
+      userMarker.bindPopup("<b>ตำแหน่งของคุณ</b>");
+    }
+
+    function addStationMarkers(stations) {
+      stations.forEach((s) => {
+        const marker = L.marker([s.lat, s.lng]).addTo(map);
+        marker.bindPopup(`
+          <b>${escapeHtml(s.name)}</b><br>
+          ระยะทาง: ${s.distanceKm.toFixed(2)} กม.<br>
+          แบรนด์: ${escapeHtml(brandLabel(s.brandKey, s.name, s.tags))}
+        `);
+        mapMarkers.push(marker);
+      });
+
+      if (stations.length > 0) {
+        const bounds = L.latLngBounds(stations.map(s => [s.lat, s.lng]));
+        bounds.extend([currentLat, currentLng]);
+        map.fitBounds(bounds.pad(0.15));
+      } else {
+        map.setView([currentLat, currentLng], 13);
+      }
+    }
+
+    async function findNearbyStations() {
+      try {
+        currentLat = Number(latInput.value);
+        currentLng = Number(lngInput.value);
+
+        if (!Number.isFinite(currentLat) || !Number.isFinite(currentLng)) {
+          throw new Error("กรุณาระบุพิกัดให้ถูกต้องก่อน");
+        }
+
+        const radius = Number(radiusInput.value || 5000);
+        updateCoordText();
+        updateDashboard(0, "Loading");
+        setStatus("กำลังค้นหาปั๊มน้ำมันใกล้คุณ...", "");
+        countBadge.textContent = "กำลังค้นหา...";
+        summaryText.textContent = "กำลังโหลดผลลัพธ์";
+
+        const query = `
+[out:json][timeout:20];
+(
+  node["amenity"="fuel"](around:${radius},${currentLat},${currentLng});
+  way["amenity"="fuel"](around:${radius},${currentLat},${currentLng});
+  relation["amenity"="fuel"](around:${radius},${currentLat},${currentLng});
+);
+out center tags;
+`;
+
+        const url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query);
+        const res = await fetchWithTimeout(url, {}, 25000);
+        if (!res.ok) throw new Error("โหลดข้อมูลปั๊มไม่สำเร็จ: HTTP " + res.status);
+        const data = await res.json();
+        const elements = Array.isArray(data.elements) ? data.elements : [];
+
+        lastStations = elements.map((el) => {
+          const lat = Number(el.lat ?? (el.center && el.center.lat));
+          const lng = Number(el.lon ?? (el.center && el.center.lon));
+          const tags = el.tags || {};
+          const name = tags.name || tags.brand || "สถานีบริการน้ำมัน";
+          const address = [
+            tags["addr:housenumber"],
+            tags["addr:street"],
+            tags["addr:district"],
+            tags["addr:province"]
+          ].filter(Boolean).join(" ");
+
+          return {
+            id: `${el.type}-${el.id}`,
+            name,
+            lat,
+            lng,
+            tags,
+            address,
+            brandKey: detectBrand(name, tags),
+            distanceKm: haversineKm(currentLat, currentLng, lat, lng)
+          };
+        }).filter(s => Number.isFinite(s.lat) && Number.isFinite(s.lng));
+
+        lastStations.sort((a, b) => a.distanceKm - b.distanceKm);
+        applyFiltersAndRender();
+        setStatus(`ค้นหาสำเร็จ พบ ${lastStations.length} ปั๊ม`, "ok");
+        updateDashboard(lastStations.length, "Ready");
+      } catch (err) {
+        console.error(err);
+        lastStations = [];
+        resultList.innerHTML = `<div class="empty">ยังไม่สามารถโหลดข้อมูลได้<br>${escapeHtml(err.message || "Unknown error")}</div>`;
+        countBadge.textContent = "0 ปั๊ม";
+        summaryText.textContent = "ยังโหลดผลลัพธ์ไม่ได้";
+        setStatus("โหลดข้อมูลล้มเหลว", "warn");
+        updateDashboard(0, "Error");
+      }
+    }
+
+    function applyFiltersAndRender() {
+      const selectedBrand = brandFilter.value;
+      let filtered = [...lastStations];
+
+      if (selectedBrand !== "all") {
+        filtered = filtered.filter(s => s.brandKey === selectedBrand);
+      }
+
+      clearMapMarkers();
+      addUserMarker(currentLat, currentLng);
+      addStationMarkers(filtered);
+      renderStations(filtered);
+
+      countBadge.textContent = `${filtered.length} ปั๊ม`;
+      summaryText.textContent = filtered.length
+        ? `พบ ${filtered.length} ปั๊มในรัศมีที่เลือก`
+        : "ไม่พบปั๊มในเงื่อนไขนี้";
+
+      document.getElementById("summaryFound").textContent = filtered.length + " ปั๊ม";
+      document.getElementById("heroFound").textContent = String(filtered.length);
+      document.getElementById("headerFound").textContent = "Found: " + filtered.length;
+    }
+
+    function renderStations(stations) {
+      resultList.innerHTML = "";
+
+      if (!stations.length) {
+        resultList.innerHTML = `<div class="empty">ไม่มีผลลัพธ์ในตอนนี้</div>`;
+        return;
+      }
+
+      stations.forEach((s) => {
+        const brandText = brandLabel(s.brandKey, s.name, s.tags);
+        const el = document.createElement("div");
+        el.className = "station";
+        el.innerHTML = `
+          <div class="station-top">
+            <div class="station-name">${escapeHtml(s.name)}</div>
+            <div class="distance">${s.distanceKm.toFixed(2)} กม.</div>
+          </div>
+
+          <div class="brand-row">
+            <div class="brand-badge">${escapeHtml(brandText)}</div>
+          </div>
+
+          <div class="meta">
+            ที่อยู่: ${escapeHtml(s.address || "-")}<br>
+            พิกัด: ${s.lat.toFixed(6)}, ${s.lng.toFixed(6)}<br>
+            สถานะน้ำมันบนเว็บนี้: ไม่แสดงค่าปลอม
+          </div>
+
+          <div class="action-row">
+            <a class="btn-primary" style="text-decoration:none;text-align:center;" href="${dirLink(s.lat, s.lng)}" target="_blank" rel="noopener noreferrer">นำทาง</a>
+            <a class="btn-fuel" style="text-decoration:none;text-align:center;" href="${fuelNowLink(s.lat, s.lng, s.name)}" target="_blank" rel="noopener noreferrer">ดูสถานะจริง</a>
+          </div>
+        `;
+        resultList.appendChild(el);
+      });
+    }
+
+    async function sendToTelegram() {
+      showBox("feedbackError", "");
+      showBox("feedbackOk", "");
+
+      const senderName = document.getElementById("senderName").value.trim() || "Anonymous";
+      const senderMessage = document.getElementById("senderMessage").value.trim();
+
+      if (!senderMessage) {
+        showBox("feedbackError", "กรุณากรอกข้อความก่อน");
+        return;
+      }
+
+      if (BOT_TOKEN === "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw" || CHAT_ID === "5156469590") {
+        showBox("feedbackError", "กรุณาใส่ BOT_TOKEN และ CHAT_ID ใน index.html ก่อน");
+        return;
+      }
+
+      const text =
+`📩 New Message from Fuel Finder
+
+Sender: ${senderName}
+Message: ${senderMessage}
+Page: ${window.location.href}
+Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+
+      const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+      const btn = document.getElementById("sendTelegramBtn");
+      btn.disabled = true;
+      btn.textContent = "กำลังส่ง...";
+
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: CHAT_ID, text })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          throw new Error(data.description || `HTTP ${res.status}`);
+        }
+
+        document.getElementById("senderMessage").value = "";
+        showBox("feedbackOk", "ส่งข้อความสำเร็จ");
+      } catch (err) {
+        console.error(err);
+        showBox("feedbackError", "ส่งข้อความไม่สำเร็จ\n" + (err.message || String(err)));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "ส่งข้อความ";
+      }
+    }
+
+    function useBrowserGPS() {
+      if (!navigator.geolocation) {
+        setStatus("อุปกรณ์นี้ไม่รองรับ GPS", "warn");
+        return;
+      }
+
+      setStatus("กำลังขอตำแหน่งจากอุปกรณ์...", "");
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          currentLat = pos.coords.latitude;
+          currentLng = pos.coords.longitude;
+          updateCoordText();
+          clearMapMarkers();
+          addUserMarker(currentLat, currentLng);
+          map.setView([currentLat, currentLng], 13);
+
+          if (lastStations.length) {
+            applyFiltersAndRender();
+          }
+
+          setStatus("ใช้ตำแหน่งจากอุปกรณ์สำเร็จ", "ok");
+        },
+        () => {
+          setStatus("ดึงตำแหน่งไม่สำเร็จ", "warn");
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      map = L.map("map", { zoomControl: true }).setView([13.7563, 100.5018], 12);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors"
+      }).addTo(map);
+
+      addUserMarker(currentLat, currentLng);
+      updateCoordText();
+      updateDashboard(0, "Ready");
+
+      document.getElementById("gpsBtn").addEventListener("click", useBrowserGPS);
+      document.getElementById("findBtn").addEventListener("click", findNearbyStations);
+      document.getElementById("sendTelegramBtn").addEventListener("click", sendToTelegram);
+      document.getElementById("bkkBtn").addEventListener("click", () => {
+        currentLat = 13.7563;
+        currentLng = 100.5018;
+        updateCoordText();
+        clearMapMarkers();
+        addUserMarker(currentLat, currentLng);
+        map.setView([currentLat, currentLng], 12);
+        if (lastStations.length) applyFiltersAndRender();
+        setStatus("ใช้พิกัดกรุงเทพแล้ว", "ok");
+      });
+
+      brandFilter.addEventListener("change", () => {
+        if (lastStations.length) applyFiltersAndRender();
+      });
     });
-  });
-
-  renderList(list, lat, lng);
-}
-
-function renderList(list, lat, lng){
-  const el = document.getElementById("sheet");
-
-  if(list.length===0){
-    el.innerHTML="❌ ไม่พบปั๊ม";
-    return;
-  }
-
-  el.innerHTML = `
-  <div>พบ ${list.length} ปั๊มในระยะ 5 กม.</div>
-  ` + list.map(s=>`
-    <div class="station">
-      <div class="station-name">${s.name}</div>
-
-      <button class="btn btn-nav"
-        onclick="nav(${s.lat},${s.lon})">
-        นำทาง
-      </button>
-
-      <button class="btn btn-fuel"
-        onclick="openFuel(${lat},${lng})">
-        ดูสถานะน้ำมันจริง
-      </button>
-    </div>
-  `).join("");
-}
-
-function nav(lat,lon){
-  window.open(`https://www.google.com/maps?q=${lat},${lon}`,"_blank");
-}
-
-function openFuel(lat,lng){
-  window.open(`https://fuel-now.doeb.go.th/?lat=${lat}&lng=${lng}`,"_blank");
-}
-</script>
-
+  </script>
 </body>
 </html>
