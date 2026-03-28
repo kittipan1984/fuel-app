@@ -20,6 +20,12 @@ function normalizeText(v) {
   return String(v || "").trim();
 }
 
+function pickFirstRow(data) {
+  const rows = data?.parsed?.rows;
+  if (!Array.isArray(rows) || !rows.length) return null;
+  return rows[0];
+}
+
 async function fetchLive(station) {
   const params = new URLSearchParams({
     name: normalizeText(station.name),
@@ -32,14 +38,11 @@ async function fetchLive(station) {
 
   try {
     const res = await fetch(url, {
-      headers: {
-        "Accept": "application/json"
-      }
+      headers: { Accept: "application/json" }
     });
 
     const data = await res.json();
-
-    const row = data?.parsed?.rows?.[0] || null;
+    const row = pickFirstRow(data);
 
     return {
       ok: !!row,
@@ -88,6 +91,7 @@ async function main() {
       const key = station.id || `station-${i + j + 1}`;
 
       output.stations[key] = {
+        id: key,
         name: station.name,
         brandLabel: station.brandLabel || "",
         province: station.province || "",
