@@ -1,4 +1,0 @@
-station_name,enabled,confidence,sample_size,reporters
-PTT Bangkok Central,true,92,11,"UserA|UserB|UserC"
-Bangchak Rama 9,true,80,5,"UserD|UserE"
-Shell Pattaya South,false,0,0,""
