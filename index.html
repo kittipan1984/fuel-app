@@ -870,7 +870,7 @@
         </div>
 
         <div class="meta-note" id="liveMetaNote">
-          หน้าเว็บนี้ใช้ JSON สำหรับรายชื่อปั๊มและอ่านสถานะจาก live-status.json
+          หน้าเว็บนี้ใช้ stations.json สำหรับพิกัด/รายการปั๊ม และอ่านสถานะจาก live-status.json ด้วย station.id ที่ต้องตรงกัน
         </div>
       </div>
     </section>
@@ -979,9 +979,9 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <script>
-    // ===== แก้ 2 บรรทัดนี้ =====
-    const BOT_TOKEN = "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw";
-    const CHAT_ID = "5156469590";
+    // ===== ใส่ค่าของคุณเอง =====
+    const BOT_TOKEN = "PUT_YOUR_BOT_TOKEN_HERE";
+    const CHAT_ID = "PUT_YOUR_CHAT_ID_HERE";
 
     const STATIONS_URL = "./stations.json";
     const LIVE_STATUS_URL = "./live-status.json";
@@ -1223,8 +1223,8 @@
         if (!Array.isArray(data)) throw new Error("stations.json ต้องเป็น array");
 
         allStations = data
-          .map((item, idx) => ({
-            id: String(item.id || `station-${idx + 1}`),
+          .map((item) => ({
+            id: String(item.id || "").trim(),
             name: String(item.name || "").trim(),
             brand: normalizeBrand(item.brand || ""),
             brandLabel: String(item.brandLabel || "").trim(),
@@ -1234,7 +1234,16 @@
             province: String(item.province || "").trim(),
             district: String(item.district || "").trim()
           }))
-          .filter(item => item.name && Number.isFinite(item.lat) && Number.isFinite(item.lng));
+          .filter(item =>
+            item.id &&
+            item.name &&
+            Number.isFinite(item.lat) &&
+            Number.isFinite(item.lng)
+          );
+
+        if (!allStations.length) {
+          throw new Error("stations.json ไม่มีรายการที่มี id/name/lat/lng ครบ");
+        }
 
         setStatus(`โหลดข้อมูลปั๊มสำเร็จ ${allStations.length} จุด`, "ok");
       } catch (err) {
@@ -1252,10 +1261,17 @@
         liveStatusMap = data?.stations || {};
         liveUpdatedAt = data?.updated_at || null;
 
+        const liveCount = Object.keys(liveStatusMap).length;
+        const stationCount = allStations.length;
         const meta = document.getElementById("liveMetaNote");
-        if (meta && liveUpdatedAt) {
-          meta.textContent = `หน้าเว็บนี้ใช้ JSON สำหรับรายชื่อปั๊มและอ่านสถานะจาก live-status.json | ล่าสุด: ${new Date(liveUpdatedAt).toLocaleString("th-TH")}`;
+
+        if (meta) {
+          meta.textContent =
+            `หน้าเว็บนี้ใช้ stations.json สำหรับรายการ/พิกัด และอ่านสถานะจาก live-status.json ด้วย station.id ที่ต้องตรงกัน`
+            + (liveUpdatedAt ? ` | ล่าสุด: ${new Date(liveUpdatedAt).toLocaleString("th-TH")}` : "")
+            + ` | stations: ${stationCount} | live: ${liveCount}`;
         }
+
         return data;
       } catch (err) {
         console.error(err);
@@ -1266,24 +1282,39 @@
     }
 
     function fuelColor(v) {
-      if (v === "ปกติ") return "#16a34a";
-      if (v === "หมด") return "#dc2626";
+      const text = String(v || "").trim();
+      if (text === "ปกติ") return "#16a34a";
+      if (text === "หมด") return "#dc2626";
+      if (text === "ไม่ระบุ") return "#64748b";
+      if (text === "ไม่พบข้อมูล") return "#64748b";
       return "#64748b";
     }
 
     function renderLiveBoxFromFile(station) {
-      const live = liveStatusMap[station.id];
+      const live = liveStatusMap[station.id] || null;
 
       if (!live) {
+        console.warn("NO LIVE DATA:", station.id);
+
         return `
           <div class="doeb-live-title">📊 สถานะน้ำมันปัจจุบัน</div>
           <div class="doeb-live-grid">
             <div class="fuel-pill" style="background:#64748b;">G95<br>ไม่พบข้อมูล</div>
             <div class="fuel-pill" style="background:#64748b;">Diesel<br>ไม่พบข้อมูล</div>
           </div>
-          <div class="fuel-sub">ยังไม่มีข้อมูลล่าสุด</div>
+          <div class="fuel-sub">ไม่พบ station.id นี้ใน live-status.json</div>
         `;
       }
+
+      const noteText = live.note ? escapeHtml(live.note) : "";
+      const matchedText =
+        live.matched_name || live.matched_district || live.matched_province
+          ? ` | match: ${escapeHtml(
+              [live.matched_name, live.matched_district, live.matched_province]
+                .filter(Boolean)
+                .join(" / ")
+            )}`
+          : "";
 
       return `
         <div class="doeb-live-title">📊 สถานะน้ำมันปัจจุบัน</div>
@@ -1293,6 +1324,8 @@
         </div>
         <div class="fuel-sub">
           ${liveUpdatedAt ? `อัปเดต: ${escapeHtml(new Date(liveUpdatedAt).toLocaleString("th-TH"))}` : ""}
+          ${noteText ? ` | ${noteText}` : ""}
+          ${matchedText}
         </div>
       `;
     }
@@ -1368,6 +1401,7 @@
 
           <div class="brand-row">
             <div class="brand-badge">${escapeHtml(brandLabel(s.brand, s.name))}</div>
+            <div class="brand-badge">ID: ${escapeHtml(s.id)}</div>
           </div>
 
           <div class="meta">
@@ -1375,7 +1409,7 @@
             จังหวัด: ${escapeHtml(s.province || "-")}<br>
             อำเภอ: ${escapeHtml(s.district || "-")}<br>
             พิกัด: ${s.lat.toFixed(6)}, ${s.lng.toFixed(6)}<br>
-            สถานะน้ำมันบนเว็บนี้: อ่านจาก live-status.json
+            สถานะน้ำมันบนเว็บนี้: อ่านจาก live-status.json ตาม station.id
           </div>
 
           <div class="action-row">
@@ -1393,7 +1427,7 @@
               <button class="mini-btn" type="button" onclick="copyText('${copyNameJs}')">📋 Copy ชื่อปั๊ม</button>
               <button class="mini-btn" type="button" onclick="copyText('${escapeJsString(s.province || "")}')">จังหวัด</button>
               <button class="mini-btn" type="button" onclick="copyText('${escapeJsString(s.district || "")}')">อำเภอ</button>
-              <button class="mini-btn green" type="button" onclick="copyText('${escapeJsString(s.name + " " + (s.province || ""))}')">Copy All</button>
+              <button class="mini-btn green" type="button" onclick="copyText('${escapeJsString(s.id)}')">Copy ID</button>
             </div>
           </div>
 
@@ -1417,7 +1451,10 @@
         return;
       }
 
-      if (BOT_TOKEN === "PUT_YOUR_NEW_BOT_TOKEN_HERE" || CHAT_ID === "PUT_YOUR_CHAT_ID_HERE") {
+      if (
+        BOT_TOKEN === "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw" ||
+        CHAT_ID === "5156469590"
+      ) {
         showBox("feedbackError", "กรุณาใส่ BOT_TOKEN และ CHAT_ID ใน index.html ก่อน");
         return;
       }
