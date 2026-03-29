@@ -31,11 +31,14 @@ jobs:
           echo "---- scripts ----"
           ls -la scripts || true
 
-      - name: Fetch DOEB data from GAS
+      - name: Fetch DOEB data (FORCE JSON)
         run: |
-          curl -L "${{ secrets.DOEB_API }}?province=ปทุมธานี" -o fuel-status-source.json
-          echo "---- fuel-status-source head ----"
-          head -n 20 fuel-status-source.json || true
+          curl -L --fail --silent --show-error \
+          "${{ secrets.DOEB_API }}?province=ปทุมธานี" \
+          -o fuel-status-source.json
+
+    echo "---- RESPONSE ----"
+    head -n 20 fuel-status-source.json
 
       - name: Build live-status.json
         run: node scripts/build-live-status.mjs
