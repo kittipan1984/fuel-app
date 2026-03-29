@@ -15,7 +15,7 @@ jobs:
 
       - name: Fetch DOEB data
         run: |
-          curl -L "YOUR_GOOGLE_SCRIPT_URL" -o fuel-status-source.json
+          curl -L "https://script.google.com/macros/s/AKfycbyKeHguKsQGCZm0t-DDUa4To0V_Xtxtowhv3XNq6AVTgA-TYSFYAtbHp3MwVBsnKIhYTw/exec" -o fuel-status-source.json
 
       - name: Setup Node
         uses: actions/setup-node@v4
