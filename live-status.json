@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-03-29T05:28:53.881Z",
+  "updated_at": "2026-03-29T06:11:14.717Z",
   "stations": {
     "station-001": {
       "id": "station-001",
@@ -15,12 +15,12 @@
       "g91": "ไม่ระบุ",
       "e20": "ไม่ระบุ",
       "e85": "ไม่ระบุ",
-      "note": "match score 25",
+      "note": "match score 0",
       "matched_name": "คลองเจ็ด",
       "matched_district": "ลำลูกกา",
-      "matched_province": "ปทุมธานี",
-      "matched_brand": "",
-      "matched_map_text": ""
+      "matched_province": "ไม่ระบุ",
+      "matched_brand": "ปทุมธานี",
+      "matched_map_text": "ไม่ระบุ"
     }
   }
 }
