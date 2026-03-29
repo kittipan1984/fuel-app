@@ -23,7 +23,7 @@ jobs:
           node-version: 20
 
       - name: Build live-status.json
-        run: node build-live-status.mjs
+        run: node scripts/build-live-status.mjs
 
       - name: Commit & push
         run: |
