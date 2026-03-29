@@ -2,212 +2,57 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 const ROOT = process.cwd();
-const STATIONS_FILE = path.join(ROOT, "stations.json");
 const LIVE_FILE = path.join(ROOT, "live-status.json");
 
 const DOEB_API = process.env.DOEB_API;
-const BATCH_SIZE = 4;
-const MIN_ACCEPT_SCORE = 45;
 
 if (!DOEB_API) {
   throw new Error("Missing DOEB_API secret");
 }
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+async function fetchAllStations() {
+  const url = `${DOEB_API}?province=ปทุมธานี`;
 
-function normalizeText(v) {
-  return String(v || "").trim();
-}
-
-function cleanName(name) {
-  return normalizeText(name)
-    .toLowerCase()
-    .replace(/บริษัท/g, "")
-    .replace(/จำกัด/g, "")
-    .replace(/สาขา/g, "")
-    .replace(/\([^)]*\)/g, " ")
-    .replace(/[^ก-๙a-z0-9\s]/gi, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function textTokenScore(a, b) {
-  const aa = cleanName(a);
-  const bb = cleanName(b);
-  if (!aa || !bb) return 0;
-  if (aa === bb) return 100;
-  if (aa.includes(bb) || bb.includes(aa)) return 70;
-
-  const aWords = aa.split(" ").filter(Boolean);
-  const bWords = bb.split(" ").filter(Boolean);
-  const common = aWords.filter(w => bWords.includes(w)).length;
-  return common * 12;
-}
-
-function similarityScore(station, row) {
-  const sName = station.name || "";
-  const rName = row.name || "";
-
-  const sProvince = normalizeText(station.province || "").toLowerCase();
-  const rProvince = normalizeText(row.province || "").toLowerCase();
-
-  const sDistrict = normalizeText(station.district || "").toLowerCase();
-  const rDistrict = normalizeText(row.amphoe || "").toLowerCase();
-
-  let score = 0;
-
-  if (sProvince && rProvince && sProvince === rProvince) score += 25;
-  if (sDistrict && rDistrict && sDistrict === rDistrict) score += 40;
-
-  score += textTokenScore(sName, rName);
-
-  return score;
-}
-
-function pickBestRow(data, station) {
-  const rows = data?.parsed?.rows;
-  if (!Array.isArray(rows) || !rows.length) return null;
-
-  const nonEmptyRows = rows.filter(r =>
-    r && (r.name || r.amphoe || r.province || r.diesel || r.g95 || r.g91 || r.e20 || r.e85)
-  );
-
-  if (!nonEmptyRows.length) return null;
-
-  let best = null;
-  let bestScore = -1;
-
-  for (const row of nonEmptyRows) {
-    const score = similarityScore(station, row);
-    if (score > bestScore) {
-      best = row;
-      bestScore = score;
-    }
-  }
-
-  if (!best) return null;
-
-  return {
-    ...best,
-    _score: bestScore
-  };
-}
-
-async function fetchAttempt(params) {
-  const url = `${DOEB_API}?${new URLSearchParams(params).toString()}`;
   const res = await fetch(url, {
     headers: { Accept: "application/json" }
   });
-  return await res.json();
-}
 
-async function fetchLive(station) {
-  const attempts = [
-    {
-      name: normalizeText(station.name),
-      brand: "",
-      province: normalizeText(station.province || ""),
-      amphoe: normalizeText(station.district || "")
-    },
-    {
-      name: normalizeText(station.name),
-      brand: "",
-      province: normalizeText(station.province || ""),
-      amphoe: ""
-    }
-  ];
+  const data = await res.json();
 
-  let best = null;
+  const rows = data?.parsed?.rows || [];
 
-  for (const params of attempts) {
-    try {
-      const data = await fetchAttempt(params);
-      const row = pickBestRow(data, station);
-
-      if (row) {
-        if (!best || row._score > best._score) {
-          best = {
-            ok: row._score >= MIN_ACCEPT_SCORE,
-            name: station.name,
-            g95: row._score >= MIN_ACCEPT_SCORE ? (row.g95 || "ไม่พบข้อมูล") : "ไม่พบข้อมูล",
-            diesel: row._score >= MIN_ACCEPT_SCORE ? (row.diesel || "ไม่พบข้อมูล") : "ไม่พบข้อมูล",
-            g91: row._score >= MIN_ACCEPT_SCORE ? (row.g91 || "ไม่พบข้อมูล") : "ไม่พบข้อมูล",
-            e20: row._score >= MIN_ACCEPT_SCORE ? (row.e20 || "ไม่พบข้อมูล") : "ไม่พบข้อมูล",
-            e85: row._score >= MIN_ACCEPT_SCORE ? (row.e85 || "ไม่พบข้อมูล") : "ไม่พบข้อมูล",
-            note: row._score >= MIN_ACCEPT_SCORE
-              ? `match score ${row._score}`
-              : `score too low (${row._score})`,
-            matched_name: row.name || "",
-            matched_district: row.amphoe || "",
-            matched_province: row.province || ""
-          };
-        }
-      }
-    } catch (err) {
-      // try next attempt
-    }
-  }
-
-  if (best) return best;
-
-  return {
-    ok: false,
-    name: station.name,
-    g95: "ไม่พบข้อมูล",
-    diesel: "ไม่พบข้อมูล",
-    g91: "ไม่พบข้อมูล",
-    e20: "ไม่พบข้อมูล",
-    e85: "ไม่พบข้อมูล",
-    note: "หาแถวที่ match ไม่เจอ"
-  };
+  return rows.map((r, i) => ({
+    id: `station-${i + 1}`,
+    name: r.name || "",
+    brandLabel: r.brand || "",
+    province: r.province || "",
+    district: r.amphoe || "",
+    lat: 0,
+    lng: 0,
+    ok: true,
+    g95: r.g95 || "ไม่ระบุ",
+    diesel: r.diesel || "ไม่ระบุ",
+    g91: r.g91 || "ไม่ระบุ",
+    e20: r.e20 || "ไม่ระบุ",
+    e85: r.e85 || "ไม่ระบุ"
+  }));
 }
 
 async function main() {
-  const stationsRaw = await fs.readFile(STATIONS_FILE, "utf8");
-  let parsed = JSON.parse(stationsRaw);
-
-  let stations;
-  if (Array.isArray(parsed)) {
-    stations = parsed;
-  } else if (Array.isArray(parsed.stations)) {
-    stations = parsed.stations;
-  } else {
-    stations = [parsed];
-  }
+  const stations = await fetchAllStations();
 
   const output = {
     updated_at: new Date().toISOString(),
     stations: {}
   };
 
-  for (let i = 0; i < stations.length; i += BATCH_SIZE) {
-    const batch = stations.slice(i, i + BATCH_SIZE);
-    const results = await Promise.all(batch.map(fetchLive));
-
-    for (let j = 0; j < batch.length; j++) {
-      const station = batch[j];
-      const live = results[j];
-      const key = station.id || `station-${i + j + 1}`;
-
-      output.stations[key] = {
-        id: key,
-        name: station.name,
-        brandLabel: station.brandLabel || "",
-        province: station.province || "",
-        district: station.district || "",
-        lat: station.lat,
-        lng: station.lng,
-        ...live
-      };
-    }
-
-    await sleep(400);
-  }
+  stations.forEach(s => {
+    output.stations[s.id] = s;
+  });
 
   await fs.writeFile(LIVE_FILE, JSON.stringify(output, null, 2), "utf8");
-  console.log(`Updated ${LIVE_FILE}`);
+
+  console.log("LIVE STATUS READY (NO MATCHING MODE)");
 }
 
 main().catch(err => {
