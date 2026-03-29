@@ -31,7 +31,7 @@ jobs:
           echo "---- scripts ----"
           ls -la scripts || true
 
-      - name: Fetch DOEB data
+      - name: Fetch DOEB data from GAS
         run: |
           curl -L "${{ secrets.DOEB_API }}?province=ปทุมธานี" -o fuel-status-source.json
           echo "---- fuel-status-source head ----"
