@@ -7,6 +7,7 @@ const LIVE_FILE = path.join(ROOT, "live-status.json");
 
 const DOEB_API = process.env.DOEB_API;
 const BATCH_SIZE = 4;
+const MIN_ACCEPT_SCORE = 45;
 
 if (!DOEB_API) {
   throw new Error("Missing DOEB_API secret");
@@ -32,10 +33,6 @@ function cleanName(name) {
     .trim();
 }
 
-function normalizeBrand(v) {
-  return normalizeText(v).toLowerCase();
-}
-
 function textTokenScore(a, b) {
   const aa = cleanName(a);
   const bb = cleanName(b);
@@ -49,79 +46,22 @@ function textTokenScore(a, b) {
   return common * 12;
 }
 
-function haversineKm(lat1, lon1, lat2, lon2) {
-  const toRad = deg => deg * Math.PI / 180;
-  const R = 6371;
-  const dLat = toRad(lat2 - lat1);
-  const dLon = toRad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  return 2 * R * Math.asin(Math.sqrt(a));
-}
-
-function parseLatLngFromMapText(mapText) {
-  const text = normalizeText(mapText);
-  if (!text) return null;
-
-  const m = text.match(/(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);
-  if (!m) return null;
-
-  const lat = Number(m[1]);
-  const lng = Number(m[2]);
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-
-  return { lat, lng };
-}
-
-function locationScore(station, row) {
-  if (
-    !Number.isFinite(Number(station.lat)) ||
-    !Number.isFinite(Number(station.lng))
-  ) {
-    return 0;
-  }
-
-  const mapPoint = parseLatLngFromMapText(row.map_text || "");
-  if (!mapPoint) return 0;
-
-  const km = haversineKm(
-    Number(station.lat),
-    Number(station.lng),
-    mapPoint.lat,
-    mapPoint.lng
-  );
-
-  if (km <= 0.3) return 120;
-  if (km <= 1) return 90;
-  if (km <= 3) return 60;
-  if (km <= 5) return 40;
-  if (km <= 10) return 20;
-  return 0;
-}
-
 function similarityScore(station, row) {
   const sName = station.name || "";
   const rName = row.name || "";
-
-  const sBrand = normalizeBrand(station.brandLabel || station.brand || "");
-  const rBrand = normalizeBrand(row.brand || "");
 
   const sProvince = normalizeText(station.province || "").toLowerCase();
   const rProvince = normalizeText(row.province || "").toLowerCase();
 
   const sDistrict = normalizeText(station.district || "").toLowerCase();
-  const rDistrict = normalizeText(row.amphoe || row.district || "").toLowerCase();
+  const rDistrict = normalizeText(row.amphoe || "").toLowerCase();
 
   let score = 0;
 
   if (sProvince && rProvince && sProvince === rProvince) score += 25;
-  if (sDistrict && rDistrict && sDistrict === rDistrict) score += 35;
-  if (sBrand && rBrand && sBrand === rBrand) score += 25;
+  if (sDistrict && rDistrict && sDistrict === rDistrict) score += 40;
 
   score += textTokenScore(sName, rName);
-  score += locationScore(station, row);
 
   return score;
 }
@@ -131,8 +71,7 @@ function pickBestRow(data, station) {
   if (!Array.isArray(rows) || !rows.length) return null;
 
   const nonEmptyRows = rows.filter(r =>
-    r &&
-    (r.name || r.amphoe || r.province || r.diesel || r.g95 || r.g91 || r.e20 || r.e85 || r.map_text || r.brand)
+    r && (r.name || r.amphoe || r.province || r.diesel || r.g95 || r.g91 || r.e20 || r.e85)
   );
 
   if (!nonEmptyRows.length) return null;
@@ -168,21 +107,9 @@ async function fetchLive(station) {
   const attempts = [
     {
       name: normalizeText(station.name),
-      brand: normalizeText(station.brandLabel || ""),
-      province: normalizeText(station.province || ""),
-      amphoe: normalizeText(station.district || "")
-    },
-    {
-      name: normalizeText(station.name),
       brand: "",
       province: normalizeText(station.province || ""),
       amphoe: normalizeText(station.district || "")
-    },
-    {
-      name: normalizeText(station.name),
-      brand: normalizeText(station.brandLabel || ""),
-      province: normalizeText(station.province || ""),
-      amphoe: ""
     },
     {
       name: normalizeText(station.name),
@@ -202,26 +129,24 @@ async function fetchLive(station) {
       if (row) {
         if (!best || row._score > best._score) {
           best = {
-            ok: true,
+            ok: row._score >= MIN_ACCEPT_SCORE,
             name: station.name,
-            g95: row.g95 || "ไม่พบข้อมูล",
-            diesel: row.diesel || "ไม่พบข้อมูล",
-            g91: row.g91 || "ไม่พบข้อมูล",
-            e20: row.e20 || "ไม่พบข้อมูล",
-            e85: row.e85 || "ไม่พบข้อมูล",
-            note: `match score ${row._score}`,
+            g95: row._score >= MIN_ACCEPT_SCORE ? (row.g95 || "ไม่พบข้อมูล") : "ไม่พบข้อมูล",
+            diesel: row._score >= MIN_ACCEPT_SCORE ? (row.diesel || "ไม่พบข้อมูล") : "ไม่พบข้อมูล",
+            g91: row._score >= MIN_ACCEPT_SCORE ? (row.g91 || "ไม่พบข้อมูล") : "ไม่พบข้อมูล",
+            e20: row._score >= MIN_ACCEPT_SCORE ? (row.e20 || "ไม่พบข้อมูล") : "ไม่พบข้อมูล",
+            e85: row._score >= MIN_ACCEPT_SCORE ? (row.e85 || "ไม่พบข้อมูล") : "ไม่พบข้อมูล",
+            note: row._score >= MIN_ACCEPT_SCORE
+              ? `match score ${row._score}`
+              : `score too low (${row._score})`,
             matched_name: row.name || "",
             matched_district: row.amphoe || "",
-            matched_province: row.province || "",
-            matched_brand: row.brand || "",
-            matched_map_text: row.map_text || ""
+            matched_province: row.province || ""
           };
         }
-
-        if (row._score >= 120) break;
       }
     } catch (err) {
-      // ลอง attempt ถัดไป
+      // try next attempt
     }
   }
 
