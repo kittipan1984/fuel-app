@@ -1,4 +1,4 @@
-name: update-live-status
+name: Update Fuel Status
 
 on:
   schedule:
@@ -6,28 +6,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  update:
     runs-on: ubuntu-latest
 
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Fetch DOEB data
+        run: |
+          curl -L "YOUR_GOOGLE_SCRIPT_URL" -o fuel-status-source.json
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - run: npm install
+      - name: Build live-status.json
+        run: node build-live-status.mjs
 
-      - run: node scripts/build-live-status.mjs
-        env:
-          DOEB_API: ${{ secrets.DOEB_API }}
-
-      - run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add live-status.json
-          git diff --cached --quiet || git commit -m "update fuel status"
+      - name: Commit & push
+        run: |
+          git config user.name "bot"
+          git config user.email "bot@github.com"
+          git add live-status.json fuel-status-source.json
+          git commit -m "auto update fuel status" || echo "no changes"
           git push
