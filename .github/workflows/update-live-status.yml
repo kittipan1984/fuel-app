@@ -5,30 +5,50 @@ on:
     - cron: "*/5 * * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Debug repo files
+        run: |
+          pwd
+          ls -la
+          echo "---- scripts ----"
+          ls -la scripts || true
 
       - name: Fetch DOEB data
         run: |
-          curl -L "https://script.google.com/macros/s/AKfycbyKeHguKsQGCZm0t-DDUa4To0V_Xtxtowhv3XNq6AVTgA-TYSFYAtbHp3MwVBsnKIhYTw/exec" -o fuel-status-source.json
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+          curl -L "${{ secrets.DOEB_API }}?province=ปทุมธานี" -o fuel-status-source.json
+          echo "---- fuel-status-source head ----"
+          head -n 20 fuel-status-source.json || true
 
       - name: Build live-status.json
         run: node scripts/build-live-status.mjs
 
+      - name: Show live-status.json
+        run: |
+          echo "---- live-status ----"
+          head -n 50 live-status.json || true
+
       - name: Commit & push
         run: |
-          git config user.name "bot"
-          git config user.email "bot@github.com"
-          git add live-status.json fuel-status-source.json
-          git commit -m "auto update fuel status" || echo "no changes"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add fuel-status-source.json live-status.json
+          git diff --cached --quiet || git commit -m "update fuel status"
           git push
