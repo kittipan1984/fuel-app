@@ -47,8 +47,7 @@ jobs:
         run: |
           echo "Calling API..."
           curl -L --fail --silent --show-error \
-            "${{ secrets.DOEB_API }}?province=%E0%B8%9B%E0%B8%97%E0%B8%B8%E0%B8%A1%E0%B8%98%E0%B8%B2%E0%B8%99%E0%B8%B5"
-            -o fuel-status-source.json
+            "${{ secrets.DOEB_API }}?province=%E0%B8%9B%E0%B8%97%E0%B8%B8%E0%B8%A1%E0%B8%98%E0%B8%B2%E0%B8%99%E0%B8%B5" -o fuel-status-source.json
 
           echo "---- RESPONSE HEAD ----"
           head -n 20 fuel-status-source.json || true
