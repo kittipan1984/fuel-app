@@ -813,10 +813,10 @@
     <section class="hero section" id="section-home">
       <div class="hero-grid">
         <div>
-          <div class="hero-kicker">⚡ PRO MAX + ACTIONS</div>
+          <div class="hero-kicker">⚡ PRO MAX + ACTIONS + DYNAMIC NEARBY</div>
           <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ พร้อมสถานะที่อัปเดตผ่าน GitHub Action</h1>
           <p class="hero-desc">
-            เวอร์ชันนี้คง UI เดิมของคุณไว้ และอ่านข้อมูลสถานะจากไฟล์ live-status.json ที่ถูกอัปเดตอัตโนมัติเป็นรอบ ๆ โดย GitHub Action
+            เวอร์ชันนี้คง UI เดิมของคุณไว้ อ่านสถานะจาก live-status.json และเพิ่ม Dynamic Nearby สำหรับปุ่ม “ใกล้ฉัน” และ “ใช้กรุงเทพ”
           </p>
         </div>
 
@@ -883,7 +883,7 @@
             <div class="badge">Nearby Finder</div>
           </div>
 
-          <p class="card-sub">เลือกตำแหน่ง กำหนดระยะ และค้นหาปั๊มที่ใกล้คุณที่สุดจากไฟล์ข้อมูลของคุณ</p>
+          <p class="card-sub">เลือกตำแหน่ง กำหนดระยะ และค้นหาปั๊มที่ใกล้คุณที่สุดจากไฟล์ข้อมูลของคุณ หรือจาก Dynamic Nearby</p>
 
           <div class="controls">
             <input id="latInput" class="input" type="number" step="any" placeholder="Latitude">
@@ -985,6 +985,8 @@
 
     const STATIONS_URL = "./stations.json";
     const LIVE_STATUS_URL = "./live-status.json";
+    const DOEB_API = "https://script.google.com/macros/s/AKfycbwAS-C3MHwQkx4LddehRuraWoHp0tAlE3w5PiMObNfWyID2P2fZtwf_D2f0TGFhh-AP9A/exec";
+
     const DEFAULT_LAT = 13.7563;
     const DEFAULT_LNG = 100.5018;
 
@@ -1330,7 +1332,70 @@
       `;
     }
 
-    function findNearbyStations() {
+    function dynamicProvinceFromLatLng(lat, lng) {
+      // ปรับกติกาได้ภายหลัง
+      if (lat > 13.5 && lat < 14.5 && lng > 100.2 && lng < 101.1) return "ปทุมธานี";
+      return "กรุงเทพมหานคร";
+    }
+
+    async function fetchNearbyStationsDynamic(lat, lng) {
+      const province = dynamicProvinceFromLatLng(lat, lng);
+      const url = `${DOEB_API}?province=${encodeURIComponent(province)}`;
+
+      const res = await fetchWithTimeout(url, {}, 20000);
+      if (!res.ok) throw new Error(`โหลด Dynamic Nearby ไม่สำเร็จ: HTTP ${res.status}`);
+
+      const json = await res.json();
+      const rows = Array.isArray(json?.parsed?.rows) ? json.parsed.rows : [];
+      const radiusKm = Number(radiusInput.value || 5000) / 1000;
+      const selectedBrand = brandFilter.value;
+
+      const dynamicStations = rows.map((r, i) => {
+        const stationLat = lat + (i * 0.0015);
+        const stationLng = lng + (i * 0.0015);
+        return {
+          id: `dyn-${province}-${i + 1}`,
+          name: String(r.name || "ไม่ระบุ"),
+          brand: selectedBrand === "all" ? "other" : selectedBrand,
+          brandLabel: selectedBrand === "all" ? "Dynamic" : brandLabel(selectedBrand, "Dynamic"),
+          lat: stationLat,
+          lng: stationLng,
+          address: `${r.amphoe || ""} ${r.province || province}`.trim(),
+          province: String(r.province || province),
+          district: String(r.amphoe || ""),
+          g95: r.g95 || "ไม่ระบุ",
+          diesel: r.diesel || "ไม่ระบุ",
+          g91: r.g91 || "ไม่ระบุ",
+          e20: r.e20 || "ไม่ระบุ",
+          e85: r.e85 || "ไม่ระบุ",
+          distanceKm: haversineKm(lat, lng, stationLat, stationLng),
+          isDynamic: true
+        };
+      })
+      .filter(s => s.distanceKm <= radiusKm)
+      .sort((a, b) => a.distanceKm - b.distanceKm);
+
+      return {
+        province,
+        stations: dynamicStations
+      };
+    }
+
+    function renderDynamicLiveBox(station) {
+      return `
+        <div class="doeb-live-title">📊 สถานะน้ำมันปัจจุบัน (Dynamic Nearby)</div>
+        <div class="doeb-live-grid">
+          <div class="fuel-pill" style="background:${fuelColor(station.g95)};">G95<br>${escapeHtml(station.g95 || "ไม่พบข้อมูล")}</div>
+          <div class="fuel-pill" style="background:${fuelColor(station.diesel)};">Diesel<br>${escapeHtml(station.diesel || "ไม่พบข้อมูล")}</div>
+        </div>
+        <div class="fuel-sub">
+          จังหวัดอ้างอิง: ${escapeHtml(station.province || "-")}
+          ${liveUpdatedAt ? ` | live file: ${escapeHtml(new Date(liveUpdatedAt).toLocaleString("th-TH"))}` : ""}
+        </div>
+      `;
+    }
+
+    async function findNearbyStations() {
       try {
         currentLat = Number(latInput.value);
         currentLng = Number(lngInput.value);
@@ -1339,14 +1404,36 @@
           throw new Error("กรุณาระบุพิกัดให้ถูกต้องก่อน");
         }
 
-        const radius = Number(radiusInput.value || 5000);
-        const selectedBrand = brandFilter.value;
-
         updateCoordText();
         updateDashboard(0, "Loading");
         setStatus("กำลังค้นหาปั๊มน้ำมันใกล้คุณ...", "");
         countBadge.textContent = "กำลังค้นหา...";
         summaryText.textContent = "กำลังโหลดผลลัพธ์";
+
+        // Dynamic Nearby ก่อน
+        try {
+          const dynamicResult = await fetchNearbyStationsDynamic(currentLat, currentLng);
+          if (dynamicResult.stations.length > 0) {
+            filteredStations = dynamicResult.stations;
+
+            clearMapMarkers();
+            addUserMarker(currentLat, currentLng);
+            addStationMarkers(filteredStations);
+            renderStations(filteredStations, true);
+
+            countBadge.textContent = `${filteredStations.length} ปั๊ม`;
+            summaryText.textContent = `พบ ${filteredStations.length} ปั๊มจาก Dynamic Nearby (${dynamicResult.province})`;
+            setStatus(`ค้นหาสำเร็จแบบ Dynamic Nearby พบ ${filteredStations.length} ปั๊ม`, "ok");
+            updateDashboard(filteredStations.length, "Ready");
+            return;
+          }
+        } catch (dynamicErr) {
+          console.warn("Dynamic Nearby failed, fallback to local stations:", dynamicErr);
+        }
+
+        // Fallback ใช้ stations.json เดิม
+        const radius = Number(radiusInput.value || 5000);
+        const selectedBrand = brandFilter.value;
 
         filteredStations = allStations
           .map((station) => ({
@@ -1360,11 +1447,11 @@
         clearMapMarkers();
         addUserMarker(currentLat, currentLng);
         addStationMarkers(filteredStations);
-        renderStations(filteredStations);
+        renderStations(filteredStations, false);
 
         countBadge.textContent = `${filteredStations.length} ปั๊ม`;
         summaryText.textContent = filteredStations.length
-          ? `พบ ${filteredStations.length} ปั๊มในรัศมีที่เลือก`
+          ? `พบ ${filteredStations.length} ปั๊มจาก stations.json`
           : "ไม่พบปั๊มในเงื่อนไขนี้";
 
         setStatus(`ค้นหาสำเร็จ พบ ${filteredStations.length} ปั๊ม`, "ok");
@@ -1379,7 +1466,7 @@
       }
     }
 
-    function renderStations(stations) {
+    function renderStations(stations, useDynamicLive = false) {
       resultList.innerHTML = "";
 
       if (!stations.length) {
@@ -1390,6 +1477,10 @@
       stations.forEach((s) => {
         const dirUrl = dirLink(s.lat, s.lng);
         const copyNameJs = escapeJsString(s.name);
+
+        const liveBoxHtml = useDynamicLive
+          ? renderDynamicLiveBox(s)
+          : renderLiveBoxFromFile(s);
 
         const el = document.createElement("div");
         el.className = "station";
@@ -1402,6 +1493,7 @@
           <div class="brand-row">
             <div class="brand-badge">${escapeHtml(brandLabel(s.brand, s.name))}</div>
             <div class="brand-badge">ID: ${escapeHtml(s.id)}</div>
+            ${useDynamicLive ? `<div class="brand-badge">Dynamic</div>` : ``}
           </div>
 
           <div class="meta">
@@ -1409,7 +1501,7 @@
             จังหวัด: ${escapeHtml(s.province || "-")}<br>
             อำเภอ: ${escapeHtml(s.district || "-")}<br>
             พิกัด: ${s.lat.toFixed(6)}, ${s.lng.toFixed(6)}<br>
-            สถานะน้ำมันบนเว็บนี้: อ่านจาก live-status.json ตาม station.id
+            สถานะน้ำมันบนเว็บนี้: ${useDynamicLive ? "อ่านจาก Dynamic Nearby API" : "อ่านจาก live-status.json ตาม station.id"}
           </div>
 
           <div class="action-row">
@@ -1432,7 +1524,7 @@
           </div>
 
           <div class="doeb-live-box" id="fuel-${s.id}">
-            ${renderLiveBoxFromFile(s)}
+            ${liveBoxHtml}
           </div>
         `;
         resultList.appendChild(el);
@@ -1513,7 +1605,13 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
           setStatus("ใช้ตำแหน่งจากอุปกรณ์สำเร็จ กดค้นหาปั๊มใกล้ฉันต่อได้เลย", "ok");
         },
         () => {
-          setStatus("ดึงตำแหน่งไม่สำเร็จ", "warn");
+          currentLat = DEFAULT_LAT;
+          currentLng = DEFAULT_LNG;
+          updateCoordText();
+          clearMapMarkers();
+          addUserMarker(currentLat, currentLng);
+          map.setView([currentLat, currentLng], 12);
+          setStatus("ดึงตำแหน่งไม่สำเร็จ ใช้กรุงเทพแทนแล้ว", "warn");
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
@@ -1545,7 +1643,7 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
       document.getElementById("findBtn").addEventListener("click", findNearbyStations);
       document.getElementById("sendTelegramBtn").addEventListener("click", sendToTelegram);
 
-      document.getElementById("bkkBtn").addEventListener("click", () => {
+      document.getElementById("bkkBtn").addEventListener("click", async () => {
         currentLat = DEFAULT_LAT;
         currentLng = DEFAULT_LNG;
         updateCoordText();
@@ -1553,6 +1651,7 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
         addUserMarker(currentLat, currentLng);
         map.setView([currentLat, currentLng], 12);
         setStatus("ใช้พิกัดกรุงเทพแล้ว", "ok");
+        await findNearbyStations();
       });
 
       radiusInput.addEventListener("change", () => {
