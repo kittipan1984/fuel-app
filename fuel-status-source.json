@@ -1,21 +1,10 @@
 {
   "ok": true,
   "response_code": 200,
-  "updated_at": "2026-04-12T16:42:45.704Z",
+  "updated_at": "2026-04-12T17:22:01.075Z",
   "parsed": {
-    "matched": true,
-    "rows": [
-      {
-        "name": "คลองเจ็ด",
-        "amphoe": "ลำลูกกา",
-        "province": "ปทุมธานี",
-        "diesel": "ปกติ",
-        "g95": "ปกติ",
-        "g91": "ปกติ",
-        "e20": "ไม่ระบุ",
-        "e85": "ไม่ระบุ"
-      }
-    ],
-    "note": "OK"
+    "matched": false,
+    "rows": [],
+    "note": "no data"
   }
 }
