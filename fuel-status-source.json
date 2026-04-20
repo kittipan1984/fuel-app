@@ -1,8 +1,4 @@
 {
   "ok": false,
-  "error": "reverse geocode failed",
-  "details": {
-    "ok": false,
-    "code": 429
-  }
+  "error": "could not determine province from lat/lng"
 }
