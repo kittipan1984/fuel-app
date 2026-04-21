@@ -778,10 +778,11 @@
     <section class="hero section" id="section-home">
       <div class="hero-grid">
         <div>
-          <div class="hero-kicker">⚡ REAL GPS + REAL DISTANCE SEARCH</div>
+          <div class="hero-kicker">⚡ FREE 100% + LOCAL DISTANCE SEARCH</div>
           <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ</h1>
           <p class="hero-desc">
-            ค้นหาปั๊มใกล้คุณจากข้อมูลภายนอกแบบเรียลไทม์ พร้อมดูข้อมูลสถานะอ้างอิงในหน้าเดียว
+            ค้นหาปั๊มใกล้คุณจากฐานพิกัดใน stations.json และอ่านสถานะจาก live-status.json
+            ไม่มี geocode live และไม่ต้องผูกบัตร
           </p>
         </div>
 
@@ -816,7 +817,7 @@
       <div class="card">
         <div class="card-head">
           <h2 class="card-title">Dashboard</h2>
-          <div class="badge">Live Nearby Search</div>
+          <div class="badge">Free Mode</div>
         </div>
 
         <div class="summary-grid">
@@ -835,7 +836,7 @@
         </div>
 
         <div class="meta-note" id="liveMetaNote">
-          หน้าเว็บนี้ค้นหา nearby ผ่าน Apps Script และอ่านข้อมูลสถานะจาก live-status.json
+          nearby ใช้ stations.json | สถานะใช้ live-status.json
         </div>
       </div>
     </section>
@@ -848,7 +849,7 @@
             <div class="badge">Nearby Finder</div>
           </div>
 
-          <p class="card-sub">เลือกตำแหน่ง กำหนดระยะ และค้นหาปั๊มที่ใกล้คุณที่สุด</p>
+          <p class="card-sub">เลือกตำแหน่ง กำหนดระยะ และค้นหาปั๊มที่ใกล้คุณที่สุดจากฐานพิกัดของคุณเอง</p>
 
           <div class="controls">
             <input id="latInput" class="input" type="number" step="any" placeholder="Latitude">
@@ -948,7 +949,7 @@
   <script>
     const BOT_TOKEN = "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw";
     const CHAT_ID = "5156469590";
-    const NEARBY_API = "https://script.google.com/macros/s/AKfycbwAS-C3MHwQkx4LddehRuraWoHp0tAlE3w5PiMObNfWyID2P2fZtwf_D2f0TGFhh-AP9A/exec";
+    const STATIONS_URL = "./stations.json";
     const LIVE_STATUS_URL = "./live-status.json";
 
     const DEFAULT_LAT = 13.7563;
@@ -959,6 +960,7 @@
     let userMarker = null;
     let currentLat = DEFAULT_LAT;
     let currentLng = DEFAULT_LNG;
+    let allStations = [];
     let filteredStations = [];
     let liveStatusMap = {};
     let liveUpdatedAt = null;
@@ -1122,6 +1124,18 @@
       }
     }
 
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      return 2 * R * Math.asin(Math.sqrt(a));
+    }
+
     function initMap() {
       const mapEl = document.getElementById("map");
       if (!mapEl) throw new Error("Map container #map not found in HTML");
@@ -1188,6 +1202,37 @@
       }
     }
 
+    async function loadStationsFile() {
+      const res = await fetchWithTimeout(`${STATIONS_URL}?t=${Date.now()}`, {}, 15000);
+      if (!res.ok) throw new Error(`โหลด stations.json ไม่สำเร็จ: HTTP ${res.status}`);
+
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error("stations.json ต้องเป็น array");
+
+      allStations = data
+        .map(item => ({
+          id: String(item.id || "").trim(),
+          name: String(item.name || "").trim(),
+          brand: normalizeBrand(item.brand || ""),
+          brandLabel: String(item.brandLabel || "").trim(),
+          province: String(item.province || "").trim(),
+          district: String(item.district || "").trim(),
+          lat: Number(item.lat),
+          lng: Number(item.lng),
+          address: String(item.address || "").trim()
+        }))
+        .filter(item =>
+          item.id &&
+          item.name &&
+          Number.isFinite(item.lat) &&
+          Number.isFinite(item.lng)
+        );
+
+      if (!allStations.length) {
+        throw new Error("stations.json ไม่มีข้อมูลที่ใช้ค้นหาได้");
+      }
+    }
+
     async function loadLiveStatusFile() {
       try {
         const res = await fetchWithTimeout(`${LIVE_STATUS_URL}?t=${Date.now()}`, {}, 15000);
@@ -1200,9 +1245,9 @@
         const meta = document.getElementById("liveMetaNote");
         if (meta) {
           meta.textContent =
-            `หน้าเว็บนี้ค้นหา nearby ผ่าน Apps Script และอ่านข้อมูลสถานะจาก live-status.json`
+            `nearby ใช้ stations.json | สถานะใช้ live-status.json`
             + (liveUpdatedAt ? ` | ล่าสุด: ${new Date(liveUpdatedAt).toLocaleString("th-TH")}` : "")
-            + ` | live: ${liveCount}`;
+            + ` | stations: ${allStations.length} | live: ${liveCount}`;
         }
       } catch (err) {
         console.error(err);
@@ -1221,7 +1266,7 @@
             <div class="fuel-pill" style="background:#64748b;">G95<br>${escapeHtml(station.g95 || "ไม่พบข้อมูล")}</div>
             <div class="fuel-pill" style="background:#64748b;">Diesel<br>${escapeHtml(station.diesel || "ไม่พบข้อมูล")}</div>
           </div>
-          <div class="fuel-sub">อ่านจาก nearby backend โดยตรง</div>
+          <div class="fuel-sub">ไม่พบ station.id นี้ใน live-status.json</div>
         `;
       }
 
@@ -1270,8 +1315,7 @@
             ที่อยู่: ${escapeHtml(s.address || "-")}<br>
             จังหวัด: ${escapeHtml(s.province || "-")}<br>
             อำเภอ: ${escapeHtml(s.district || "-")}<br>
-            พิกัด: ${Number(s.lat).toFixed(6)}, ${Number(s.lng).toFixed(6)}<br>
-            แหล่งข้อมูล nearby: Public Fuel Data
+            พิกัด: ${Number(s.lat).toFixed(6)}, ${Number(s.lng).toFixed(6)}
           </div>
 
           <div class="action-row">
@@ -1303,8 +1347,8 @@
 
     async function findNearbyStations() {
       try {
-        if (!NEARBY_API || NEARBY_API.includes("PUT_YOUR_APPS_SCRIPT_EXEC_URL_HERE")) {
-          throw new Error("กรุณาใส่ Apps Script Web App URL ก่อน");
+        if (!allStations.length) {
+          throw new Error("ยังไม่มีข้อมูลใน stations.json");
         }
 
         currentLat = Number(latInput.value);
@@ -1321,29 +1365,23 @@
         summaryText.textContent = "กำลังโหลดผลลัพธ์";
 
         const radiusKm = Number(radiusInput.value || 5000) / 1000;
-
-        const url =
-          `${NEARBY_API}?action=nearby` +
-          `&lat=${encodeURIComponent(currentLat)}` +
-          `&lng=${encodeURIComponent(currentLng)}` +
-          `&radius_km=${encodeURIComponent(radiusKm)}`;
-
-        const res = await fetchWithTimeout(url, {}, 30000);
-        if (!res.ok) throw new Error(`Nearby API ล้มเหลว: HTTP ${res.status}`);
-
-        const json = await res.json();
-        if (!json.ok) throw new Error(json.error || "Nearby API error");
-
         const selectedBrand = brandFilter.value;
-        let stations = Array.isArray(json.nearby) ? json.nearby : [];
 
-        stations = stations
+        const ranked = allStations
           .map(s => ({
             ...s,
-            brand: normalizeBrand(s.brand || ""),
-            distanceKm: Number(s.distanceKm || 0)
+            distanceKm: haversineKm(currentLat, currentLng, s.lat, s.lng)
           }))
-          .filter(s => selectedBrand === "all" ? true : s.brand === selectedBrand);
+          .filter(s => selectedBrand === "all" ? true : s.brand === selectedBrand)
+          .sort((a, b) => a.distanceKm - b.distanceKm);
+
+        let stations = ranked.filter(s => s.distanceKm <= radiusKm);
+
+        let mode = "radius";
+        if (!stations.length) {
+          stations = ranked.slice(0, 10);
+          mode = stations.length ? "fallback" : "no_match";
+        }
 
         filteredStations = stations;
 
@@ -1355,15 +1393,12 @@
         countBadge.textContent = `${filteredStations.length} ปั๊ม`;
 
         if (!filteredStations.length) {
-          summaryText.textContent = `ไม่พบปั๊มในเงื่อนไขปัจจุบัน\n${json.note || ""}\nจังหวัดอ้างอิง: ${json.area?.province || "-"} | อำเภออ้างอิง: ${json.area?.district || "-"}`;
+          summaryText.textContent = "ไม่พบปั๊มในเงื่อนไขปัจจุบัน";
           setStatus("ไม่พบผลลัพธ์", "warn");
         } else {
-          const modeText = json.mode === "fallback"
-            ? "ไม่พบในรัศมีที่เลือก จึงแสดงปั๊มใกล้สุดแทน"
+          summaryText.textContent = mode === "fallback"
+            ? `ไม่พบปั๊มในรัศมีที่เลือก จึงแสดงปั๊มใกล้สุดแทน`
             : `พบ ${filteredStations.length} ปั๊มในรัศมี ${radiusKm} กม.`;
-
-          summaryText.textContent =
-            `${modeText}\nจังหวัดอ้างอิง: ${json.area?.province || "-"} | อำเภออ้างอิง: ${json.area?.district || "-"}`;
 
           setStatus("ค้นหาสำเร็จ", "ok");
         }
@@ -1486,12 +1521,6 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
 
     document.addEventListener("DOMContentLoaded", async () => {
       try {
-        const mapEl = document.getElementById("map");
-        if (!mapEl) {
-          setStatus("หน้าเว็บนี้ไม่มีกล่องแผนที่ (#map) ใน HTML", "error");
-          return;
-        }
-
         initMap();
         updateCoordText();
         updateDashboard(0, "Ready");
@@ -1501,6 +1530,7 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
           setStatus("คำเตือน: ถ้าเปิดเว็บแบบไม่ใช่ HTTPS ปุ่ม 'ใช้ตำแหน่งฉัน' อาจไม่ทำงาน", "warn");
         }
 
+        await loadStationsFile();
         await loadLiveStatusFile();
 
         document.getElementById("gpsBtn").addEventListener("click", useBrowserGPS);
@@ -1522,6 +1552,7 @@ Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
           const radiusKm = (Number(radiusInput.value || 5000) / 1000).toString() + " กม.";
           document.getElementById("heroRadius").textContent = radiusKm;
         });
+
       } catch (err) {
         console.error(err);
         setStatus("หน้าเว็บเริ่มต้นไม่สำเร็จ: " + (err.message || String(err)), "error");
