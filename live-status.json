@@ -1,23 +1,43 @@
 {
-  "updated_at": "2026-04-22T00:00:00+07:00",
+  "updated_at": "2026-04-21T20:41:50.422Z",
   "stations": {
     "station-rayong-001": {
       "id": "station-rayong-001",
-      "g95": "ปกติ",
-      "diesel": "ปกติ",
-      "g91": "ไม่ระบุ",
-      "e20": "ปกติ",
-      "e85": "หมด",
-      "note": "manual or script updated"
+      "name": "PTT มาบตาพุด",
+      "brandLabel": "PTT",
+      "province": "ระยอง",
+      "district": "มาบตาพุด",
+      "lat": 12.698,
+      "lng": 101.168,
+      "ok": false,
+      "g95": "ไม่พบข้อมูล",
+      "diesel": "ไม่พบข้อมูล",
+      "g91": "ไม่พบข้อมูล",
+      "e20": "ไม่พบข้อมูล",
+      "e85": "ไม่พบข้อมูล",
+      "note": "no candidates",
+      "matched_name": "",
+      "matched_district": "",
+      "matched_province": ""
     },
     "station-rayong-002": {
       "id": "station-rayong-002",
-      "g95": "หมด",
-      "diesel": "ปกติ",
-      "g91": "ไม่ระบุ",
-      "e20": "ปกติ",
-      "e85": "ไม่ระบุ",
-      "note": "manual or script updated"
+      "name": "Shell บ้านฉาง",
+      "brandLabel": "SHELL",
+      "province": "ระยอง",
+      "district": "บ้านฉาง",
+      "lat": 12.725,
+      "lng": 101.058,
+      "ok": false,
+      "g95": "ไม่พบข้อมูล",
+      "diesel": "ไม่พบข้อมูล",
+      "g91": "ไม่พบข้อมูล",
+      "e20": "ไม่พบข้อมูล",
+      "e85": "ไม่พบข้อมูล",
+      "note": "no candidates",
+      "matched_name": "",
+      "matched_district": "",
+      "matched_province": ""
     }
   }
 }

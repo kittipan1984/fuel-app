@@ -1,10 +1,10 @@
 {
   "ok": true,
-  "updated_at": "2026-04-21T18:36:38.233Z",
+  "updated_at": "2026-04-21T20:41:50.422Z",
   "source_label": "Public Fuel Data",
   "mode": "no_geocoded",
   "area": {
-    "province": "ระยอง",
+    "province": "",
     "district": ""
   },
   "rows_total": 1,
