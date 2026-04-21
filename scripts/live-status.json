@@ -1,0 +1,23 @@
+{
+  "updated_at": "2026-04-22T00:00:00+07:00",
+  "stations": {
+    "station-rayong-001": {
+      "id": "station-rayong-001",
+      "g95": "ปกติ",
+      "diesel": "ปกติ",
+      "g91": "ไม่ระบุ",
+      "e20": "ปกติ",
+      "e85": "หมด",
+      "note": "manual or script updated"
+    },
+    "station-rayong-002": {
+      "id": "station-rayong-002",
+      "g95": "หมด",
+      "diesel": "ปกติ",
+      "g91": "ไม่ระบุ",
+      "e20": "ปกติ",
+      "e85": "ไม่ระบุ",
+      "note": "manual or script updated"
+    }
+  }
+}
