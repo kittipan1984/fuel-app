@@ -1301,7 +1301,7 @@
 
     async function findNearbyStations() {
       try {
-        if (!NEARBY_API || NEARBY_API.includes("PUT_YOUR_NEW_APPS_SCRIPT_WEBAPP_URL_HERE")) {
+        if (!NEARBY_API || NEARBY_API.includes("https://script.google.com/macros/s/AKfycbwAS-C3MHwQkx4LddehRuraWoHp0tAlE3w5PiMObNfWyID2P2fZtwf_D2f0TGFhh-AP9A/exec")) {
           throw new Error("กรุณาใส่ Apps Script Web App URL ใหม่ก่อน");
         }
 
@@ -1439,8 +1439,8 @@
       }
 
       if (
-        BOT_TOKEN === "PUT_YOUR_BOT_TOKEN_HERE" ||
-        CHAT_ID === "PUT_YOUR_CHAT_ID_HERE"
+        BOT_TOKEN === "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw" ||
+        CHAT_ID === "5156469590E"
       ) {
         showBox("feedbackError", "กรุณาใส่ BOT_TOKEN และ CHAT_ID ใน index.html ก่อน");
         return;
