@@ -1355,7 +1355,7 @@
         countBadge.textContent = `${filteredStations.length} ปั๊ม`;
 
         if (!filteredStations.length) {
-          summaryText.textContent = "ไม่พบปั๊มในเงื่อนไขปัจจุบัน";
+          summaryText.textContent = `ไม่พบปั๊มในเงื่อนไขปัจจุบัน\n${json.note || ""}\nจังหวัดอ้างอิง: ${json.area?.province || "-"} | อำเภออ้างอิง: ${json.area?.district || "-"}`;
           setStatus("ไม่พบผลลัพธ์", "warn");
         } else {
           const modeText = json.mode === "fallback"
