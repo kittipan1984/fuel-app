@@ -1,4 +1,14 @@
 {
-  "ok": false,
-  "error": "Exception: Bandwidth quota exceeded: https://wabi-south-east-asia-b-primary-api.analysis.windows.net/public/reports/querydata?synchronous=true. Try reducing the rate of data transfer."
+  "ok": true,
+  "updated_at": "2026-04-22T08:58:03.450Z",
+  "source_label": "Public Fuel Data",
+  "mode": "no_match",
+  "area": {
+    "province": "",
+    "district": ""
+  },
+  "rows_total": 1,
+  "geocoded_count": 1,
+  "nearby": [],
+  "note": "geocoded stations exist but none within fallback distance"
 }
