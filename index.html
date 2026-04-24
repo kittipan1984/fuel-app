@@ -1,545 +1,232 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fuel Finder</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<title>Fuel Finder</title>
 
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #eef4fb;
-      color: #0f172a;
-    }
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
-    header {
-      background: #0f172a;
-      color: white;
-      padding: 16px;
-      position: sticky;
-      top: 0;
-      z-index: 999;
-    }
+<style>
+body { margin:0; font-family:Arial; background:#eef4fb; }
+header { background:#0f172a; color:#fff; padding:14px; }
+.wrap { max-width:1100px; margin:auto; padding:12px; }
 
-    .wrap {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 14px;
-    }
+.card {
+  background:#fff;
+  border-radius:18px;
+  padding:14px;
+  margin-bottom:12px;
+}
 
-    .hero {
-      background: linear-gradient(135deg, #0f172a, #1e3a8a);
-      color: white;
-      border-radius: 24px;
-      padding: 20px;
-      margin-bottom: 14px;
-    }
+.controls { display:grid; gap:8px; }
 
-    .hero h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
-    }
+button {
+  padding:12px;
+  border-radius:12px;
+  border:none;
+  cursor:pointer;
+  font-weight:700;
+}
 
-    .card {
-      background: white;
-      border-radius: 22px;
-      padding: 16px;
-      margin-bottom: 14px;
-      box-shadow: 0 10px 25px rgba(15,23,42,.08);
-    }
+.btn { background:#2563eb; color:#fff; }
+.btn2 { background:#e2e8f0; }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
+#map { height:420px; border-radius:16px; }
 
-    .controls {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
+.station {
+  border:1px solid #e2e8f0;
+  border-radius:14px;
+  padding:12px;
+  margin-bottom:10px;
+}
 
-    input, select, button {
-      width: 100%;
-      padding: 13px;
-      border-radius: 14px;
-      border: 1px solid #cbd5e1;
-      font-size: 15px;
-    }
+.station-name { font-weight:900; }
+.distance { font-weight:900; color:#1e40af; }
 
-    button {
-      border: none;
-      font-weight: 800;
-      cursor: pointer;
-    }
+.fuel-grid {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:6px;
+  margin-top:8px;
+}
 
-    .btn {
-      background: #2563eb;
-      color: white;
-    }
+.fuel {
+  color:#fff;
+  border-radius:8px;
+  padding:6px;
+  font-size:11px;
+  text-align:center;
+}
 
-    .btn2 {
-      background: #e2e8f0;
-      color: #0f172a;
-    }
-
-    .status {
-      padding: 12px;
-      border-radius: 14px;
-      background: #f8fafc;
-      margin-bottom: 14px;
-      white-space: pre-wrap;
-      font-weight: 700;
-    }
-
-    .ok { background: #dcfce7; color: #166534; }
-    .warn { background: #ffedd5; color: #9a3412; }
-    .err { background: #fee2e2; color: #991b1b; }
-
-    #map {
-      width: 100%;
-      height: 430px;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid #cbd5e1;
-    }
-
-    .station {
-      border: 1px solid #e2e8f0;
-      border-radius: 18px;
-      padding: 14px;
-      margin-bottom: 12px;
-      background: #fff;
-    }
-
-    .station-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
-    .station-name {
-      font-size: 18px;
-      font-weight: 900;
-    }
-
-    .distance {
-      background: #dbeafe;
-      color: #1e3a8a;
-      border-radius: 999px;
-      padding: 7px 10px;
-      font-size: 13px;
-      font-weight: 900;
-      white-space: nowrap;
-    }
-
-    .meta {
-      font-size: 13px;
-      color: #475569;
-      line-height: 1.6;
-      margin-bottom: 10px;
-    }
-
-    .fuel-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .fuel {
-      color: white;
-      border-radius: 12px;
-      padding: 10px 6px;
-      text-align: center;
-      font-size: 12px;
-      font-weight: 800;
-      min-height: 58px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
-
-    .actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-
-    .actions a, .actions button {
-      flex: 1 1 140px;
-      text-align: center;
-      background: #0f172a;
-      color: white;
-      text-decoration: none;
-      padding: 12px;
-      border-radius: 12px;
-      font-weight: 800;
-      border: none;
-    }
-
-    .empty {
-      padding: 24px;
-      text-align: center;
-      color: #64748b;
-      border: 1px dashed #cbd5e1;
-      border-radius: 18px;
-      background: #f8fafc;
-      white-space: pre-wrap;
-    }
-
-    @media (max-width: 900px) {
-      .grid { grid-template-columns: 1fr; }
-      .controls { grid-template-columns: 1fr; }
-      .fuel-grid { grid-template-columns: 1fr 1fr; }
-      #map { height: 330px; }
-      .station-top { flex-direction: column; }
-    }
-  </style>
+.ok { background:#dcfce7; }
+.err { background:#fee2e2; }
+</style>
 </head>
 
 <body>
-  <header>
-    <strong>Fuel Finder</strong> — Real Nearby from Public Fuel Data
-  </header>
 
-  <main class="wrap">
-    <section class="hero">
-      <h1>ค้นหาปั๊มน้ำมันใกล้คุณ</h1>
-      <div>ใช้ตำแหน่งปัจจุบัน → ดึงข้อมูลจริง → คำนวณรัศมีจริง</div>
-    </section>
+<header>Fuel Finder (Real Data)</header>
 
-    <div id="statusBox" class="status">พร้อมใช้งาน</div>
+<div class="wrap">
 
-    <section class="grid">
-      <div class="card">
-        <h2>แผนที่</h2>
+<div id="statusBox" class="card">Ready</div>
 
-        <div class="controls">
-          <input id="latInput" type="number" step="any" placeholder="Latitude" />
-          <input id="lngInput" type="number" step="any" placeholder="Longitude" />
-        </div>
+<div class="card">
+  <div class="controls">
+    <input id="latInput" placeholder="Lat"/>
+    <input id="lngInput" placeholder="Lng"/>
 
-        <div class="controls">
-          <button class="btn" id="gpsBtn">ใช้ตำแหน่งฉัน</button>
-          <button class="btn2" id="demoBtn">ใช้พิกัดทดสอบระยอง</button>
-        </div>
+    <button class="btn" id="gpsBtn">ใช้ตำแหน่งฉัน</button>
+    <button class="btn2" id="demoBtn">Demo ระยอง</button>
 
-        <div class="controls">
-          <select id="radiusInput">
-            <option value="5">5 km</option>
-            <option value="10">10 km</option>
-            <option value="20">20 km</option>
-            <option value="50" selected>50 km</option>
-            <option value="100">100 km</option>
-          </select>
+    <select id="radiusInput">
+      <option value="5">5 km</option>
+      <option value="10">10 km</option>
+      <option value="20">20 km</option>
+      <option value="50" selected>50 km</option>
+      <option value="100">100 km</option>
+    </select>
 
-          <select id="brandFilter">
-            <option value="all">ทุกแบรนด์</option>
-            <option value="ptt">PTT</option>
-            <option value="bangchak">Bangchak</option>
-            <option value="shell">Shell</option>
-            <option value="pt">PT</option>
-            <option value="other">อื่น ๆ</option>
-          </select>
-        </div>
+    <button class="btn" id="findBtn">ค้นหา</button>
+  </div>
 
-        <button class="btn" id="findBtn">ค้นหาปั๊มใกล้ฉัน</button>
+  <div id="map"></div>
+</div>
 
-        <p id="coordText">พิกัด: -</p>
+<div class="card">
+  <div id="summaryText">-</div>
+  <div id="resultList"></div>
+</div>
 
-        <div id="map"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbwAS-C3MHwQkx4LddehRuraWoHp0tAlE3w5PiMObNfWyID2P2fZtwf_D2f0TGFhh-AP9A/exec";
+
+let map, markers=[], userMarker;
+let currentLat = 12.712261;
+let currentLng = 101.208075;
+
+function fuelColor(v){
+  if(v==="ปกติ") return "#16a34a";
+  if(v==="หมด") return "#dc2626";
+  return "#64748b";
+}
+
+function setStatus(t){
+  document.getElementById("statusBox").innerText=t;
+}
+
+function initMap(){
+  map = L.map('map').setView([currentLat,currentLng],12);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19
+  }).addTo(map);
+
+  userMarker = L.marker([currentLat,currentLng]).addTo(map);
+}
+
+function clearMarkers(){
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
+  if(userMarker) map.removeLayer(userMarker);
+}
+
+function addUser(){
+  userMarker = L.marker([currentLat,currentLng]).addTo(map);
+}
+
+function render(stations){
+  const el = document.getElementById("resultList");
+  el.innerHTML="";
+
+  stations.forEach(s=>{
+    const div=document.createElement("div");
+    div.className="station";
+
+    div.innerHTML=`
+      <div class="station-name">${s.name}</div>
+      <div class="distance">${s.distanceKm} km</div>
+
+      <div>${s.province} / ${s.district}</div>
+
+      <div class="fuel-grid">
+        <div class="fuel" style="background:${fuelColor(s.g95)}">G95<br>${s.g95}</div>
+        <div class="fuel" style="background:${fuelColor(s.diesel)}">Diesel<br>${s.diesel}</div>
+        <div class="fuel" style="background:${fuelColor(s.g91)}">G91<br>${s.g91}</div>
+        <div class="fuel" style="background:${fuelColor(s.e20)}">E20<br>${s.e20}</div>
+        <div class="fuel" style="background:${fuelColor(s.e85)}">E85<br>${s.e85}</div>
       </div>
+    `;
 
-      <div class="card">
-        <h2>ผลลัพธ์</h2>
-        <div id="summaryText">ยังไม่มีผลลัพธ์</div>
-        <hr />
-        <div id="resultList">
-          <div class="empty">กด “ค้นหาปั๊มใกล้ฉัน” เพื่อเริ่มต้น</div>
-        </div>
-      </div>
-    </section>
-  </main>
+    el.appendChild(div);
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    const m = L.marker([s.lat,s.lng]).addTo(map);
+    m.bindPopup(s.name);
+    markers.push(m);
+  });
+}
 
-  <script>
-    const NEARBY_API = "https://script.google.com/macros/s/AKfycbwAS-C3MHwQkx4LddehRuraWoHp0tAlE3w5PiMObNfWyID2P2fZtwf_D2f0TGFhh-AP9A/exec";
+async function find(){
+  try{
+    currentLat = Number(latInput.value);
+    currentLng = Number(lngInput.value);
 
-    const DEFAULT_LAT = 12.712261;
-    const DEFAULT_LNG = 101.208075;
+    const r = radiusInput.value;
 
-    let currentLat = DEFAULT_LAT;
-    let currentLng = DEFAULT_LNG;
-    let map;
-    let userMarker;
-    let markers = [];
-    let latestStations = [];
+    setStatus("loading...");
 
-    const statusBox = document.getElementById("statusBox");
-    const latInput = document.getElementById("latInput");
-    const lngInput = document.getElementById("lngInput");
-    const radiusInput = document.getElementById("radiusInput");
-    const brandFilter = document.getElementById("brandFilter");
-    const coordText = document.getElementById("coordText");
-    const resultList = document.getElementById("resultList");
-    const summaryText = document.getElementById("summaryText");
+    const res = await fetch(`${API}?action=nearby&lat=${currentLat}&lng=${currentLng}&radius_km=${r}`);
+    const json = await res.json();
 
-    function setStatus(text, type = "") {
-      statusBox.className = "status " + type;
-      statusBox.textContent = text;
-    }
+    if(!json.ok) throw "api error";
 
-    function escapeHtml(v) {
-      return String(v ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
+    clearMarkers();
+    addUser();
 
-    function updateCoord() {
-      latInput.value = currentLat.toFixed(6);
-      lngInput.value = currentLng.toFixed(6);
-      coordText.textContent = `พิกัด: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
-    }
+    render(json.nearby);
 
-    function initMap() {
-      map = L.map("map").setView([currentLat, currentLng], 12);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors"
-      }).addTo(map);
+    setStatus("ok");
 
-      setUserMarker();
-    }
+    document.getElementById("summaryText").innerText =
+      `พบ ${json.nearby.length} ปั๊ม`;
 
-    function clearMarkers() {
-      markers.forEach(m => map.removeLayer(m));
-      markers = [];
-      if (userMarker) {
-        map.removeLayer(userMarker);
-        userMarker = null;
-      }
-    }
+  }catch(e){
+    setStatus("error "+e);
+  }
+}
 
-    function setUserMarker() {
-      userMarker = L.marker([currentLat, currentLng]).addTo(map);
-      userMarker.bindPopup("<b>ตำแหน่งของคุณ</b>");
-    }
+gpsBtn.onclick=()=>{
+  navigator.geolocation.getCurrentPosition(p=>{
+    currentLat=p.coords.latitude;
+    currentLng=p.coords.longitude;
+    latInput.value=currentLat;
+    lngInput.value=currentLng;
+    map.setView([currentLat,currentLng],13);
+  });
+};
 
-    function fuelColor(v) {
-      const t = String(v || "").trim();
-      if (t === "ปกติ") return "#16a34a";
-      if (t === "หมด") return "#dc2626";
-      if (t === "ไม่ระบุ") return "#64748b";
-      if (t === "ไม่พบข้อมูล") return "#64748b";
-      return "#64748b";
-    }
+demoBtn.onclick=()=>{
+  currentLat=12.712261;
+  currentLng=101.208075;
+  latInput.value=currentLat;
+  lngInput.value=currentLng;
+  map.setView([currentLat,currentLng],12);
+};
 
-    function fuelCell(label, value) {
-      return `
-        <div class="fuel" style="background:${fuelColor(value)}">
-          <div>${label}</div>
-          <div>${escapeHtml(value || "ไม่ระบุ")}</div>
-        </div>
-      `;
-    }
+findBtn.onclick=find;
 
-    function directionsUrl(s) {
-      return `https://www.google.com/maps/dir/?api=1&origin=${currentLat},${currentLng}&destination=${s.lat},${s.lng}&travelmode=driving`;
-    }
+window.onload=()=>{
+  latInput.value=currentLat;
+  lngInput.value=currentLng;
+  initMap();
+};
+</script>
 
-    function googleMapUrl(s) {
-      return s.googleMapsLink || `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`;
-    }
-
-    function renderStations(stations) {
-      resultList.innerHTML = "";
-
-      if (!stations.length) {
-        resultList.innerHTML = `<div class="empty">ไม่พบปั๊มในเงื่อนไขปัจจุบัน</div>`;
-        return;
-      }
-
-      stations.forEach(s => {
-        const el = document.createElement("div");
-        el.className = "station";
-        el.innerHTML = `
-          <div class="station-top">
-            <div class="station-name">${escapeHtml(s.name || "-")}</div>
-            <div class="distance">${Number(s.distanceKm || 0).toFixed(2)} km</div>
-          </div>
-
-          <div class="meta">
-            แบรนด์: ${escapeHtml(s.brandLabel || s.brand || "-")}<br>
-            จังหวัด: ${escapeHtml(s.province || "-")}<br>
-            อำเภอ: ${escapeHtml(s.district || "-")}<br>
-            พิกัด: ${Number(s.lat).toFixed(6)}, ${Number(s.lng).toFixed(6)}
-          </div>
-
-          <div class="actions">
-            <a href="${directionsUrl(s)}" target="_blank" rel="noopener noreferrer">นำทาง</a>
-            <a href="${googleMapUrl(s)}" target="_blank" rel="noopener noreferrer">เปิดแผนที่</a>
-          </div>
-
-          <div class="fuel-grid">
-            ${fuelCell("Diesel", s.diesel)}
-            ${fuelCell("G95", s.g95)}
-            ${fuelCell("G91", s.g91)}
-            ${fuelCell("E20", s.e20)}
-            ${fuelCell("E85", s.e85)}
-          </div>
-        `;
-        resultList.appendChild(el);
-      });
-    }
-
-    function renderMarkers(stations) {
-      clearMarkers();
-      setUserMarker();
-
-      stations.forEach(s => {
-        const marker = L.marker([s.lat, s.lng]).addTo(map);
-        marker.bindPopup(`
-          <b>${escapeHtml(s.name || "-")}</b><br>
-          ${Number(s.distanceKm || 0).toFixed(2)} km<br>
-          ${escapeHtml(s.province || "-")} / ${escapeHtml(s.district || "-")}<br>
-          <a href="${directionsUrl(s)}" target="_blank">นำทาง</a>
-        `);
-        markers.push(marker);
-      });
-
-      if (stations.length) {
-        const bounds = L.latLngBounds(stations.map(s => [s.lat, s.lng]));
-        bounds.extend([currentLat, currentLng]);
-        map.fitBounds(bounds.pad(0.18));
-      } else {
-        map.setView([currentLat, currentLng], 12);
-      }
-    }
-
-    async function findNearby() {
-      try {
-        currentLat = Number(latInput.value);
-        currentLng = Number(lngInput.value);
-
-        if (!Number.isFinite(currentLat) || !Number.isFinite(currentLng)) {
-          throw new Error("กรุณาใส่พิกัด หรือกดใช้ตำแหน่งฉัน");
-        }
-
-        const radiusKm = Number(radiusInput.value || 50);
-        const selectedBrand = brandFilter.value;
-
-        updateCoord();
-        setStatus("กำลังดึงข้อมูลจริงและคำนวณรัศมี...", "");
-        summaryText.textContent = "กำลังค้นหา...";
-        resultList.innerHTML = `<div class="empty">กำลังโหลดข้อมูล...</div>`;
-
-        const url =
-          `${NEARBY_API}?action=nearby`
-          + `&lat=${encodeURIComponent(currentLat)}`
-          + `&lng=${encodeURIComponent(currentLng)}`
-          + `&radius_km=${encodeURIComponent(radiusKm)}`
-          + `&t=${Date.now()}`;
-
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("API HTTP " + res.status);
-
-        const json = await res.json();
-        if (!json.ok) throw new Error(json.error || "API error");
-
-        let stations = json.nearby || [];
-
-        if (selectedBrand !== "all") {
-          stations = stations.filter(s => s.brand === selectedBrand);
-        }
-
-        latestStations = stations;
-
-        renderStations(stations);
-        renderMarkers(stations);
-
-        summaryText.textContent =
-          `พบ ${stations.length} ปั๊ม | radius ${json.radius_km} km | mode: ${json.mode}\n`
-          + `rows_total: ${json.rows_total} | with_location: ${json.with_location}`;
-
-        setStatus("ค้นหาสำเร็จ", "ok");
-
-      } catch (err) {
-        console.error(err);
-        setStatus("ค้นหาล้มเหลว: " + (err.message || String(err)), "err");
-        summaryText.textContent = "เกิดข้อผิดพลาด";
-        resultList.innerHTML = `<div class="empty">${escapeHtml(err.message || String(err))}</div>`;
-      }
-    }
-
-    function useGPS() {
-      if (!navigator.geolocation) {
-        setStatus("อุปกรณ์นี้ไม่รองรับ GPS", "warn");
-        return;
-      }
-
-      setStatus("กำลังขอตำแหน่ง...", "");
-
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          currentLat = pos.coords.latitude;
-          currentLng = pos.coords.longitude;
-          updateCoord();
-          clearMarkers();
-          setUserMarker();
-          map.setView([currentLat, currentLng], 13);
-          setStatus("ได้ตำแหน่งแล้ว กดค้นหาได้เลย", "ok");
-        },
-        err => {
-          setStatus("ขอตำแหน่งไม่สำเร็จ: " + err.message, "warn");
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 12000,
-          maximumAge: 0
-        }
-      );
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      updateCoord();
-      initMap();
-
-      document.getElementById("gpsBtn").addEventListener("click", useGPS);
-
-      document.getElementById("demoBtn").addEventListener("click", () => {
-        currentLat = DEFAULT_LAT;
-        currentLng = DEFAULT_LNG;
-        updateCoord();
-        clearMarkers();
-        setUserMarker();
-        map.setView([currentLat, currentLng], 12);
-        setStatus("ใช้พิกัดทดสอบระยองแล้ว", "ok");
-      });
-
-      document.getElementById("findBtn").addEventListener("click", findNearby);
-
-      radiusInput.addEventListener("change", () => {
-        if (latestStations.length) findNearby();
-      });
-
-      brandFilter.addEventListener("change", () => {
-        if (latestStations.length) findNearby();
-      });
-    });
-  </script>
 </body>
 </html>
