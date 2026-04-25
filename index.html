@@ -61,7 +61,8 @@ function showBox(id, message) {
 }
 
 function getRadiusKm() {
-  const raw = Number(radiusInput.value || 50);
+  const el = document.getElementById("radiusInput");
+  const raw = Number(el?.value || 50);
   if (!Number.isFinite(raw)) return 50;
   return raw > 500 ? raw / 1000 : raw;
 }
@@ -90,9 +91,13 @@ function updateDashboard(found = 0, searchStatus = "Ready") {
 }
 
 function updateCoordText() {
-  coordText.textContent = `พิกัดปัจจุบัน: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
-  latInput.value = currentLat.toFixed(6);
-  lngInput.value = currentLng.toFixed(6);
+  const coordEl = document.getElementById("coordText");
+  const latEl = document.getElementById("latInput");
+  const lngEl = document.getElementById("lngInput");
+
+  if (coordEl) coordEl.textContent = `พิกัดปัจจุบัน: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+  if (latEl) latEl.value = currentLat.toFixed(6);
+  if (lngEl) lngEl.value = currentLng.toFixed(6);
 }
 
 function escapeHtml(text) {
@@ -421,7 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
       await findNearbyStations();
     });
 
-    radiusInput.addEventListener("change", () => {
+    document.getElementById("radiusInput")?.addEventListener("change", () => {
       const el = document.getElementById("heroRadius");
       if (el) el.textContent = getRadiusKm() + " กม.";
     });
