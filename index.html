@@ -1,232 +1,1455 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Fuel Finder</title>
 
-<title>Fuel Finder</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root{
+      --bg:#edf3fb;
+      --bg2:#f8fbff;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:#dbe4ef;
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --green:#16a34a;
+      --green2:#059669;
+      --dark:#0b1220;
+      --lightText:#eef4ff;
+      --lightMuted:#b8cae8;
+      --shadow:0 12px 30px rgba(15,23,42,.08);
+      --shadow-strong:0 18px 45px rgba(2,8,23,.22);
+      --header-h:72px;
+    }
 
-<style>
-body { margin:0; font-family:Arial; background:#eef4fb; }
-header { background:#0f172a; color:#fff; padding:14px; }
-.wrap { max-width:1100px; margin:auto; padding:12px; }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:Arial, Helvetica, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.08), transparent 22%),
+        radial-gradient(circle at top right, rgba(34,211,238,.08), transparent 18%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+    }
 
-.card {
-  background:#fff;
-  border-radius:18px;
-  padding:14px;
-  margin-bottom:12px;
-}
+    a{color:inherit;text-decoration:none}
 
-.controls { display:grid; gap:8px; }
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:9999;
+      height:var(--header-h);
+      background:rgba(11,18,32,.90);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      box-shadow:0 8px 24px rgba(2,8,23,.18);
+    }
 
-button {
-  padding:12px;
-  border-radius:12px;
-  border:none;
-  cursor:pointer;
-  font-weight:700;
-}
+    .topbar-inner{
+      max-width:1180px;
+      height:100%;
+      margin:0 auto;
+      padding:0 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
 
-.btn { background:#2563eb; color:#fff; }
-.btn2 { background:#e2e8f0; }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
 
-#map { height:420px; border-radius:16px; }
+    .avatar-wrap{
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      overflow:hidden;
+      flex:0 0 auto;
+      background:#fff;
+      border:2px solid rgba(255,255,255,.16);
+      box-shadow:0 0 18px rgba(34,211,238,.16);
+    }
 
-.station {
-  border:1px solid #e2e8f0;
-  border-radius:14px;
-  padding:12px;
-  margin-bottom:10px;
-}
+    .avatar-wrap img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
 
-.station-name { font-weight:900; }
-.distance { font-weight:900; color:#1e40af; }
+    .brand-title{
+      color:#fff;
+      font-size:21px;
+      font-weight:900;
+      line-height:1.1;
+    }
 
-.fuel-grid {
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:6px;
-  margin-top:8px;
-}
+    .brand-sub{
+      color:var(--lightMuted);
+      font-size:12px;
+      margin-top:4px;
+    }
 
-.fuel {
-  color:#fff;
-  border-radius:8px;
-  padding:6px;
-  font-size:11px;
-  text-align:center;
-}
+    .topbar-right{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
 
-.ok { background:#dcfce7; }
-.err { background:#fee2e2; }
-</style>
+    .mini-pill{
+      padding:7px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.06);
+      color:#e7efff;
+      font-size:12px;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .app{
+      max-width:1180px;
+      margin:0 auto;
+      padding:14px;
+      padding-bottom:90px;
+    }
+
+    .hero{
+      background:
+        radial-gradient(circle at 85% 20%, rgba(34,211,238,.18), transparent 16%),
+        radial-gradient(circle at 15% 10%, rgba(59,130,246,.16), transparent 18%),
+        linear-gradient(135deg,#0f172a,#172554 70%, #0f172a);
+      color:#fff;
+      border-radius:28px;
+      padding:18px;
+      box-shadow:var(--shadow-strong);
+      margin-bottom:14px;
+      overflow:hidden;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:14px;
+      align-items:stretch;
+    }
+
+    .hero-kicker{
+      display:inline-flex;
+      align-items:center;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:900;
+      color:#dce8ff;
+      margin-bottom:12px;
+    }
+
+    .hero-title{
+      margin:0 0 10px;
+      font-size:30px;
+      line-height:1.08;
+      font-weight:900;
+      letter-spacing:-.02em;
+    }
+
+    .hero-desc{
+      margin:0;
+      color:#d8e5ff;
+      font-size:14px;
+      line-height:1.7;
+      max-width:62ch;
+    }
+
+    .hero-stats{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+    }
+
+    .hero-stat{
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;
+      padding:14px;
+    }
+
+    .hero-stat-label{
+      font-size:11px;
+      color:#bfd2f3;
+      margin-bottom:8px;
+    }
+
+    .hero-stat-value{
+      font-size:20px;
+      font-weight:900;
+      color:#fff;
+      line-height:1.15;
+      margin-bottom:4px;
+      word-break:break-word;
+    }
+
+    .hero-stat-sub{
+      font-size:11px;
+      color:#cfddf5;
+    }
+
+    .status{
+      margin-bottom:14px;
+      padding:12px 14px;
+      border-radius:16px;
+      font-size:14px;
+      font-weight:800;
+      border:1px solid var(--line);
+      background:#f8fbff;
+      color:#334155;
+      box-shadow:var(--shadow);
+      white-space:pre-wrap;
+    }
+
+    .status.ok{
+      background:#ecfdf5;
+      border-color:#bbf7d0;
+      color:#166534;
+    }
+
+    .status.warn{
+      background:#fff7ed;
+      border-color:#fed7aa;
+      color:#9a3412;
+    }
+
+    .status.error{
+      background:#fef2f2;
+      border-color:#fecaca;
+      color:#991b1b;
+    }
+
+    .section{ margin-bottom:14px; }
+
+    .card{
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(219,228,239,.95);
+      border-radius:26px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .card.dark{
+      background:linear-gradient(180deg,#111827,#172033);
+      color:var(--lightText);
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:var(--shadow-strong);
+    }
+
+    .card-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+
+    .card-title{
+      margin:0;
+      font-size:20px;
+      font-weight:900;
+    }
+
+    .card-sub{
+      margin:0 0 10px;
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .dark .card-sub{ color:#bfd0ec; }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 12px;
+      border-radius:999px;
+      background:#f7fbff;
+      border:1px solid #dce7f3;
+      color:#334155;
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .dark .badge{
+      background:rgba(255,255,255,.08);
+      border-color:rgba(255,255,255,.08);
+      color:#dce8ff;
+    }
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+    }
+
+    .summary-box{
+      background:linear-gradient(180deg,#ffffff,#f7fbff);
+      border:1px solid #e1eaf3;
+      border-radius:18px;
+      padding:14px;
+      min-width:0;
+    }
+
+    .summary-label{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
+    .summary-value{
+      font-size:20px;
+      font-weight:900;
+      line-height:1.1;
+      word-break:break-word;
+    }
+
+    .meta-note{
+      margin-top:12px;
+      font-size:12px;
+      color:#64748b;
+      line-height:1.7;
+      white-space:pre-wrap;
+    }
+
+    .main-grid{
+      display:grid;
+      grid-template-columns:1.04fr .96fr;
+      gap:14px;
+    }
+
+    .controls{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .controls-2{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    input, select, textarea, button{
+      font:inherit;
+    }
+
+    .input, .select, textarea{
+      width:100%;
+      border:1px solid #cfdae8;
+      border-radius:15px;
+      padding:13px 14px;
+      background:#fff;
+      color:var(--text);
+      outline:none;
+      transition:.18s ease;
+    }
+
+    .input:focus, .select:focus, textarea:focus{
+      border-color:#93c5fd;
+      box-shadow:0 0 0 4px rgba(59,130,246,.12);
+    }
+
+    button{
+      border:none;
+      border-radius:15px;
+      padding:13px 15px;
+      font-weight:900;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+
+    button:hover{ transform:translateY(-1px); }
+
+    .btn-primary{
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:#fff;
+      box-shadow:0 10px 20px rgba(37,99,235,.18);
+    }
+
+    .btn-ghost{
+      background:#e9eff7;
+      color:#0f172a;
+    }
+
+    .btn-green{
+      background:linear-gradient(135deg,var(--green),var(--green2));
+      color:#fff;
+      box-shadow:0 10px 20px rgba(5,150,105,.16);
+    }
+
+    .btn-link{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:46px;
+      padding:0 15px;
+      border-radius:15px;
+      font-size:14px;
+      font-weight:900;
+      text-decoration:none;
+      background:linear-gradient(135deg,#2563eb,#1d4ed8);
+      color:#fff;
+      box-shadow:0 10px 20px rgba(37,99,235,.16);
+      border:none;
+      cursor:pointer;
+      text-align:center;
+    }
+
+    .btn-link.secondary{
+      background:linear-gradient(135deg,#0f172a,#334155);
+    }
+
+    .helper{
+      font-size:12px;
+      color:#c5d3eb;
+      line-height:1.7;
+      margin-bottom:10px;
+      white-space:pre-wrap;
+    }
+
+    #map{
+      width:100%;
+      height:430px;
+      border-radius:22px;
+      border:1px solid #d9e4f0;
+      overflow:hidden;
+      background:#e5eef9;
+      display:block;
+    }
+
+    .results-top{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+
+    .result-summary{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+      white-space:pre-wrap;
+    }
+
+    .station-list{
+      display:grid;
+      gap:12px;
+    }
+
+    .station{
+      border:1px solid #e3ebf4;
+      background:linear-gradient(180deg,#ffffff,#fbfdff);
+      border-radius:22px;
+      padding:14px;
+      box-shadow:0 8px 20px rgba(15,23,42,.04);
+    }
+
+    .station-top{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      margin-bottom:8px;
+    }
+
+    .station-name{
+      font-size:17px;
+      font-weight:900;
+      line-height:1.35;
+    }
+
+    .distance{
+      white-space:nowrap;
+      padding:7px 10px;
+      background:#e0ecff;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      color:#0f172a;
+    }
+
+    .brand-row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:8px;
+    }
+
+    .brand-badge{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      border:1px solid #dce6f1;
+      background:#f8fafc;
+      color:#334155;
+    }
+
+    .meta{
+      font-size:12px;
+      color:#475569;
+      line-height:1.7;
+      margin-bottom:10px;
+    }
+
+    .action-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:4px;
+    }
+
+    .action-row > *{
+      flex:1 1 160px;
+    }
+
+    .helper-box{
+      margin-top:10px;
+      padding:12px;
+      border-radius:14px;
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+    }
+
+    .helper-title{
+      font-weight:800;
+      margin-bottom:6px;
+      font-size:13px;
+    }
+
+    .helper-text{
+      font-size:12px;
+      color:#475569;
+      line-height:1.6;
+    }
+
+    .helper-name{
+      margin-top:8px;
+      font-weight:800;
+      font-size:14px;
+      color:#0f172a;
+    }
+
+    .helper-actions{
+      display:flex;
+      gap:6px;
+      margin-top:10px;
+      flex-wrap:wrap;
+    }
+
+    .mini-btn{
+      border:none;
+      border-radius:10px;
+      background:#0ea5e9;
+      color:#fff;
+      font-weight:700;
+      padding:10px 12px;
+      cursor:pointer;
+      font-size:12px;
+    }
+
+    .mini-btn.green{
+      background:#22c55e;
+    }
+
+    .live-box{
+      margin-top:10px;
+      padding:12px;
+      border-radius:14px;
+      background:#0f172a;
+      color:#fff;
+      border:none;
+      min-height:96px;
+    }
+
+    .live-title{
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:8px;
+      color:#fff;
+    }
+
+    .live-grid{
+      display:grid;
+      grid-template-columns:repeat(5, 1fr);
+      gap:8px;
+    }
+
+    .fuel-pill{
+      padding:10px 8px;
+      border-radius:10px;
+      text-align:center;
+      font-size:12px;
+      font-weight:800;
+      color:#fff;
+      min-height:58px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      line-height:1.35;
+    }
+
+    .fuel-sub{
+      margin-top:8px;
+      font-size:10px;
+      color:#cbd5e1;
+      text-align:right;
+      line-height:1.4;
+    }
+
+    .field{ margin-top:12px; }
+
+    .field label{
+      display:block;
+      margin-bottom:6px;
+      font-size:13px;
+      font-weight:800;
+      color:#334155;
+    }
+
+    textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    .error-box{
+      margin-top:10px;
+      padding:11px 12px;
+      border-radius:14px;
+      background:#fef2f2;
+      color:#991b1b;
+      border:1px solid #fecaca;
+      display:none;
+      white-space:pre-wrap;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .ok-box{
+      margin-top:10px;
+      padding:11px 12px;
+      border-radius:14px;
+      background:#ecfdf5;
+      color:#166534;
+      border:1px solid #bbf7d0;
+      display:none;
+      white-space:pre-wrap;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .empty{
+      text-align:center;
+      padding:24px 14px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+      border:1px dashed #d7e1ec;
+      border-radius:20px;
+      background:#fbfdff;
+      white-space:pre-wrap;
+    }
+
+    .bottom-nav{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:12px;
+      z-index:9998;
+      width:min(520px, calc(100% - 20px));
+      background:rgba(11,18,32,.92);
+      backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 14px 34px rgba(2,8,23,.28);
+      border-radius:22px;
+      padding:8px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+    }
+
+    .nav-btn{
+      border:none;
+      border-radius:16px;
+      background:rgba(255,255,255,.06);
+      color:#e8f0ff;
+      font-weight:900;
+      font-size:12px;
+      padding:12px 10px;
+      cursor:pointer;
+    }
+
+    .nav-btn.active{
+      background:linear-gradient(135deg,var(--blue),var(--blue2));
+      color:#fff;
+    }
+
+    #toast{
+      position:fixed;
+      bottom:90px;
+      left:50%;
+      transform:translateX(-50%);
+      background:#0f172a;
+      color:#fff;
+      padding:12px 16px;
+      border-radius:12px;
+      font-weight:700;
+      display:none;
+      z-index:99999;
+      box-shadow:0 10px 30px rgba(0,0,0,0.3);
+      max-width:90%;
+      text-align:center;
+    }
+
+    @media (max-width:1024px){
+      .hero-grid,
+      .main-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width:768px){
+      .topbar-right{ display:none; }
+      .brand-title{ font-size:19px; }
+      .hero{ padding:16px; border-radius:22px; }
+      .hero-title{ font-size:24px; }
+      .hero-stats{ grid-template-columns:repeat(2,1fr); }
+      .controls, .controls-2{ grid-template-columns:1fr; }
+      #map{ height:320px; }
+      .station-top{
+        flex-direction:column;
+        align-items:flex-start;
+      }
+      .distance{ align-self:flex-start; }
+      button{ width:100%; }
+      .action-row{ flex-direction:column; }
+      .action-row > *{ flex:1 1 auto; width:100%; }
+      .btn-link{ width:100%; }
+      .helper-actions{ flex-direction:column; }
+      .mini-btn{ width:100%; }
+      .live-grid{ grid-template-columns:1fr 1fr; }
+    }
+  </style>
 </head>
-
 <body>
-
-<header>Fuel Finder (Real Data)</header>
-
-<div class="wrap">
-
-<div id="statusBox" class="card">Ready</div>
-
-<div class="card">
-  <div class="controls">
-    <input id="latInput" placeholder="Lat"/>
-    <input id="lngInput" placeholder="Lng"/>
-
-    <button class="btn" id="gpsBtn">ใช้ตำแหน่งฉัน</button>
-    <button class="btn2" id="demoBtn">Demo ระยอง</button>
-
-    <select id="radiusInput">
-      <option value="5">5 km</option>
-      <option value="10">10 km</option>
-      <option value="20">20 km</option>
-      <option value="50" selected>50 km</option>
-      <option value="100">100 km</option>
-    </select>
-
-    <button class="btn" id="findBtn">ค้นหา</button>
-  </div>
-
-  <div id="map"></div>
-</div>
-
-<div class="card">
-  <div id="summaryText">-</div>
-  <div id="resultList"></div>
-</div>
-
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<script>
-const API = "https://script.google.com/macros/s/AKfycbwAS-C3MHwQkx4LddehRuraWoHp0tAlE3w5PiMObNfWyID2P2fZtwf_D2f0TGFhh-AP9A/exec";
-
-let map, markers=[], userMarker;
-let currentLat = 12.712261;
-let currentLng = 101.208075;
-
-function fuelColor(v){
-  if(v==="ปกติ") return "#16a34a";
-  if(v==="หมด") return "#dc2626";
-  return "#64748b";
-}
-
-function setStatus(t){
-  document.getElementById("statusBox").innerText=t;
-}
-
-function initMap(){
-  map = L.map('map').setView([currentLat,currentLng],12);
-
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-    maxZoom:19
-  }).addTo(map);
-
-  userMarker = L.marker([currentLat,currentLng]).addTo(map);
-}
-
-function clearMarkers(){
-  markers.forEach(m=>map.removeLayer(m));
-  markers=[];
-  if(userMarker) map.removeLayer(userMarker);
-}
-
-function addUser(){
-  userMarker = L.marker([currentLat,currentLng]).addTo(map);
-}
-
-function render(stations){
-  const el = document.getElementById("resultList");
-  el.innerHTML="";
-
-  stations.forEach(s=>{
-    const div=document.createElement("div");
-    div.className="station";
-
-    div.innerHTML=`
-      <div class="station-name">${s.name}</div>
-      <div class="distance">${s.distanceKm} km</div>
-
-      <div>${s.province} / ${s.district}</div>
-
-      <div class="fuel-grid">
-        <div class="fuel" style="background:${fuelColor(s.g95)}">G95<br>${s.g95}</div>
-        <div class="fuel" style="background:${fuelColor(s.diesel)}">Diesel<br>${s.diesel}</div>
-        <div class="fuel" style="background:${fuelColor(s.g91)}">G91<br>${s.g91}</div>
-        <div class="fuel" style="background:${fuelColor(s.e20)}">E20<br>${s.e20}</div>
-        <div class="fuel" style="background:${fuelColor(s.e85)}">E85<br>${s.e85}</div>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="avatar-wrap">
+          <img src="child-header.png?v=7" alt="Fuel Finder" onerror="this.onerror=null; this.src='https://placehold.co/120x120/png?text=F';">
+        </div>
+        <div>
+          <div class="brand-title">Fuel Finder</div>
+          <div class="brand-sub">By NaraMawin</div>
+        </div>
       </div>
-    `;
 
-    el.appendChild(div);
+      <div class="topbar-right">
+        <div class="mini-pill" id="headerUpdated">Updated: -</div>
+        <div class="mini-pill" id="headerFound">Found: 0</div>
+      </div>
+    </div>
+  </header>
 
-    const m = L.marker([s.lat,s.lng]).addTo(map);
-    m.bindPopup(s.name);
-    markers.push(m);
-  });
-}
+  <main class="app">
+    <section class="hero section" id="section-home">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-kicker">⚡ REAL NEARBY + PUBLIC FUEL DATA</div>
+          <h1 class="hero-title">ค้นหาปั๊มน้ำมันใกล้คุณ</h1>
+          <p class="hero-desc">
+            ใช้ตำแหน่งปัจจุบัน ดึงข้อมูลจาก Public Fuel Data ผ่าน Apps Script แล้วคำนวณรัศมีจริงจากพิกัดของสถานี
+          </p>
+        </div>
 
-async function find(){
-  try{
-    currentLat = Number(latInput.value);
-    currentLng = Number(lngInput.value);
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-label">Updated</div>
+            <div class="hero-stat-value" id="heroUpdated">-</div>
+            <div class="hero-stat-sub">เวลาอัปเดตหน้าจอ</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-label">Search Status</div>
+            <div class="hero-stat-value" id="heroSearchStatus">Ready</div>
+            <div class="hero-stat-sub">สถานะการค้นหา</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-label">Found Stations</div>
+            <div class="hero-stat-value" id="heroFound">0</div>
+            <div class="hero-stat-sub">จำนวนปั๊มที่พบ</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-label">Radius</div>
+            <div class="hero-stat-value" id="heroRadius">50 กม.</div>
+            <div class="hero-stat-sub">ระยะค้นหาปัจจุบัน</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    const r = radiusInput.value;
+    <div id="statusBox" class="status">พร้อมใช้งาน</div>
 
-    setStatus("loading...");
+    <section class="section">
+      <div class="card">
+        <div class="card-head">
+          <h2 class="card-title">Dashboard</h2>
+          <div class="badge">Real Data Mode</div>
+        </div>
 
-    const res = await fetch(`${API}?action=nearby&lat=${currentLat}&lng=${currentLng}&radius_km=${r}`);
-    const json = await res.json();
+        <div class="summary-grid">
+          <div class="summary-box">
+            <div class="summary-label">Updated date time</div>
+            <div class="summary-value" id="summaryUpdated">-</div>
+          </div>
+          <div class="summary-box">
+            <div class="summary-label">Search status</div>
+            <div class="summary-value" id="summarySearch">Ready</div>
+          </div>
+          <div class="summary-box">
+            <div class="summary-label">ผลการค้นหา</div>
+            <div class="summary-value" id="summaryFound">0 ปั๊ม</div>
+          </div>
+        </div>
 
-    if(!json.ok) throw "api error";
+        <div class="meta-note" id="liveMetaNote">
+          Data source: Apps Script → Power BI public report → GoogleMapsLink → radius filter
+        </div>
+      </div>
+    </section>
 
-    clearMarkers();
-    addUser();
+    <section class="section" id="section-map">
+      <div class="main-grid">
+        <div class="card dark">
+          <div class="card-head">
+            <h2 class="card-title">แผนที่และการค้นหา</h2>
+            <div class="badge">Nearby Finder</div>
+          </div>
 
-    render(json.nearby);
+          <p class="card-sub">เลือกตำแหน่ง กำหนดระยะ และค้นหาปั๊มที่ใกล้คุณที่สุดจากข้อมูลจริง</p>
 
-    setStatus("ok");
+          <div class="controls">
+            <input id="latInput" class="input" type="number" step="any" placeholder="Latitude">
+            <input id="lngInput" class="input" type="number" step="any" placeholder="Longitude">
+          </div>
 
-    document.getElementById("summaryText").innerText =
-      `พบ ${json.nearby.length} ปั๊ม`;
+          <div class="controls">
+            <button id="gpsBtn" class="btn-primary" type="button">ใช้ตำแหน่งฉัน</button>
+            <button id="demoBtn" class="btn-ghost" type="button">พิกัดทดสอบระยอง</button>
+          </div>
 
-  }catch(e){
-    setStatus("error "+e);
-  }
-}
+          <div class="controls-2">
+            <select id="radiusInput" class="select">
+              <option value="5">ระยะ 5 กม.</option>
+              <option value="10">ระยะ 10 กม.</option>
+              <option value="20">ระยะ 20 กม.</option>
+              <option value="50" selected>ระยะ 50 กม.</option>
+              <option value="100">ระยะ 100 กม.</option>
+            </select>
 
-gpsBtn.onclick=()=>{
-  navigator.geolocation.getCurrentPosition(p=>{
-    currentLat=p.coords.latitude;
-    currentLng=p.coords.longitude;
-    latInput.value=currentLat;
-    lngInput.value=currentLng;
-    map.setView([currentLat,currentLng],13);
-  });
-};
+            <select id="brandFilter" class="select">
+              <option value="all">ทุกแบรนด์</option>
+              <option value="ptt">PTT</option>
+              <option value="bangchak">Bangchak</option>
+              <option value="shell">Shell</option>
+              <option value="esso">Esso</option>
+              <option value="caltex">Caltex</option>
+              <option value="pt">PT</option>
+              <option value="susco">Susco</option>
+              <option value="irpc">IRPC</option>
+              <option value="other">อื่น ๆ</option>
+            </select>
 
-demoBtn.onclick=()=>{
-  currentLat=12.712261;
-  currentLng=101.208075;
-  latInput.value=currentLat;
-  lngInput.value=currentLng;
-  map.setView([currentLat,currentLng],12);
-};
+            <button id="findBtn" class="btn-primary" type="button">ค้นหาปั๊มใกล้ฉัน</button>
+          </div>
 
-findBtn.onclick=find;
+          <div class="helper" id="coordText">พิกัดปัจจุบัน: -</div>
 
-window.onload=()=>{
-  latInput.value=currentLat;
-  lngInput.value=currentLng;
-  initMap();
-};
-</script>
+          <div id="map"></div>
+        </div>
 
+        <div class="card" id="section-results">
+          <div class="results-top">
+            <h2 class="card-title" style="margin:0;">ผลลัพธ์</h2>
+            <div class="badge" id="countBadge">0 ปั๊ม</div>
+          </div>
+
+          <div class="result-summary" id="summaryText">ยังไม่มีผลลัพธ์</div>
+
+          <div class="station-list" id="resultList" style="margin-top:12px;">
+            <div class="empty">กด “ค้นหาปั๊มใกล้ฉัน” เพื่อเริ่มต้น</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="section-contact">
+      <div class="card">
+        <div class="card-head">
+          <h2 class="card-title">ส่งข้อความถึงฉัน</h2>
+          <div class="badge">Telegram</div>
+        </div>
+
+        <p class="card-sub">กรอกชื่อผู้ส่งและข้อความ แล้วกดส่งได้ทันที</p>
+
+        <div class="field">
+          <label for="senderName">ชื่อ Sender</label>
+          <input id="senderName" class="input" type="text" placeholder="เช่น Kittipan">
+        </div>
+
+        <div class="field">
+          <label for="senderMessage">ข้อความ</label>
+          <textarea id="senderMessage" placeholder="พิมพ์ข้อความที่ต้องการส่ง"></textarea>
+        </div>
+
+        <div class="field">
+          <button id="sendTelegramBtn" class="btn-green" type="button">ส่งข้อความ</button>
+        </div>
+
+        <div id="feedbackError" class="error-box"></div>
+        <div id="feedbackOk" class="ok-box"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Quick navigation">
+    <button class="nav-btn active" data-target="section-home">Home</button>
+    <button class="nav-btn" data-target="section-map">Map</button>
+    <button class="nav-btn" data-target="section-contact">Contact</button>
+  </nav>
+
+  <div id="toast">Copied</div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    const NEARBY_API = "https://script.google.com/macros/s/AKfycbwAS-C3MHwQkx4LddehRuraWoHp0tAlE3w5PiMObNfWyID2P2fZtwf_D2f0TGFhh-AP9A/exec";
+
+    const BOT_TOKEN = "PUT_YOUR_BOT_TOKEN_HERE";
+    const CHAT_ID = "PUT_YOUR_CHAT_ID_HERE";
+
+    const DEFAULT_LAT = 12.712261;
+    const DEFAULT_LNG = 101.208075;
+
+    let map = null;
+    let mapMarkers = [];
+    let userMarker = null;
+    let currentLat = DEFAULT_LAT;
+    let currentLng = DEFAULT_LNG;
+    let filteredStations = [];
+    let lastApiMeta = null;
+
+    const statusBox = document.getElementById("statusBox");
+    const latInput = document.getElementById("latInput");
+    const lngInput = document.getElementById("lngInput");
+    const radiusInput = document.getElementById("radiusInput");
+    const brandFilter = document.getElementById("brandFilter");
+    const resultList = document.getElementById("resultList");
+    const countBadge = document.getElementById("countBadge");
+    const summaryText = document.getElementById("summaryText");
+    const coordText = document.getElementById("coordText");
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.display = "block";
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        t.style.display = "none";
+      }, 2200);
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text || "");
+        showToast("คัดลอกแล้ว: " + text);
+      } catch (_) {
+        showToast("คัดลอกไม่สำเร็จ");
+      }
+    }
+
+    function setStatus(message, type = "") {
+      statusBox.className = "status" + (type ? " " + type : "");
+      statusBox.textContent = message;
+    }
+
+    function showBox(id, message) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.display = message ? "block" : "none";
+      el.textContent = message || "";
+    }
+
+    function updateDashboard(found = 0, searchStatus = "Ready") {
+      const now = new Date();
+      const stamp = now.toLocaleString("th-TH");
+      const radiusKm = getRadiusKm() + " กม.";
+
+      const values = {
+        heroUpdated: stamp,
+        heroSearchStatus: searchStatus,
+        heroFound: String(found),
+        heroRadius: radiusKm,
+        summaryUpdated: stamp,
+        summarySearch: searchStatus,
+        summaryFound: found + " ปั๊ม",
+        headerUpdated: "Updated: " + stamp,
+        headerFound: "Found: " + found
+      };
+
+      Object.keys(values).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = values[id];
+      });
+    }
+
+    function updateCoordText() {
+      coordText.textContent = `พิกัดปัจจุบัน: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+      latInput.value = currentLat.toFixed(6);
+      lngInput.value = currentLng.toFixed(6);
+    }
+
+    function escapeHtml(text) {
+      return String(text ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeJsString(text) {
+      return String(text ?? "")
+        .replaceAll("\\", "\\\\")
+        .replaceAll("'", "\\'")
+        .replaceAll("\n", " ")
+        .replaceAll("\r", " ");
+    }
+
+    function getRadiusKm() {
+      const raw = Number(radiusInput.value || 50);
+      if (!Number.isFinite(raw)) return 50;
+      return raw > 500 ? raw / 1000 : raw;
+    }
+
+    function fuelColor(v) {
+      const text = String(v || "").trim();
+      if (text === "ปกติ") return "#16a34a";
+      if (text === "หมด") return "#dc2626";
+      if (text === "ไม่ระบุ") return "#64748b";
+      if (text === "ไม่พบข้อมูล") return "#64748b";
+      return "#64748b";
+    }
+
+    function fuelCell(label, value) {
+      return `<div class="fuel-pill" style="background:${fuelColor(value)};">${label}<br>${escapeHtml(value || "ไม่ระบุ")}</div>`;
+    }
+
+    function brandLabel(brandKey, stationName) {
+      const mapLabel = {
+        ptt: "PTT",
+        bangchak: "Bangchak",
+        shell: "Shell",
+        esso: "Esso",
+        caltex: "Caltex",
+        pt: "PT",
+        susco: "Susco",
+        irpc: "IRPC",
+        other: stationName || "อื่น ๆ"
+      };
+      return mapLabel[brandKey] || stationName || "อื่น ๆ";
+    }
+
+    function dirLink(s) {
+      return `https://www.google.com/maps/dir/?api=1&origin=${currentLat},${currentLng}&destination=${s.lat},${s.lng}&travelmode=driving`;
+    }
+
+    function googleMapUrl(s) {
+      return s.googleMapsLink || `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`;
+    }
+
+    async function openFuelSmart(name, lat, lng) {
+      await copyText(name);
+      showToast("คัดลอกชื่อปั๊มแล้ว");
+      setTimeout(() => window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, "_blank"), 450);
+    }
+
+    async function openFuelSmartBrand(name, lat, lng, brandKey) {
+      await copyText(name);
+      showToast("คัดลอกชื่อปั๊มแล้ว");
+      setTimeout(() => window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, "_blank"), 450);
+    }
+
+    function initMap() {
+      const mapEl = document.getElementById("map");
+      if (!mapEl) throw new Error("Map container #map not found in HTML");
+      if (typeof L === "undefined") throw new Error("Leaflet library not loaded");
+
+      if (map) {
+        map.remove();
+        map = null;
+      }
+
+      map = L.map(mapEl, { zoomControl: true }).setView([currentLat, currentLng], 12);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors"
+      }).addTo(map);
+
+      addUserMarker(currentLat, currentLng);
+    }
+
+    function clearMapMarkers() {
+      mapMarkers.forEach(m => {
+        if (map && m) map.removeLayer(m);
+      });
+      mapMarkers = [];
+
+      if (userMarker && map) {
+        map.removeLayer(userMarker);
+        userMarker = null;
+      }
+    }
+
+    function addUserMarker(lat, lng) {
+      if (!map) return;
+      userMarker = L.marker([lat, lng]).addTo(map);
+      userMarker.bindPopup("<b>ตำแหน่งของคุณ</b>");
+    }
+
+    function addStationMarkers(stations) {
+      if (!map) return;
+
+      stations.forEach(s => {
+        const marker = L.marker([s.lat, s.lng]).addTo(map);
+        marker.bindPopup(`
+          <b>${escapeHtml(s.name || "-")}</b><br>
+          ระยะทาง: ${Number(s.distanceKm || 0).toFixed(2)} กม.<br>
+          ${escapeHtml(s.province || "-")} / ${escapeHtml(s.district || "-")}<br><br>
+          <a href="${dirLink(s)}" target="_blank">นำทาง</a>
+        `);
+        mapMarkers.push(marker);
+      });
+
+      if (stations.length > 0) {
+        const bounds = L.latLngBounds(stations.map(s => [s.lat, s.lng]));
+        bounds.extend([currentLat, currentLng]);
+        map.fitBounds(bounds.pad(0.15));
+      } else {
+        map.setView([currentLat, currentLng], 13);
+      }
+    }
+
+    function renderLiveBox(station) {
+      return `
+        <div class="live-title">📊 สถานะเชิงอ้างอิง</div>
+        <div class="live-grid">
+          ${fuelCell("G95", station.g95)}
+          ${fuelCell("Diesel", station.diesel)}
+          ${fuelCell("G91", station.g91)}
+          ${fuelCell("E20", station.e20)}
+          ${fuelCell("E85", station.e85)}
+        </div>
+        <div class="fuel-sub">
+          ${lastApiMeta?.updated_at ? `อัปเดต: ${escapeHtml(new Date(lastApiMeta.updated_at).toLocaleString("th-TH"))}` : ""}
+          | Public Fuel Data
+        </div>
+      `;
+    }
+
+    function renderStations(stations) {
+      resultList.innerHTML = "";
+
+      if (!stations.length) {
+        resultList.innerHTML = `<div class="empty">ไม่พบปั๊มในเงื่อนไขปัจจุบัน</div>`;
+        return;
+      }
+
+      stations.forEach(s => {
+        const copyNameJs = escapeJsString(s.name || "-");
+
+        const el = document.createElement("div");
+        el.className = "station";
+        el.innerHTML = `
+          <div class="station-top">
+            <div class="station-name">${escapeHtml(s.name || "-")}</div>
+            <div class="distance">${Number(s.distanceKm || 0).toFixed(2)} กม.</div>
+          </div>
+
+          <div class="brand-row">
+            <div class="brand-badge">${escapeHtml(s.brandLabel || brandLabel(s.brand, s.name))}</div>
+            <div class="brand-badge">ID: ${escapeHtml(s.id || "-")}</div>
+          </div>
+
+          <div class="meta">
+            ที่อยู่: ${escapeHtml(s.address || "-")}<br>
+            จังหวัด: ${escapeHtml(s.province || "-")}<br>
+            อำเภอ: ${escapeHtml(s.district || "-")}<br>
+            พิกัด: ${Number(s.lat).toFixed(6)}, ${Number(s.lng).toFixed(6)}
+          </div>
+
+          <div class="action-row">
+            <a class="btn-link secondary" href="${dirLink(s)}" target="_blank" rel="noopener noreferrer">นำทาง</a>
+            <a class="btn-link" href="${googleMapUrl(s)}" target="_blank" rel="noopener noreferrer">เปิดแผนที่</a>
+            <button class="btn-link" type="button" onclick="openFuelSmart('${copyNameJs}', ${s.lat}, ${s.lng})">Copy + เปิด</button>
+          </div>
+
+          <div class="helper-box">
+            <div class="helper-title">⚡ Smart Search</div>
+            <div class="helper-text">ข้อมูลนี้ดึงจาก Public Fuel Data ผ่าน Apps Script แล้วคำนวณระยะตามพิกัดจริง</div>
+            <div class="helper-name">${escapeHtml(s.name || "-")}</div>
+
+            <div class="helper-actions">
+              <button class="mini-btn" type="button" onclick="copyText('${copyNameJs}')">📋 Copy ชื่อปั๊ม</button>
+              <button class="mini-btn" type="button" onclick="copyText('${escapeJsString(s.province || "")}')">จังหวัด</button>
+              <button class="mini-btn" type="button" onclick="copyText('${escapeJsString(s.district || "")}')">อำเภอ</button>
+              <button class="mini-btn green" type="button" onclick="copyText('${escapeJsString(s.id || "")}')">Copy ID</button>
+            </div>
+          </div>
+
+          <div class="live-box">
+            ${renderLiveBox(s)}
+          </div>
+        `;
+
+        resultList.appendChild(el);
+      });
+    }
+
+    async function findNearbyStations() {
+      try {
+        currentLat = Number(latInput.value);
+        currentLng = Number(lngInput.value);
+
+        if (!Number.isFinite(currentLat) || !Number.isFinite(currentLng)) {
+          throw new Error("กรุณากด 'ใช้ตำแหน่งฉัน' หรือกรอกพิกัดก่อนค้นหา");
+        }
+
+        const radiusKm = getRadiusKm();
+        const selectedBrand = brandFilter.value || "all";
+
+        updateCoordText();
+        updateDashboard(0, "Loading");
+        setStatus("กำลังดึงข้อมูลจริงและคำนวณรัศมี...", "");
+
+        countBadge.textContent = "กำลังค้นหา...";
+        summaryText.textContent = "กำลังโหลดผลลัพธ์";
+        resultList.innerHTML = `<div class="empty">กำลังโหลดข้อมูล...</div>`;
+
+        const url =
+          `${NEARBY_API}?action=nearby`
+          + `&lat=${encodeURIComponent(currentLat)}`
+          + `&lng=${encodeURIComponent(currentLng)}`
+          + `&radius_km=${encodeURIComponent(radiusKm)}`
+          + `&t=${Date.now()}`;
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("API HTTP " + res.status);
+
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.error || "API error");
+
+        lastApiMeta = json;
+
+        let stations = json.nearby || [];
+
+        if (selectedBrand !== "all") {
+          stations = stations.filter(s => s.brand === selectedBrand);
+        }
+
+        filteredStations = stations;
+
+        clearMapMarkers();
+        addUserMarker(currentLat, currentLng);
+        addStationMarkers(stations);
+        renderStations(stations);
+
+        countBadge.textContent = `${stations.length} ปั๊ม`;
+
+        summaryText.textContent =
+          `พบ ${stations.length} ปั๊ม | radius ${json.radius_km} กม. | mode: ${json.mode}\n`
+          + `rows_total: ${json.rows_total} | with_location: ${json.with_location}`;
+
+        setStatus("ค้นหาสำเร็จ", "ok");
+        updateDashboard(stations.length, "Ready");
+
+      } catch (err) {
+        console.error(err);
+        setStatus("ค้นหาล้มเหลว: " + (err.message || String(err)), "error");
+        summaryText.textContent = "เกิดข้อผิดพลาด";
+        resultList.innerHTML = `<div class="empty">${escapeHtml(err.message || String(err))}</div>`;
+        updateDashboard(0, "Error");
+      }
+    }
+
+    function useBrowserGPS() {
+      if (!(window.isSecureContext || location.hostname === "localhost" || location.hostname === "127.0.0.1")) {
+        setStatus("การใช้ตำแหน่งต้องเปิดผ่าน HTTPS หรือ localhost", "warn");
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        setStatus("อุปกรณ์นี้ไม่รองรับ GPS", "warn");
+        return;
+      }
+
+      setStatus("กำลังขอตำแหน่งจากอุปกรณ์...", "");
+
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          currentLat = pos.coords.latitude;
+          currentLng = pos.coords.longitude;
+          updateCoordText();
+          clearMapMarkers();
+          addUserMarker(currentLat, currentLng);
+          if (map) map.setView([currentLat, currentLng], 13);
+          setStatus("ใช้ตำแหน่งจากอุปกรณ์สำเร็จ กดค้นหาปั๊มใกล้ฉันต่อได้เลย", "ok");
+        },
+        err => {
+          let msg = "ดึงตำแหน่งไม่สำเร็จ";
+          if (err && err.code === 1) msg += " : ผู้ใช้ปฏิเสธสิทธิ์เข้าถึงตำแหน่ง";
+          else if (err && err.code === 2) msg += " : ไม่สามารถระบุตำแหน่งได้";
+          else if (err && err.code === 3) msg += " : ใช้เวลานานเกินไป";
+          setStatus(msg, "warn");
+        },
+        { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+      );
+    }
+
+    function setupBottomNav() {
+      const navButtons = document.querySelectorAll(".nav-btn");
+      navButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          navButtons.forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const targetId = btn.getAttribute("data-target");
+          const target = document.getElementById(targetId);
+          if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+    }
+
+    async function sendToTelegram() {
+      showBox("feedbackError", "");
+      showBox("feedbackOk", "");
+
+      const senderName = document.getElementById("senderName").value.trim() || "Anonymous";
+      const senderMessage = document.getElementById("senderMessage").value.trim();
+
+      if (!senderMessage) {
+        showBox("feedbackError", "กรุณากรอกข้อความก่อน");
+        return;
+      }
+
+      if (
+        BOT_TOKEN === "PUT_YOUR_BOT_TOKEN_HERE" ||
+        CHAT_ID === "PUT_YOUR_CHAT_ID_HERE"
+      ) {
+        showBox("feedbackError", "กรุณาใส่ BOT_TOKEN และ CHAT_ID ใน index.html ก่อน");
+        return;
+      }
+
+      const text =
+`📩 New Message from Fuel Finder
+
+Sender: ${senderName}
+Message: ${senderMessage}
+Page: ${window.location.href}
+Coordinates: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+
+      const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+      const btn = document.getElementById("sendTelegramBtn");
+      btn.disabled = true;
+      btn.textContent = "กำลังส่ง...";
+
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chat_id: CHAT_ID, text })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          throw new Error(data.description || `HTTP ${res.status}`);
+        }
+
+        document.getElementById("senderMessage").value = "";
+        showBox("feedbackOk", "ส่งข้อความสำเร็จ");
+      } catch (err) {
+        showBox("feedbackError", "ส่งข้อความไม่สำเร็จ\n" + (err.message || String(err)));
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "ส่งข้อความ";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+        initMap();
+        updateCoordText();
+        updateDashboard(0, "Ready");
+        setupBottomNav();
+
+        document.getElementById("gpsBtn").addEventListener("click", useBrowserGPS);
+        document.getElementById("findBtn").addEventListener("click", findNearbyStations);
+        document.getElementById("sendTelegramBtn").addEventListener("click", sendToTelegram);
+
+        document.getElementById("demoBtn").addEventListener("click", async () => {
+          currentLat = DEFAULT_LAT;
+          currentLng = DEFAULT_LNG;
+          updateCoordText();
+          clearMapMarkers();
+          addUserMarker(currentLat, currentLng);
+          if (map) map.setView([currentLat, currentLng], 12);
+          setStatus("ใช้พิกัดทดสอบระยองแล้ว", "ok");
+          await findNearbyStations();
+        });
+
+        radiusInput.addEventListener("change", () => {
+          const el = document.getElementById("heroRadius");
+          if (el) el.textContent = getRadiusKm() + " กม.";
+        });
+
+      } catch (err) {
+        console.error(err);
+        setStatus("หน้าเว็บเริ่มต้นไม่สำเร็จ: " + (err.message || String(err)), "error");
+      }
+    });
+
+    window.copyText = copyText;
+    window.openFuelSmart = openFuelSmart;
+    window.openFuelSmartBrand = openFuelSmartBrand;
+  </script>
 </body>
 </html>
