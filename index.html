@@ -1,9 +1,8 @@
 <script>
 const NEARBY_API = "https://script.google.com/macros/s/AKfycbwAS-C3MHwQkx4LddehRuraWoHp0tAlE3w5PiMObNfWyID2P2fZtwf_D2f0TGFhh-AP9A/exec";
 
-// อย่าใส่ token จริงใน GitHub public
-const BOT_TOKEN = "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw";
-const CHAT_ID = "5156469590";
+const BOT_TOKEN = "PUT_YOUR_NEW_BOT_TOKEN_HERE";
+const CHAT_ID = "PUT_YOUR_CHAT_ID_HERE";
 
 const DEFAULT_LAT = 12.712261;
 const DEFAULT_LNG = 101.208075;
@@ -18,81 +17,6 @@ let lastApiMeta = null;
 
 function el(id) {
   return document.getElementById(id);
-}
-
-function ensureEssentialDom() {
-  let status = el("statusBox");
-  if (!status) {
-    status = document.createElement("div");
-    status.id = "statusBox";
-    status.className = "status";
-    status.textContent = "พร้อมใช้งาน";
-    document.body.prepend(status);
-  }
-
-  let mapEl = el("map");
-  if (!mapEl) {
-    mapEl = document.createElement("div");
-    mapEl.id = "map";
-    mapEl.style.height = "430px";
-    mapEl.style.borderRadius = "22px";
-    mapEl.style.margin = "12px";
-    document.body.appendChild(mapEl);
-  }
-
-  if (!el("resultList")) {
-    const box = document.createElement("div");
-    box.id = "resultList";
-    box.className = "station-list";
-    document.body.appendChild(box);
-  }
-
-  if (!el("summaryText")) {
-    const box = document.createElement("div");
-    box.id = "summaryText";
-    document.body.appendChild(box);
-  }
-
-  if (!el("countBadge")) {
-    const box = document.createElement("div");
-    box.id = "countBadge";
-    box.textContent = "0 ปั๊ม";
-    document.body.appendChild(box);
-  }
-
-  if (!el("latInput")) {
-    const input = document.createElement("input");
-    input.id = "latInput";
-    input.value = DEFAULT_LAT;
-    document.body.appendChild(input);
-  }
-
-  if (!el("lngInput")) {
-    const input = document.createElement("input");
-    input.id = "lngInput";
-    input.value = DEFAULT_LNG;
-    document.body.appendChild(input);
-  }
-
-  if (!el("radiusInput")) {
-    const select = document.createElement("select");
-    select.id = "radiusInput";
-    select.innerHTML = `
-      <option value="5">5 กม.</option>
-      <option value="10">10 กม.</option>
-      <option value="20">20 กม.</option>
-      <option value="50" selected>50 กม.</option>
-      <option value="100">100 กม.</option>
-    `;
-    document.body.appendChild(select);
-  }
-
-  if (!el("brandFilter")) {
-    const select = document.createElement("select");
-    select.id = "brandFilter";
-    select.innerHTML = `<option value="all">ทุกแบรนด์</option>`;
-    document.body.appendChild(select);
-  }
 }
 
 function showToast(msg) {
@@ -115,7 +39,10 @@ async function copyText(text) {
 
 function setStatus(message, type = "") {
   const box = el("statusBox");
-  if (!box) return;
+  if (!box) {
+    console.warn("statusBox not found:", message);
+    return;
+  }
   box.className = "status" + (type ? " " + type : "");
   box.textContent = message;
 }
@@ -224,10 +151,21 @@ async function openFuelSmart(name, lat, lng) {
 
 function initMap() {
   const mapEl = el("map");
-  if (!mapEl) throw new Error("Map container #map not found");
-  if (typeof L === "undefined") throw new Error("Leaflet library not loaded");
 
-  if (map) map.remove();
+  if (!mapEl) {
+    console.warn("Map container #map not found. UI kept, map skipped.");
+    return;
+  }
+
+  if (typeof L === "undefined") {
+    console.warn("Leaflet library not loaded. UI kept, map skipped.");
+    return;
+  }
+
+  if (map) {
+    map.remove();
+    map = null;
+  }
 
   map = L.map(mapEl, { zoomControl: true }).setView([currentLat, currentLng], 12);
 
@@ -240,12 +178,14 @@ function initMap() {
 }
 
 function clearMapMarkers() {
+  if (!map) return;
+
   mapMarkers.forEach(m => {
-    if (map && m) map.removeLayer(m);
+    if (m) map.removeLayer(m);
   });
   mapMarkers = [];
 
-  if (userMarker && map) {
+  if (userMarker) {
     map.removeLayer(userMarker);
     userMarker = null;
   }
@@ -479,7 +419,6 @@ function setupBottomNav() {
 
 document.addEventListener("DOMContentLoaded", () => {
   try {
-    ensureEssentialDom();
     initMap();
     updateCoordText();
     updateDashboard(0, "Ready");
