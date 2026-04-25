@@ -1,6 +1,7 @@
 <script>
 const NEARBY_API = "https://script.google.com/macros/s/AKfycbwAS-C3MHwQkx4LddehRuraWoHp0tAlE3w5PiMObNfWyID2P2fZtwf_D2f0TGFhh-AP9A/exec";
 
+// อย่าใส่ token จริงใน GitHub public
 const BOT_TOKEN = "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw";
 const CHAT_ID = "5156469590";
 
@@ -15,17 +16,87 @@ let currentLng = DEFAULT_LNG;
 let filteredStations = [];
 let lastApiMeta = null;
 
-const latInput = document.getElementById("latInput");
-const lngInput = document.getElementById("lngInput");
-const radiusInput = document.getElementById("radiusInput");
-const brandFilter = document.getElementById("brandFilter");
-const resultList = document.getElementById("resultList");
-const countBadge = document.getElementById("countBadge");
-const summaryText = document.getElementById("summaryText");
-const coordText = document.getElementById("coordText");
+function el(id) {
+  return document.getElementById(id);
+}
+
+function ensureEssentialDom() {
+  let status = el("statusBox");
+  if (!status) {
+    status = document.createElement("div");
+    status.id = "statusBox";
+    status.className = "status";
+    status.textContent = "พร้อมใช้งาน";
+    document.body.prepend(status);
+  }
+
+  let mapEl = el("map");
+  if (!mapEl) {
+    mapEl = document.createElement("div");
+    mapEl.id = "map";
+    mapEl.style.height = "430px";
+    mapEl.style.borderRadius = "22px";
+    mapEl.style.margin = "12px";
+    document.body.appendChild(mapEl);
+  }
+
+  if (!el("resultList")) {
+    const box = document.createElement("div");
+    box.id = "resultList";
+    box.className = "station-list";
+    document.body.appendChild(box);
+  }
+
+  if (!el("summaryText")) {
+    const box = document.createElement("div");
+    box.id = "summaryText";
+    document.body.appendChild(box);
+  }
+
+  if (!el("countBadge")) {
+    const box = document.createElement("div");
+    box.id = "countBadge";
+    box.textContent = "0 ปั๊ม";
+    document.body.appendChild(box);
+  }
+
+  if (!el("latInput")) {
+    const input = document.createElement("input");
+    input.id = "latInput";
+    input.value = DEFAULT_LAT;
+    document.body.appendChild(input);
+  }
+
+  if (!el("lngInput")) {
+    const input = document.createElement("input");
+    input.id = "lngInput";
+    input.value = DEFAULT_LNG;
+    document.body.appendChild(input);
+  }
+
+  if (!el("radiusInput")) {
+    const select = document.createElement("select");
+    select.id = "radiusInput";
+    select.innerHTML = `
+      <option value="5">5 กม.</option>
+      <option value="10">10 กม.</option>
+      <option value="20">20 กม.</option>
+      <option value="50" selected>50 กม.</option>
+      <option value="100">100 กม.</option>
+    `;
+    document.body.appendChild(select);
+  }
+
+  if (!el("brandFilter")) {
+    const select = document.createElement("select");
+    select.id = "brandFilter";
+    select.innerHTML = `<option value="all">ทุกแบรนด์</option>`;
+    document.body.appendChild(select);
+  }
+}
 
 function showToast(msg) {
-  const t = document.getElementById("toast");
+  const t = el("toast");
   if (!t) return;
   t.textContent = msg;
   t.style.display = "block";
@@ -43,33 +114,27 @@ async function copyText(text) {
 }
 
 function setStatus(message, type = "") {
-  const el = document.getElementById("statusBox");
-  if (!el) {
-    console.warn("statusBox not found:", message);
-    return;
-  }
-
-  el.className = "status" + (type ? " " + type : "");
-  el.textContent = message;
+  const box = el("statusBox");
+  if (!box) return;
+  box.className = "status" + (type ? " " + type : "");
+  box.textContent = message;
 }
 
 function showBox(id, message) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.style.display = message ? "block" : "none";
-  el.textContent = message || "";
+  const box = el(id);
+  if (!box) return;
+  box.style.display = message ? "block" : "none";
+  box.textContent = message || "";
 }
 
 function getRadiusKm() {
-  const el = document.getElementById("radiusInput");
-  const raw = Number(el?.value || 50);
+  const raw = Number(el("radiusInput")?.value || 50);
   if (!Number.isFinite(raw)) return 50;
   return raw > 500 ? raw / 1000 : raw;
 }
 
 function updateDashboard(found = 0, searchStatus = "Ready") {
-  const now = new Date();
-  const stamp = now.toLocaleString("th-TH");
+  const stamp = new Date().toLocaleString("th-TH");
   const radiusKm = getRadiusKm() + " กม.";
 
   const values = {
@@ -85,15 +150,15 @@ function updateDashboard(found = 0, searchStatus = "Ready") {
   };
 
   Object.keys(values).forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = values[id];
+    const target = el(id);
+    if (target) target.textContent = values[id];
   });
 }
 
 function updateCoordText() {
-  const coordEl = document.getElementById("coordText");
-  const latEl = document.getElementById("latInput");
-  const lngEl = document.getElementById("lngInput");
+  const coordEl = el("coordText");
+  const latEl = el("latInput");
+  const lngEl = el("lngInput");
 
   if (coordEl) coordEl.textContent = `พิกัดปัจจุบัน: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
   if (latEl) latEl.value = currentLat.toFixed(6);
@@ -158,9 +223,11 @@ async function openFuelSmart(name, lat, lng) {
 }
 
 function initMap() {
-  const mapEl = document.getElementById("map");
+  const mapEl = el("map");
   if (!mapEl) throw new Error("Map container #map not found");
   if (typeof L === "undefined") throw new Error("Leaflet library not loaded");
+
+  if (map) map.remove();
 
   map = L.map(mapEl, { zoomControl: true }).setView([currentLat, currentLng], 12);
 
@@ -231,19 +298,22 @@ function renderLiveBox(station) {
 }
 
 function renderStations(stations) {
-  resultList.innerHTML = "";
+  const list = el("resultList");
+  if (!list) return;
+
+  list.innerHTML = "";
 
   if (!stations.length) {
-    resultList.innerHTML = `<div class="empty">ไม่พบปั๊มในรัศมี ${getRadiusKm()} กม.</div>`;
+    list.innerHTML = `<div class="empty">ไม่พบปั๊มในรัศมี ${getRadiusKm()} กม.</div>`;
     return;
   }
 
   stations.forEach(s => {
     const copyNameJs = escapeJsString(s.name || "-");
 
-    const el = document.createElement("div");
-    el.className = "station";
-    el.innerHTML = `
+    const item = document.createElement("div");
+    item.className = "station";
+    item.innerHTML = `
       <div class="station-top">
         <div class="station-name">${escapeHtml(s.name || "-")}</div>
         <div class="distance">${Number(s.distanceKm || 0).toFixed(2)} กม.</div>
@@ -285,29 +355,29 @@ function renderStations(stations) {
       </div>
     `;
 
-    resultList.appendChild(el);
+    list.appendChild(item);
   });
 }
 
 async function findNearbyStations() {
   try {
-    currentLat = Number(latInput.value);
-    currentLng = Number(lngInput.value);
+    currentLat = Number(el("latInput")?.value);
+    currentLng = Number(el("lngInput")?.value);
 
     if (!Number.isFinite(currentLat) || !Number.isFinite(currentLng)) {
       throw new Error("กรุณากด 'ใช้ตำแหน่งฉัน' หรือกรอกพิกัดก่อนค้นหา");
     }
 
     const radiusKm = getRadiusKm();
-    const selectedBrand = brandFilter.value || "all";
+    const selectedBrand = el("brandFilter")?.value || "all";
 
     updateCoordText();
     updateDashboard(0, "Loading");
     setStatus("กำลังดึงข้อมูลจริงและคำนวณรัศมี...", "");
 
-    countBadge.textContent = "กำลังค้นหา...";
-    summaryText.textContent = "กำลังโหลดผลลัพธ์";
-    resultList.innerHTML = `<div class="empty">กำลังโหลดข้อมูล...</div>`;
+    if (el("countBadge")) el("countBadge").textContent = "กำลังค้นหา...";
+    if (el("summaryText")) el("summaryText").textContent = "กำลังโหลดผลลัพธ์";
+    if (el("resultList")) el("resultList").innerHTML = `<div class="empty">กำลังโหลดข้อมูล...</div>`;
 
     const url =
       `${NEARBY_API}?action=nearby`
@@ -324,7 +394,7 @@ async function findNearbyStations() {
 
     lastApiMeta = json;
 
-    let stationsBefore = json.nearby || [];
+    const stationsBefore = json.nearby || [];
 
     let stations = stationsBefore
       .filter(s => Number.isFinite(Number(s.distanceKm)))
@@ -347,11 +417,13 @@ async function findNearbyStations() {
     addStationMarkers(stations);
     renderStations(stations);
 
-    countBadge.textContent = `${stations.length} ปั๊ม`;
+    if (el("countBadge")) el("countBadge").textContent = `${stations.length} ปั๊ม`;
 
-    summaryText.textContent =
-      `พบ ${stations.length} ปั๊มในรัศมี ${radiusKm} กม.\n`
-      + `API returned: ${stationsBefore.length} | rows_total: ${json.rows_total} | with_location: ${json.with_location}`;
+    if (el("summaryText")) {
+      el("summaryText").textContent =
+        `พบ ${stations.length} ปั๊มในรัศมี ${radiusKm} กม.\n`
+        + `API returned: ${stationsBefore.length} | rows_total: ${json.rows_total} | with_location: ${json.with_location}`;
+    }
 
     setStatus("ค้นหาสำเร็จ", "ok");
     updateDashboard(stations.length, "Ready");
@@ -359,8 +431,8 @@ async function findNearbyStations() {
   } catch (err) {
     console.error(err);
     setStatus("ค้นหาล้มเหลว: " + (err.message || String(err)), "error");
-    summaryText.textContent = "เกิดข้อผิดพลาด";
-    resultList.innerHTML = `<div class="empty">${escapeHtml(err.message || String(err))}</div>`;
+    if (el("summaryText")) el("summaryText").textContent = "เกิดข้อผิดพลาด";
+    if (el("resultList")) el("resultList").innerHTML = `<div class="empty">${escapeHtml(err.message || String(err))}</div>`;
     updateDashboard(0, "Error");
   }
 }
@@ -399,7 +471,7 @@ function setupBottomNav() {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      const target = document.getElementById(btn.getAttribute("data-target"));
+      const target = el(btn.getAttribute("data-target"));
       if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
@@ -407,15 +479,16 @@ function setupBottomNav() {
 
 document.addEventListener("DOMContentLoaded", () => {
   try {
+    ensureEssentialDom();
     initMap();
     updateCoordText();
     updateDashboard(0, "Ready");
     setupBottomNav();
 
-    document.getElementById("gpsBtn")?.addEventListener("click", useBrowserGPS);
-    document.getElementById("findBtn")?.addEventListener("click", findNearbyStations);
+    el("gpsBtn")?.addEventListener("click", useBrowserGPS);
+    el("findBtn")?.addEventListener("click", findNearbyStations);
 
-    document.getElementById("demoBtn")?.addEventListener("click", async () => {
+    el("demoBtn")?.addEventListener("click", async () => {
       currentLat = DEFAULT_LAT;
       currentLng = DEFAULT_LNG;
       updateCoordText();
@@ -426,9 +499,9 @@ document.addEventListener("DOMContentLoaded", () => {
       await findNearbyStations();
     });
 
-    document.getElementById("radiusInput")?.addEventListener("change", () => {
-      const el = document.getElementById("heroRadius");
-      if (el) el.textContent = getRadiusKm() + " กม.";
+    el("radiusInput")?.addEventListener("change", () => {
+      const target = el("heroRadius");
+      if (target) target.textContent = getRadiusKm() + " กม.";
     });
 
   } catch (err) {
