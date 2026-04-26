@@ -678,41 +678,7 @@
       border-radius:20px;
       background:#fbfdff;
       white-space:pre-wrap;
-    }
-
-    .bottom-nav{
-      position:fixed;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:12px;
-      z-index:9998;
-      width:min(520px, calc(100% - 20px));
-      background:rgba(11,18,32,.92);
-      backdrop-filter:blur(12px);
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow:0 14px 34px rgba(2,8,23,.28);
-      border-radius:22px;
-      padding:8px;
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:8px;
-    }
-
-    .nav-btn{
-      border:none;
-      border-radius:16px;
-      background:rgba(255,255,255,.06);
-      color:#e8f0ff;
-      font-weight:900;
-      font-size:12px;
-      padding:12px 10px;
-      cursor:pointer;
-    }
-
-    .nav-btn.active{
-      background:linear-gradient(135deg,var(--blue),var(--blue2));
-      color:#fff;
-    }
+    }     
 
     #toast{
       position:fixed;
@@ -901,7 +867,7 @@
 
           <div class="controls">
             <button id="gpsBtn" class="btn-primary" type="button">ใช้ตำแหน่งฉัน</button>
-            <button id="demoBtn" class="btn-ghost" type="button">พิกัดทดสอบระยอง</button>
+            <button id="demoBtn" class="btn-ghost" type="button">พิกัดกรุงเทพฯ</button>
           </div>
 
           <div class="controls-2">
@@ -987,8 +953,8 @@
     const MASTER_URL = "./stations_master.json";
     const TG_BOT_TOKEN = "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw";
     const TG_CHAT_ID = "5156469590";
-    const DEFAULT_LAT = 12.712261;
-    const DEFAULT_LNG = 101.208075;
+    const DEFAULT_LAT = 13.7563;
+    const DEFAULT_LNG = 100.5018;
 
     let map = null;
     let mapMarkers = [];
@@ -1536,8 +1502,7 @@
           }
 
           const statusRows = await fetchStatusNearby(radiusKm);
-          stations = enrichWithStatus(stations, statusRows).slice(0, 50);
-          stations = await enrichStationBrandFromOSM(stations);
+          stations = enrichWithStatus(stations, statusRows).slice(0, 50);       
         } else {
           sourceLabel = "Apps Script fallback";
           const statusRows = await fetchStatusNearby(radiusKm);
@@ -1681,7 +1646,7 @@
           clearMapMarkers();
           addUserMarker(currentLat, currentLng);
           if (map) map.setView([currentLat, currentLng], 12);
-          setStatus("ใช้พิกัดทดสอบระยองแล้ว", "ok");
+          setStatus("ใช้พิกัดกรุงเทพฯแล้ว", "ok");
           await findNearbyStations();
         });
 
