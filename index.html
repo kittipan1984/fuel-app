@@ -1171,7 +1171,58 @@
         displayName: makeDisplayStationName({ ...station, brand: ai.brand, brandLabel: ai.brandLabel })
       };
     }
+    async function fetchOsmFuelBrand(lat, lng) {
+      const query = `
+    [out:json][timeout:10];
+    (
+      node["amenity"="fuel"](around:120,${lat},${lng});
+      way["amenity"="fuel"](around:120,${lat},${lng});
+      relation["amenity"="fuel"](around:120,${lat},${lng});
+    );
+    out center tags;
+    `;
 
+      const url = "https://overpass-api.de/api/interpreter?data=" + encodeURIComponent(query);
+
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+        const items = json.elements || [];
+
+        if (!items.length) return null;
+
+        const best = items[0];
+        const tags = best.tags || {};
+
+        return {
+          osmName: tags.name || "",
+          osmBrand: tags.brand || tags.operator || "",
+          displayName: tags.brand || tags.name || tags.operator || ""
+        };
+      } catch (err) {
+        console.warn("OSM brand lookup failed", err);
+        return null;
+      }
+    }
+
+    async function enrichStationBrandFromOSM(stations) {
+      const limited = stations.slice(0, 20);
+
+      for (const s of limited) {
+        const osm = await fetchOsmFuelBrand(s.lat, s.lng);
+
+        if (osm && osm.displayName) {
+          s.displayName = osm.displayName;
+          s.brandLabel = osm.osmBrand || osm.displayName;
+          s.osmName = osm.osmName;
+          s.osmBrand = osm.osmBrand;
+          s.brandSource = "OpenStreetMap";
+        }
+      }
+
+      return stations;
+    }
+    
     function dirLink(s) {
       return `https://www.google.com/maps/dir/?api=1&origin=${currentLat},${currentLng}&destination=${s.lat},${s.lng}&travelmode=driving`;
     }
@@ -1442,6 +1493,7 @@
 
           const statusRows = await fetchStatusNearby(radiusKm);
           stations = enrichWithStatus(stations, statusRows).slice(0, 50);
+          stations = await enrichStationBrandFromOSM(stations);
         } else {
           sourceLabel = "Apps Script fallback";
           const statusRows = await fetchStatusNearby(radiusKm);
@@ -1457,7 +1509,7 @@
 
           stations = stations.slice(0, 50);
         }
-
+          stations = await enrichStationBrandFromOSM(stations);
         filteredStations = stations;
 
         clearMapMarkers();
