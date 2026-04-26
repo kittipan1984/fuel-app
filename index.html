@@ -1111,6 +1111,67 @@
       return mapLabel[brandKey] || stationName || "อื่น ๆ";
     }
 
+    function detectBrandAI(station) {
+      const text = [
+        station.name,
+        station.brand,
+        station.brandLabel,
+        station.address,
+        station.province,
+        station.district
+      ].join(" ").toLowerCase();
+
+      const rules = [
+        { key: "ptt", label: "PTT", words: ["ptt", "ปตท", "ปตท.", "บริษัท ปตท"] },
+        { key: "bangchak", label: "Bangchak", words: ["bangchak", "บางจาก", "บจ.", "บจก.บางจาก"] },
+        { key: "shell", label: "Shell", words: ["shell", "เชลล์"] },
+        { key: "caltex", label: "Caltex", words: ["caltex", "คาลเท็กซ์", "คาลเท็ก"] },
+        { key: "esso", label: "Esso", words: ["esso", "เอสโซ่", "เอสโซ"] },
+        { key: "pt", label: "PT", words: [" pt ", "พีที", "pt station", "pt max"] },
+        { key: "susco", label: "Susco", words: ["susco", "ซัสโก้", "ซัสโก"] },
+        { key: "irpc", label: "IRPC", words: ["irpc", "ไออาร์พีซี"] }
+      ];
+
+      for (const r of rules) {
+        if (r.words.some(w => text.includes(w))) {
+          return {
+            brand: r.key,
+            brandLabel: r.label,
+            confidence: 0.95
+          };
+        }
+      }
+
+      return {
+        brand: station.brand || "other",
+        brandLabel: station.brandLabel || "OTHER",
+        confidence: 0.20
+      };
+    }
+
+    function makeDisplayStationName(station) {
+      const ai = detectBrandAI(station);
+      const district = station.district || station.amphoe || "";
+      const province = station.province || "";
+
+      if (ai.brand !== "other") {
+        return `${ai.brandLabel}${district ? " - " + district : ""}`;
+      }
+
+      return station.name || `${district} ${province}`.trim() || "-";
+    }
+
+    function applyBrandAI(station) {
+      const ai = detectBrandAI(station);
+      return {
+        ...station,
+        brand: ai.brand,
+        brandLabel: ai.brandLabel,
+        brandConfidence: ai.confidence,
+        displayName: makeDisplayStationName({ ...station, brand: ai.brand, brandLabel: ai.brandLabel })
+      };
+    }
+
     function dirLink(s) {
       return `https://www.google.com/maps/dir/?api=1&origin=${currentLat},${currentLng}&destination=${s.lat},${s.lng}&travelmode=driving`;
     }
@@ -1229,7 +1290,7 @@
         el.className = "station";
         el.innerHTML = `
           <div class="station-top">
-            <div class="station-name">${escapeHtml(s.name || "-")}</div>
+            <div class="station-name">${escapeHtml(s.displayName || makeDisplayStationName(s))}</div>
             <div class="distance">${Number(s.distanceKm || 0).toFixed(2)} กม.</div>
           </div>
 
@@ -1255,6 +1316,7 @@
             <div class="helper-title">⚡ Smart Search</div>
             <div class="helper-text">ค้นจาก Master Station DB แล้วเติมสถานะน้ำมันจาก real data เท่าที่ match ได้</div>
             <div class="helper-name">${escapeHtml(s.name || "-")}</div>
+            <div class="helper-text">ชื่อแสดงผล: ${escapeHtml(s.displayName || makeDisplayStationName(s))}</div>
 
             <div class="helper-actions">
               <button class="mini-btn" type="button" onclick="copyText('${copyNameJs}')">📋 Copy ชื่อปั๊ม</button>
@@ -1279,7 +1341,9 @@
         if (!res.ok) throw new Error("stations_master.json not found");
         const data = await res.json();
         masterStations = Array.isArray(data)
-          ? data.filter(s => s.active !== false && Number.isFinite(Number(s.lat)) && Number.isFinite(Number(s.lng)))
+          ? data
+              .filter(s => s.active !== false && Number.isFinite(Number(s.lat)) && Number.isFinite(Number(s.lng)))
+              .map(applyBrandAI)
           : [];
         setStatus(`โหลด Master DB สำเร็จ: ${masterStations.length} ปั๊ม`, "ok");
       } catch (err) {
@@ -1382,6 +1446,7 @@
           sourceLabel = "Apps Script fallback";
           const statusRows = await fetchStatusNearby(radiusKm);
           stations = statusRows
+            .map(applyBrandAI)
             .filter(s => Number.isFinite(Number(s.distanceKm)))
             .filter(s => Number(s.distanceKm) <= radiusKm)
             .sort((a, b) => Number(a.distanceKm) - Number(b.distanceKm));
