@@ -730,7 +730,38 @@
       max-width:90%;
       text-align:center;
     }
+    .ad-strip{
+      position:sticky;
+      top:var(--header-h);
+      z-index:9998;
+      background:linear-gradient(135deg,#0ea5e9,#2563eb);
+      color:#fff;
+      border-bottom:1px solid rgba(255,255,255,.18);
+      overflow:hidden;
+      box-shadow:0 8px 20px rgba(15,23,42,.12);
+    }
 
+    .ad-track{
+      display:flex;
+      width:max-content;
+      animation:adSlide 22s linear infinite;
+    }
+
+    .ad-slide{
+      min-width:100vw;
+      padding:10px 18px;
+      font-size:14px;
+      font-weight:900;
+      text-align:center;
+      white-space:nowrap;
+    }
+
+    @keyframes adSlide{
+      0%{ transform:translateX(0); }
+      33%{ transform:translateX(-100vw); }
+      66%{ transform:translateX(-200vw); }
+      100%{ transform:translateX(0); }
+    }
     @media (max-width:1024px){
       .hero-grid,
       .main-grid{
@@ -761,6 +792,13 @@
     }
   </style>
 </head>
+<section class="ad-strip">
+  <div class="ad-track">
+    <div class="ad-slide">📢 พื้นที่โฆษณา: ฝาก Banner โปรโมทธุรกิจได้ที่นี่</div>
+    <div class="ad-slide">⛽ Fuel Finder โปรโมทปั๊ม / ร้านค้า / คาเฟ่ ใกล้คุณ</div>
+    <div class="ad-slide">🚗 สนใจลงโฆษณา ติดต่อผ่านข้อความพร้อมข้อมูลติดต่อกลับด้านล่าง</div>
+  </div>
+</section>
 <body>
   <header class="topbar">
     <div class="topbar-inner">
@@ -940,13 +978,7 @@
       </div>
     </section>
   </main>
-
-  <nav class="bottom-nav" aria-label="Quick navigation">
-    <button class="nav-btn active" data-target="section-home">Home</button>
-    <button class="nav-btn" data-target="section-map">Map</button>
-    <button class="nav-btn" data-target="section-contact">Contact</button>
-  </nav>
-
+  
   <div id="toast">Copied</div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -954,6 +986,8 @@
   <script>
     const NEARBY_API = "https://script.google.com/macros/s/AKfycbwAS-C3MHwQkx4LddehRuraWoHp0tAlE3w5PiMObNfWyID2P2fZtwf_D2f0TGFhh-AP9A/exec";
     const MASTER_URL = "./stations_master.json";
+    const TG_BOT_TOKEN = "8730571997:AAGpYSXsdHwURMaz46go2jxy5kk8JsTtVAw";
+    const TG_CHAT_ID = "5156469590";
     const DEFAULT_LAT = 12.712261;
     const DEFAULT_LNG = 101.208075;
 
@@ -1590,8 +1624,44 @@
       });
     }
 
-    function sendToTelegram() {
-      showBox("feedbackError", "Telegram ถูกปิดไว้ในไฟล์ public เพื่อความปลอดภัย กรุณาตั้ง backend proxy ก่อนใช้งานจริง");
+    async function sendToTelegram() {
+      showBox("feedbackError", "");
+      showBox("feedbackOk", "");
+
+      const name = byId("senderName")?.value.trim() || "Anonymous";
+      const message = byId("senderMessage")?.value.trim() || "";
+
+      if (!message) {
+        showBox("feedbackError", "กรุณากรอกข้อความก่อนส่ง");
+        return;
+      }
+
+      const text =
+    `📩 Fuel Finder Contact
+
+    Name: ${name}
+    Message: ${message}
+    Page: ${location.href}
+    Location: ${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+
+      try {
+        const res = await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: TG_CHAT_ID,
+            text: text
+          })
+        });
+
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.description || "Telegram error");
+
+        byId("senderMessage").value = "";
+        showBox("feedbackOk", "ส่งข้อความสำเร็จ");
+      } catch (err) {
+        showBox("feedbackError", "ส่งข้อความไม่สำเร็จ: " + err.message);
+      }
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -1599,7 +1669,6 @@
         initMap();
         updateCoordText();
         updateDashboard(0, "Ready");
-        setupBottomNav();
         await loadMasterStations();
 
         byId("gpsBtn")?.addEventListener("click", useBrowserGPS);
