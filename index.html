@@ -700,33 +700,29 @@
       position:sticky;
       top:var(--header-h);
       z-index:9998;
-      background:linear-gradient(135deg,#0ea5e9,#2563eb);
-      color:#fff;
-      border-bottom:1px solid rgba(255,255,255,.18);
+      background:#ffffff;
+      border-bottom:1px solid rgba(15,23,42,.12);
+      box-shadow:0 8px 20px rgba(15,23,42,.10);
       overflow:hidden;
-      box-shadow:0 8px 20px rgba(15,23,42,.12);
     }
 
-    .ad-track{
-      display:flex;
-      width:max-content;
-      animation:adSlide 22s linear infinite;
+    .ad-strip a{
+      display:block;
+      max-width:1180px;
+      margin:0 auto;
     }
 
-    .ad-slide{
-      min-width:100vw;
-      padding:10px 18px;
-      font-size:14px;
-      font-weight:900;
-      text-align:center;
-      white-space:nowrap;
+    #adImage{
+      width:100%;
+      height:120px;
+      object-fit:cover;
+      display:block;
     }
 
-    @keyframes adSlide{
-      0%{ transform:translateX(0); }
-      33%{ transform:translateX(-100vw); }
-      66%{ transform:translateX(-200vw); }
-      100%{ transform:translateX(0); }
+    @media (max-width:768px){
+      #adImage{
+        height:86px;
+      }
     }
     @media (max-width:1024px){
       .hero-grid,
@@ -778,11 +774,9 @@
     </div>
   </header>
 <section class="ad-strip">
-  <div class="ad-track">
-    <div class="ad-slide">📢 พื้นที่โฆษณา: ฝาก Banner โปรโมทธุรกิจได้ที่นี่</div>
-    <div class="ad-slide">⛽ Fuel Finder โปรโมทปั๊ม / ร้านค้า / คาเฟ่ ใกล้คุณ</div>
-    <div class="ad-slide">🚗 สนใจลงโฆษณา ติดต่อผ่านข้อความพร้อมข้อมูลติดต่อกลับด้านล่าง</div>
-  </div>
+  <a id="adLink" href="#section-contact">
+    <img id="adImage" src="ads/ad-01.jpg" alt="Sponsor banner">
+  </a>
 </section>
   <main class="app">
     <section class="hero section" id="section-home">
@@ -1627,13 +1621,38 @@
         showBox("feedbackError", "ส่งข้อความไม่สำเร็จ: " + err.message);
       }
     }
+    const AD_BANNERS = [
+      { img: "ads/ad-01.jpg", link: "#section-contact" },
+      { img: "ads/ad-02.jpg", link: "#section-contact" },
+      { img: "ads/ad-03.jpg", link: "#section-contact" },
+      { img: "ads/ad-04.jpg", link: "#section-contact" },
+      { img: "ads/ad-05.jpg", link: "#section-contact" }
+    ];
 
+    let adIndex = 0;
+
+    function startAdSlideshow() {
+      const img = byId("adImage");
+      const link = byId("adLink");
+      if (!img || !link) return;
+
+      function showAd() {
+        const ad = AD_BANNERS[adIndex % AD_BANNERS.length];
+        img.src = ad.img;
+        link.href = ad.link || "#section-contact";
+        adIndex++;
+      }
+
+      showAd();
+      setInterval(showAd, 7000); // แช่ 7 วินาทีแล้วค่อยเปลี่ยน
+    }
     document.addEventListener("DOMContentLoaded", async () => {
       try {
         initMap();
         updateCoordText();
         updateDashboard(0, "Ready");
         await loadMasterStations();
+        startAdSlideshow();
 
         byId("gpsBtn")?.addEventListener("click", useBrowserGPS);
         byId("findBtn")?.addEventListener("click", findNearbyStations);
