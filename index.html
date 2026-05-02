@@ -1621,30 +1621,63 @@
         showBox("feedbackError", "ส่งข้อความไม่สำเร็จ: " + err.message);
       }
     }
-    const AD_BANNERS = [
-      { img: "ads/ad-01.jpg", link: "#section-contact" },
-      { img: "ads/ad-02.jpg", link: "#section-contact" },
-      { img: "ads/ad-03.jpg", link: "#section-contact" },
-      { img: "ads/ad-04.jpg", link: "#section-contact" },
-      { img: "ads/ad-05.jpg", link: "#section-contact" }
-    ];
+    const ADS_API = "https://script.google.com/macros/s/AKfycbzCmugNufrIxav-ozBPpiu0OcOq_Phw5TC3WtysX0fOsinrM4p6Et-clQ_g7SsU80xqlw/exec";
+
+    let adIndex = 0;
+    let adList = [];
+
+    async function loadAdsFromDashboard() {
+      try {
+        const res = await fetch(`${ADS_API}?action=list_ads&t=${Date.now()}`);
+        const json = await res.json();
+
+        if (!json.ok) return;
+
+        adList = json.ads.map(a => ({
+          id: a.ad_id,
+          img: a.image_url,
+          link: a.target_url
+        }));
+
+      } catch (err) {
+        console.warn("loadAds failed", err);
+      }
+    };
 
     let adIndex = 0;
 
     function startAdSlideshow() {
       const img = byId("adImage");
       const link = byId("adLink");
+
       if (!img || !link) return;
 
+      let lastTrackedId = null;
+
       function showAd() {
-        const ad = AD_BANNERS[adIndex % AD_BANNERS.length];
+        if (!adList.length) return;
+
+        const ad = adList[adIndex % adList.length];
+
         img.src = ad.img;
-        link.href = ad.link || "#section-contact";
+        link.href = ad.link || "#";
+
+        // ✅ track click
+        link.onclick = () => {
+          fetch(`${ADS_API}?action=ad_click&id=${ad.id}`);
+        };
+
+        // ✅ track impression (ครั้งเดียวต่อการแสดง)
+        if (lastTrackedId !== ad.id) {
+          fetch(`${ADS_API}?action=ad_impression&id=${ad.id}`);
+          lastTrackedId = ad.id;
+        }
+
         adIndex++;
       }
 
       showAd();
-      setInterval(showAd, 7000); // แช่ 7 วินาทีแล้วค่อยเปลี่ยน
+      setInterval(showAd, 7000);
     }
     document.addEventListener("DOMContentLoaded", async () => {
       try {
@@ -1652,6 +1685,7 @@
         updateCoordText();
         updateDashboard(0, "Ready");
         await loadMasterStations();
+        await loadAdsFromDashboard();
         startAdSlideshow();
 
         byId("gpsBtn")?.addEventListener("click", useBrowserGPS);
