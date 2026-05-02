@@ -1209,21 +1209,39 @@
 
       for (const s of limited) {
         const osm = await fetchOsmFuelBrand(s.lat, s.lng);
+        if (!osm) continue;
 
-        if (osm) {
-          s.osmName = osm.osmName;
-          s.osmBrand = osm.osmBrand;
-          s.brandSource = "OpenStreetMap";
-          // sync brand label
-          if (osm.osmBrand) {
-            s.brandLabel = osm.osmBrand;
-          }
-          // override display name
-          if (osm.osmBrand || osm.osmName) {
-            s.displayName = makeDisplayStationName(s);
-          }
+        const currentBrand = normalizeText(s.brandLabel || s.brand || "");
+        const osmBrandText = normalizeText(osm.osmBrand || osm.osmName || osm.displayName || "");
+
+        const knownBrands = ["ptt", "shell", "caltex", "esso", "bangchak", "pt", "susco", "irpc"];
+
+        const currentHit = knownBrands.find(b => currentBrand.includes(b));
+        const osmHit = knownBrands.find(b => osmBrandText.includes(b));
+
+        // ถ้า brand เดิมกับ OSM ขัดกัน ห้าม overwrite กันข้อมูลมั่ว
+        if (currentHit && osmHit && currentHit !== osmHit) {
+          console.warn("OSM brand conflict skipped", {
+            station: s.name,
+            current: s.brandLabel,
+            osm: osm
+          });
+          continue;
+        }
+
+        s.osmName = osm.osmName;
+        s.osmBrand = osm.osmBrand;
+        s.brandSource = "OpenStreetMap";
+
+        if (osm.osmBrand) {
+          s.brandLabel = osm.osmBrand;
+        }
+
+        if (osm.osmBrand || osm.osmName) {
+          s.displayName = makeDisplayStationName(s);
         }
       }
+
       return stations;
     }
     
