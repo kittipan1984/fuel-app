@@ -1684,10 +1684,8 @@
         initMap();
         updateCoordText();
         updateDashboard(0, "Ready");
-        await loadMasterStations();
-        await loadAdsFromDashboard();
-        startAdSlideshow();
 
+        // bind ปุ่มก่อนโหลด data เสมอ กันปุ่มตาย
         byId("gpsBtn")?.addEventListener("click", useBrowserGPS);
         byId("findBtn")?.addEventListener("click", findNearbyStations);
         byId("sendTelegramBtn")?.addEventListener("click", sendToTelegram);
@@ -1707,6 +1705,19 @@
           const el = byId("heroRadius");
           if (el) el.textContent = getRadiusKm() + " กม.";
         });
+
+        // โหลด data หลังจากปุ่มพร้อมแล้ว
+        try {
+          await loadMasterStations();
+        } catch (err) {
+          console.warn("loadMasterStations failed", err);
+        }
+
+        try {
+          startAdSlideshow();
+        } catch (err) {
+          console.warn("startAdSlideshow failed", err);
+        }
 
       } catch (err) {
         console.error(err);
