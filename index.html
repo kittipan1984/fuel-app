@@ -1334,7 +1334,7 @@
           </div>
 
           <div class="brand-row">
-            <div class="brand-badge">${escapeHtml(s.brandLabel || brandLabel(s.brand, s.name))}</div>
+            <div class="brand-badge">${escapeHtml(s.displayBrand || s.brandLabel || brandLabel(s.brand, s.name))}</div>
             <div class="brand-badge">ID: ${escapeHtml(s.id || "-")}</div>
           </div>
 
@@ -1497,6 +1497,7 @@
           stations = stations.slice(0, 50);
         }
           stations = await enrichStationBrandFromOSM(stations);
+          stations = applySafeBrandDisplay(stations);
         filteredStations = stations;
 
         clearMapMarkers();
@@ -1709,6 +1710,51 @@
 
     window.copyText = copyText;
     window.openFuelSmart = openFuelSmart;
+// =======================
+// SAFE BRAND SYSTEM
+// =======================
+
+function detectBrandFromName(name) {
+  const n = String(name || "").toLowerCase();
+
+  if (n.includes("ptt") || n.includes("ปตท")) return "PTT";
+  if (n.includes("shell")) return "SHELL";
+  if (n.includes("caltex")) return "CALTEX";
+  if (n.includes("esso")) return "ESSO";
+  if (n.includes("บางจาก")) return "BANGCHAK";
+  if (n.includes("pt ")) return "PT";
+  if (n.includes("susco")) return "SUSCO";
+
+  return null;
+}
+
+function applySafeBrandDisplay(stations) {
+  return stations.map(s => {
+
+    // ❌ ห้ามแตะข้อมูลจริง
+    const original = s.brandLabel || s.brand || "";
+
+    // ✅ ลอง detect เพิ่ม
+    const detected = detectBrandFromName(s.name);
+
+    // 🎯 RULE:
+    // ถ้ามี brand อยู่แล้ว → ใช้ของเดิม
+    if (original && original !== "OTHER") {
+      s.displayBrand = original;
+      return s;
+    }
+
+    // ถ้าไม่มี → ใช้ detected
+    if (detected) {
+      s.displayBrand = detected;
+    } else {
+      s.displayBrand = original || "OTHER";
+    }
+
+    return s;
+  });
+}
+  
   </script>
 </body>
 </html>
