@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Fuel Finder Growth Machine</title>
+  <style>
+    :root{
+      --bg:#edf3fb;
+      --bg2:#f8fbff;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:#dbe4ef;
+      --blue:#2563eb;
+      --blue2:#1d4ed8;
+      --green:#16a34a;
+      --green2:#059669;
+      --orange:#f97316;
+      --red:#dc2626;
+      --dark:#0b1220;
+      --light:#eef4ff;
+      --shadow:0 14px 32px rgba(15,23,42,.08);
+      --shadow-strong:0 18px 45px rgba(2,8,23,.22);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37,99,235,.09), transparent 23%),
+        radial-gradient(circle at top right, rgba(34,211,238,.08), transparent 20%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      min-height:100vh;
+    }
+    a{color:inherit;text-decoration:none}
+    .topbar{
+      position:sticky;top:0;z-index:99;
+      background:rgba(11,18,32,.93);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      box-shadow:0 8px 24px rgba(2,8,23,.18);
+    }
+    .topbar-inner{
+      max-width:1180px;margin:0 auto;padding:15px 14px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    }
+    .brand{
+      display:flex;align-items:center;gap:12px;min-width:0;
+    }
+    .logo{
+      width:44px;height:44px;border-radius:16px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:24px;background:linear-gradient(135deg,#0ea5e9,#2563eb);
+      color:white;box-shadow:0 10px 24px rgba(37,99,235,.28);
+    }
+    .brand-title{color:#fff;font-size:21px;font-weight:900;line-height:1.1}
+    .brand-sub{color:#b8cae8;font-size:12px;margin-top:4px}
+    .top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .pill{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:7px 10px;border-radius:999px;
+      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);
+      color:#e7efff;font-size:12px;font-weight:800;white-space:nowrap;
+    }
+    .wrap{max-width:1180px;margin:0 auto;padding:14px 14px 70px}
+    .hero{
+      margin-bottom:14px;padding:18px;border-radius:28px;color:white;
+      background:
+        radial-gradient(circle at 85% 20%, rgba(34,211,238,.18), transparent 16%),
+        radial-gradient(circle at 15% 10%, rgba(59,130,246,.16), transparent 18%),
+        linear-gradient(135deg,#0f172a,#172554 70%,#0f172a);
+      box-shadow:var(--shadow-strong);
+      overflow:hidden;
+    }
+    .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:14px;align-items:stretch}
+    .kicker{
+      display:inline-flex;padding:8px 12px;border-radius:999px;
+      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);
+      color:#dce8ff;font-size:12px;font-weight:900;margin-bottom:12px;
+    }
+    .hero h1{margin:0 0 10px;font-size:31px;line-height:1.08;letter-spacing:-.02em}
+    .hero p{margin:0;color:#d8e5ff;font-size:14px;line-height:1.7;max-width:70ch}
+    .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .stat{
+      background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);
+      border-radius:18px;padding:14px;
+    }
+    .stat-label{font-size:11px;color:#bfd2f3;margin-bottom:8px}
+    .stat-value{font-size:22px;font-weight:900;color:#fff;line-height:1.1}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .card{
+      background:rgba(255,255,255,.94);
+      border:1px solid rgba(219,228,239,.95);
+      border-radius:var(--radius);
+      padding:16px;box-shadow:var(--shadow);backdrop-filter:blur(8px);
+      margin-bottom:14px;
+    }
+    .card.dark{
+      background:linear-gradient(180deg,#111827,#172033);
+      color:#eef4ff;border-color:rgba(255,255,255,.06);box-shadow:var(--shadow-strong);
+    }
+    h2{font-size:20px;margin:0 0 8px;font-weight:900}
+    h3{font-size:15px;margin:16px 0 8px;font-weight:900}
+    p,.desc{color:var(--muted);line-height:1.65;font-size:14px;margin:0 0 10px}
+    .dark .desc,.dark p{color:#bfd0ec}
+    label{display:block;margin:10px 0 6px;font-size:13px;font-weight:900;color:#334155}
+    .dark label{color:#dce8ff}
+    input,select,textarea,button{font:inherit}
+    input,select,textarea{
+      width:100%;border:1px solid #cfdae8;border-radius:15px;
+      padding:12px 13px;background:#fff;color:var(--text);outline:none;
+      transition:.18s ease;
+    }
+    input:focus,select:focus,textarea:focus{
+      border-color:#93c5fd;box-shadow:0 0 0 4px rgba(59,130,246,.12);
+    }
+    textarea{min-height:128px;resize:vertical;line-height:1.55}
+    button{
+      border:none;border-radius:15px;padding:12px 14px;font-weight:900;
+      cursor:pointer;transition:.18s ease;background:#e9eff7;color:#0f172a;
+    }
+    button:hover{transform:translateY(-1px)}
+    .btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:white;box-shadow:0 10px 20px rgba(37,99,235,.18)}
+    .btn-green{background:linear-gradient(135deg,var(--green),var(--green2));color:white;box-shadow:0 10px 20px rgba(5,150,105,.16)}
+    .btn-red{background:#fee2e2;color:#991b1b}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .row>*{flex:1 1 160px}
+    .badge{
+      display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;
+      font-size:12px;font-weight:900;border:1px solid #dce6f1;background:#f8fafc;color:#334155;margin:4px 4px 0 0;
+    }
+    .badge.good{background:#ecfdf5;border-color:#bbf7d0;color:#166534}
+    .badge.warn{background:#fff7ed;border-color:#fed7aa;color:#9a3412}
+    .badge.bad{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+    .status{display:none;margin:10px 0;padding:11px 12px;border-radius:14px;background:#ecfdf5;color:#166534;border:1px solid #bbf7d0;font-size:13px;font-weight:800}
+    .result{
+      border:1px solid #e3ebf4;background:linear-gradient(180deg,#fff,#fbfdff);
+      border-radius:18px;padding:13px;margin-top:10px;box-shadow:0 8px 20px rgba(15,23,42,.035);
+    }
+    .result-title{font-size:15px;font-weight:900;line-height:1.4}
+    .small{font-size:12px;color:#64748b;line-height:1.55}
+    .list{max-height:500px;overflow:auto;padding-right:4px}
+    .score{font-weight:900}
+    .score.good{color:var(--green)}.score.mid{color:var(--orange)}.score.bad{color:var(--red)}
+    table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+    th,td{border-bottom:1px solid #e2e8f0;text-align:left;padding:9px;vertical-align:top}
+    th{background:#f8fafc;color:#334155}
+    .copy-area{white-space:pre-wrap;background:#0f172a;color:white;border-radius:16px;padding:13px;font-size:14px;line-height:1.55;margin-top:10px}
+    .notice{padding:12px;border-radius:16px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:13px;line-height:1.55;margin-top:10px}
+    .footer{font-size:12px;color:#64748b;text-align:center;margin-top:14px}
+    @media(max-width:980px){.hero-grid,.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:640px){.hero h1{font-size:24px}.stats{grid-template-columns:1fr}.row>*{flex:1 1 100%}.top-actions{display:none}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo">⛽</div>
+        <div>
+          <div class="brand-title">Fuel Finder Growth Machine</div>
+          <div class="brand-sub">Free safe system: group finder + content + tracker</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span class="pill">✅ No scraping</span>
+        <span class="pill">✅ No auto-post</span>
+        <span class="pill">✅ Safe growth</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="kicker">FREE STACK / SAFE MODE</div>
+          <h1>เครื่องมือช่วย Launch Fuel Finder แบบไม่เสี่ยงโดนแบน</h1>
+          <p>
+            ระบบนี้ช่วยสร้าง keyword กลุ่ม Facebook, คัดคะแนนกลุ่ม, สร้างโพสต์พร้อม UTM,
+            copy-ready และบันทึกผลการโพสต์ใน browser โดยไม่ยิงโพสต์อัตโนมัติ ไม่ scrape และไม่ DM spam.
+          </p>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="stat-label">Saved Groups</div><div class="stat-value" id="statGroups">0</div></div>
+          <div class="stat"><div class="stat-label">Post Logs</div><div class="stat-value" id="statLogs">0</div></div>
+          <div class="stat"><div class="stat-label">Generated Keywords</div><div class="stat-value" id="statKeywords">0</div></div>
+          <div class="stat"><div class="stat-label">Mode</div><div class="stat-value">Safe</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>ภาพรวม Workflow</h2>
+      <p>
+        1) Generate keywords → 2) เปิด Facebook Search → 3) เลือกกลุ่มที่ active →
+        4) Score group → 5) Generate post → 6) Copy ไปโพสต์ → 7) บันทึกผลลัพธ์.
+      </p>
+      <div>
+        <span class="badge good">เหมาะกับ Product ฟรี</span>
+        <span class="badge good">ใช้ได้ทันที</span>
+        <span class="badge warn">ยังต้องกดโพสต์เองเพื่อความปลอดภัย</span>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card dark">
+        <h2>1) Group Keyword Finder</h2>
+        <p class="desc">สร้างคำค้น Facebook Groups ที่ตรงกับคนใช้รถจริง เช่น กลุ่มจังหวัด กลุ่มคนใช้รถ Rider และ Road Trip.</p>
+
+        <label>พื้นที่เป้าหมาย</label>
+        <input id="areaInput" value="กรุงเทพ ระยอง ชลบุรี พัทยา บางแสน" />
+
+        <label>ประเภทกลุ่ม</label>
+        <select id="audienceInput">
+          <option value="all">ทั้งหมด</option>
+          <option value="local">กลุ่มจังหวัด / ชุมชน</option>
+          <option value="driver">กลุ่มคนใช้รถ</option>
+          <option value="rider">Rider / Delivery</option>
+          <option value="travel">ท่องเที่ยว / Road Trip</option>
+          <option value="business">ร้านอาหาร / คาเฟ่ / local business</option>
+        </select>
+
+        <div class="row">
+          <button class="btn-primary" onclick="generateKeywords()">Generate Keywords</button>
+          <button onclick="copyKeywordBlock()">Copy All Keywords</button>
+        </div>
+
+        <div id="keywordStatus" class="status"></div>
+        <div id="keywordList" class="list"></div>
+      </section>
+
+      <section class="card">
+        <h2>2) Group Scoring</h2>
+        <p>ใส่ข้อมูลกลุ่มที่หาเจอ เพื่อให้ระบบแนะนำว่าควรโพสต์หรือไม่.</p>
+
+        <label>ชื่อกลุ่ม</label>
+        <input id="groupName" placeholder="เช่น คนระยอง / Grab Driver Thailand" />
+
+        <div class="row">
+          <div>
+            <label>จำนวนสมาชิกโดยประมาณ</label>
+            <input id="members" type="number" value="20000" />
+          </div>
+          <div>
+            <label>โพสต์ล่าสุดภายในกี่ชั่วโมง</label>
+            <input id="lastPostHours" type="number" value="6" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>คุณภาพคอมเมนต์</label>
+            <select id="commentQuality">
+              <option value="3">ดี มีคนคุยจริง</option>
+              <option value="2">กลาง ๆ</option>
+              <option value="1">spam เยอะ</option>
+            </select>
+          </div>
+          <div>
+            <label>ตรงกลุ่มเป้าหมาย</label>
+            <select id="fitScore">
+              <option value="3">ตรงมาก</option>
+              <option value="2">พอใช้</option>
+              <option value="1">ไม่ค่อยตรง</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <button class="btn-green" onclick="scoreGroup()">Score + Save</button>
+          <button onclick="exportGroupsCSV()">Export Groups CSV</button>
+          <button class="btn-red" onclick="clearGroups()">Clear</button>
+        </div>
+
+        <div id="scoreResult"></div>
+        <div id="groupTableWrap"></div>
+      </section>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <h2>3) Content Generator</h2>
+        <p>สร้างโพสต์แบบไม่ขายตรง เหมาะกับกลุ่ม Facebook และ Product ฟรี.</p>
+
+        <label>Fuel Finder URL</label>
+        <input id="baseUrl" value="https://fuelnear.kittipan1984.workers.dev" />
+
+        <label>UTM / Source</label>
+        <input id="utmSource" value="fb_group" />
+
+        <label>สไตล์โพสต์</label>
+        <select id="postStyle">
+          <option value="pain">Pain: น้ำมันจะหมด / หาปั๊มไม่เจอ</option>
+          <option value="helpful">Helpful: เครื่องมือฟรี</option>
+          <option value="local">Local: ใช้ในพื้นที่</option>
+          <option value="rider">Rider / Delivery</option>
+          <option value="travel">Travel / Road Trip</option>
+          <option value="softsell">Soft sell: ขอ feedback</option>
+        </select>
+
+        <div class="row">
+          <button class="btn-primary" onclick="generatePost()">Generate Post</button>
+          <button onclick="copyPost()">Copy Main Post</button>
+        </div>
+
+        <label>Generated Post</label>
+        <textarea id="postOutput"></textarea>
+
+        <h3>Variations</h3>
+        <div id="postVariations"></div>
+      </section>
+
+      <section class="card">
+        <h2>4) Posting Tracker</h2>
+        <p>บันทึกว่าคุณโพสต์ที่ไหนแล้ว เพื่อไม่โพสต์ถี่เกินไปและติดตามผล.</p>
+
+        <label>Group Name</label>
+        <input id="trackGroup" placeholder="ชื่อกลุ่มที่โพสต์" />
+
+        <label>Post URL / Note</label>
+        <input id="postUrl" placeholder="ลิงก์โพสต์ หรือ note เช่น มีคน comment 3 คน" />
+
+        <div class="row">
+          <button class="btn-green" onclick="savePostLog()">Save Log</button>
+          <button onclick="exportPostLogsCSV()">Export Logs CSV</button>
+          <button class="btn-red" onclick="clearLogs()">Clear</button>
+        </div>
+
+        <div id="postLogWrap"></div>
+
+        <div class="notice">
+          กฎปลอดภัย: โพสต์ 2–3 กลุ่มต่อวันพอ, เปลี่ยน hook ทุกครั้ง, อย่าโพสต์ข้อความเหมือนกันเป๊ะทุกกลุ่ม.
+        </div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>5) Daily Launch Plan</h2>
+      <table>
+        <tr><th>เวลา</th><th>งาน</th><th>เป้าหมาย</th></tr>
+        <tr><td>เช้า</td><td>Generate keywords + หา 5 กลุ่ม</td><td>ได้กลุ่มใหม่</td></tr>
+        <tr><td>กลางวัน</td><td>โพสต์ 1–2 กลุ่ม</td><td>ทดสอบ hook</td></tr>
+        <tr><td>เย็น</td><td>ตอบ comment / DM</td><td>สร้าง trust</td></tr>
+        <tr><td>ก่อนนอน</td><td>Save log + ดู feedback</td><td>ปรับโพสต์พรุ่งนี้</td></tr>
+      </table>
+    </section>
+
+    <div class="footer">
+      Fuel Finder Growth Machine | localStorage only | no server required
+    </div>
+  </main>
+
+<script>
+const LS_GROUPS = "fuel_growth_groups_full_v1";
+const LS_LOGS = "fuel_growth_postlogs_full_v1";
+let latestKeywords = [];
+
+function byId(id){ return document.getElementById(id); }
+
+function updateStats(){
+  byId("statGroups").textContent = loadJson(LS_GROUPS, []).length;
+  byId("statLogs").textContent = loadJson(LS_LOGS, []).length;
+  byId("statKeywords").textContent = latestKeywords.length;
+}
+
+function toast(id, msg){
+  const el = byId(id);
+  if(!el) return;
+  el.style.display = "block";
+  el.textContent = msg;
+  setTimeout(()=>{ el.style.display = "none"; }, 2200);
+}
+
+function getAreas(){
+  return byId("areaInput").value.split(/\s+/).map(x=>x.trim()).filter(Boolean);
+}
+
+function generateKeywords(){
+  const areas = getAreas();
+  const audience = byId("audienceInput").value;
+
+  const packs = {
+    local: ["คน{area}", "{area}บ้านเรา", "{area} Community", "แจ้งข่าว{area}", "ร้านอาหาร{area}", "คาเฟ่{area}", "ตลาดนัด{area}"],
+    driver: ["กลุ่มคนใช้รถ {area}", "คนรักรถ {area}", "รถยนต์ {area}", "Toyota {area}", "Honda {area}", "รถมือสอง {area}", "อู่ซ่อมรถ {area}"],
+    rider: ["Rider {area}", "Grab Driver {area}", "คนขับ Grab {area}", "ส่งอาหาร {area}", "ไรเดอร์ {area}", "Delivery {area}"],
+    travel: ["ขับรถเที่ยว {area}", "เที่ยวไทยด้วยรถ {area}", "Road Trip {area}", "เที่ยว{area}", "เส้นทาง{area}", "ที่เที่ยว{area}"],
+    business: ["ร้านอาหาร {area}", "คาเฟ่ {area}", "ล้างรถ {area}", "คาร์แคร์ {area}", "ธุรกิจท้องถิ่น {area}", "โปรโมทร้าน {area}"]
+  };
+
+  let keys = [];
+  const chosen = audience === "all" ? Object.keys(packs) : [audience];
+  areas.forEach(area=>{
+    chosen.forEach(type=>{
+      packs[type].forEach(t=>keys.push(t.replaceAll("{area}", area)));
+    });
+  });
+
+  latestKeywords = [...new Set(keys)];
+  byId("keywordList").innerHTML = latestKeywords.map(k => `
+    <div class="result">
+      <div class="result-title">${escapeHtml(k)}</div>
+      <div class="small">ใช้ค้นใน Facebook Groups แล้วคัดกลุ่มที่ active จริง</div>
+      <div class="row">
+        <button onclick="copyText('${escapeJs(k)}')">Copy</button>
+        <button class="btn-primary" onclick="openFacebookSearch('${encodeURIComponent(k)}')">Open FB Search</button>
+      </div>
+    </div>
+  `).join("");
+  toast("keywordStatus", `สร้าง keyword แล้ว ${latestKeywords.length} รายการ`);
+  updateStats();
+}
+
+function copyKeywordBlock(){
+  if(!latestKeywords.length) generateKeywords();
+  copyText(latestKeywords.join("\\n"));
+}
+
+function openFacebookSearch(q){
+  window.open("https://www.facebook.com/search/groups/?q=" + q, "_blank");
+}
+
+function scoreGroup(){
+  const name = byId("groupName").value.trim();
+  const members = Number(byId("members").value || 0);
+  const hours = Number(byId("lastPostHours").value || 999);
+  const comment = Number(byId("commentQuality").value);
+  const fit = Number(byId("fitScore").value);
+
+  if(!name){ alert("กรุณาใส่ชื่อกลุ่ม"); return; }
+
+  let score = 0;
+  if(members >= 50000) score += 3;
+  else if(members >= 10000) score += 2;
+  else if(members >= 3000) score += 1;
+
+  if(hours <= 6) score += 3;
+  else if(hours <= 24) score += 2;
+  else if(hours <= 72) score += 1;
+
+  score += comment + fit;
+
+  let verdict = "ไม่แนะนำ";
+  let cls = "bad";
+  if(score >= 10){ verdict = "ควรโพสต์มาก"; cls = "good"; }
+  else if(score >= 7){ verdict = "ทดลองโพสต์ได้"; cls = "mid"; }
+
+  const item = { name, members, hours, comment, fit, score, verdict, created_at:new Date().toISOString() };
+  const groups = loadJson(LS_GROUPS, []);
+  groups.unshift(item);
+  localStorage.setItem(LS_GROUPS, JSON.stringify(groups));
+
+  byId("scoreResult").innerHTML = `
+    <div class="result">
+      <div class="result-title">${escapeHtml(name)}</div>
+      <div>Score: <span class="score ${cls}">${score}/12</span></div>
+      <div>Verdict: <b>${verdict}</b></div>
+      <div class="small">เกณฑ์ดี: สมาชิกเยอะ + โพสต์ล่าสุดไม่นาน + comment จริง + ตรง target</div>
+    </div>
+  `;
+  renderGroups();
+  updateStats();
+}
+
+function renderGroups(){
+  const groups = loadJson(LS_GROUPS, []);
+  const wrap = byId("groupTableWrap");
+  if(!groups.length){ wrap.innerHTML = ""; return; }
+  wrap.innerHTML = `<table>
+    <tr><th>Group</th><th>Members</th><th>Active</th><th>Score</th><th>Verdict</th></tr>
+    ${groups.slice(0,30).map(g=>`<tr>
+      <td>${escapeHtml(g.name)}</td><td>${g.members}</td><td>${g.hours}h</td><td>${g.score}/12</td><td>${g.verdict}</td>
+    </tr>`).join("")}
+  </table>`;
+}
+
+function generatePost(){
+  const base = byId("baseUrl").value.trim();
+  const src = byId("utmSource").value.trim() || "fb_group";
+  const style = byId("postStyle").value;
+  const url = `${base}?src=${encodeURIComponent(src)}&t=${Date.now()}`;
+
+  const templates = {
+    pain: [
+`ใครขับรถแล้วเคยเจอแบบนี้บ้าง
+น้ำมันใกล้หมด แต่ไม่รู้ปั๊มอยู่ไหน 😅
+
+ผมลองทำเว็บนี้ไว้ใช้เอง
+กดแล้วเห็นปั๊มใกล้ตัวเลย
+
+👉 ${url}
+
+ถ้าลองแล้วโอเค แชร์ต่อได้เลยครับ 🙌`,
+`น้ำมันจะหมดตอนอยู่ไม่คุ้นทางนี่เครียดจริง 😅
+
+ผมทำเว็บเล็ก ๆ ไว้เช็คปั๊มใกล้ตัว
+เปิดแล้วกดใช้ตำแหน่งได้เลย
+
+👉 ${url}`
+    ],
+    helpful: [
+`มีเว็บฟรีไว้ช่วยหาปั๊มใกล้ตัวครับ
+ไม่ต้องติดตั้งแอป เปิดผ่าน browser ได้เลย
+
+👉 ${url}
+
+ใครใช้รถบ่อย ลองเก็บไว้ได้ครับ`,
+`ฝากเครื่องมือฟรีครับ
+Fuel Finder เอาไว้หาปั๊มใกล้ตัวจากตำแหน่งปัจจุบัน
+
+👉 ${url}
+
+เหมาะกับคนขับรถ/เดินทางบ่อยครับ`
+    ],
+    local: [
+`คนพื้นที่ลองใช้ดูครับ
+เว็บหาปั๊มใกล้ตัว กดแล้วดูรอบตัวได้เลย
+
+👉 ${url}
+
+ถ้ามีจุดไหนข้อมูลคลาดเคลื่อนบอกได้ครับ`,
+`ทำไว้ให้คนใช้รถในพื้นที่ครับ
+เปิดเว็บ → กดตำแหน่ง → ดูปั๊มใกล้ตัว
+
+👉 ${url}`
+    ],
+    rider: [
+`พี่ ๆ rider / คนส่งอาหาร ลองใช้ได้ครับ
+เว็บหาปั๊มใกล้ตัว เปิดผ่านมือถือได้เลย
+
+👉 ${url}
+
+เวลาวิ่งงานหลายพื้นที่น่าจะช่วยได้ครับ`,
+`สำหรับคนขับงานทั้งวัน
+ถ้าน้ำมันใกล้หมด ลองเปิดเว็บนี้เช็คปั๊มใกล้ตัวได้ครับ
+
+👉 ${url}`
+    ],
+    travel: [
+`สายขับรถเที่ยวลองเก็บไว้ครับ
+เว็บเช็คปั๊มใกล้ตัว เปิด browser ก็ใช้ได้
+
+👉 ${url}
+
+เผื่อเดินทางแล้วไม่คุ้นเส้นทาง`,
+`เวลา road trip แล้วไม่รู้ปั๊มถัดไปอยู่ไหน
+ลองใช้เว็บนี้ดูครับ
+
+👉 ${url}`
+    ],
+    softsell: [
+`ผมลองทำเว็บหาปั๊มใกล้ตัวไว้ใช้เองครับ
+อยากขอ feedback จากคนใช้รถจริง ๆ
+
+👉 ${url}
+
+ถ้าลองแล้วเจอจุดไหนควรปรับ บอกได้เลยครับ 🙏`,
+`ขออนุญาตแชร์เครื่องมือฟรีครับ
+Fuel Finder สำหรับหาปั๊มใกล้ตัว
+
+👉 ${url}
+
+อยากรู้ว่าคนใช้รถจริง ๆ มองว่า useful ไหมครับ`
+    ]
+  };
+
+  const arr = templates[style] || templates.pain;
+  const picked = arr[Math.floor(Math.random()*arr.length)];
+  byId("postOutput").value = picked;
+
+  byId("postVariations").innerHTML = arr.map((p,i)=>`
+    <div class="result">
+      <div class="small">Variation ${i+1}</div>
+      <div class="copy-area">${escapeHtml(p)}</div>
+      <div class="row"><button onclick="copyText(\`${escapeTemplate(p)}\`)">Copy this</button></div>
+    </div>
+  `).join("");
+}
+
+function copyPost(){
+  copyText(byId("postOutput").value);
+}
+
+function savePostLog(){
+  const group = byId("trackGroup").value.trim();
+  const note = byId("postUrl").value.trim();
+  if(!group){ alert("ใส่ชื่อกลุ่มก่อน"); return; }
+  const logs = loadJson(LS_LOGS, []);
+  logs.unshift({ group, note, posted_at:new Date().toISOString() });
+  localStorage.setItem(LS_LOGS, JSON.stringify(logs));
+  renderLogs();
+  updateStats();
+}
+
+function renderLogs(){
+  const logs = loadJson(LS_LOGS, []);
+  const wrap = byId("postLogWrap");
+  if(!logs.length){ wrap.innerHTML = ""; return; }
+  wrap.innerHTML = `<table>
+    <tr><th>Date</th><th>Group</th><th>Note</th></tr>
+    ${logs.slice(0,30).map(l=>`<tr>
+      <td>${new Date(l.posted_at).toLocaleString("th-TH")}</td>
+      <td>${escapeHtml(l.group)}</td>
+      <td>${escapeHtml(l.note)}</td>
+    </tr>`).join("")}
+  </table>`;
+}
+
+function exportGroupsCSV(){ exportCSV("fuel-groups.csv", loadJson(LS_GROUPS, [])); }
+function exportPostLogsCSV(){ exportCSV("fuel-post-logs.csv", loadJson(LS_LOGS, [])); }
+
+function exportCSV(filename, rows){
+  if(!rows.length){ alert("ยังไม่มีข้อมูล"); return; }
+  const cols = Object.keys(rows[0]);
+  const csv = [cols.join(",")].concat(rows.map(r=>cols.map(c=>`"${String(r[c]??"").replaceAll('"','""')}"`).join(","))).join("\\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+function clearGroups(){
+  if(confirm("ลบ group score ทั้งหมด?")){
+    localStorage.removeItem(LS_GROUPS);
+    renderGroups(); updateStats();
+    byId("scoreResult").innerHTML = "";
+  }
+}
+function clearLogs(){
+  if(confirm("ลบ post log ทั้งหมด?")){
+    localStorage.removeItem(LS_LOGS);
+    renderLogs(); updateStats();
+  }
+}
+
+async function copyText(text){
+  try{
+    await navigator.clipboard.writeText(text || "");
+    alert("Copy แล้ว");
+  }catch(e){
+    prompt("Copy manually:", text || "");
+  }
+}
+function loadJson(key, fallback){
+  try{ return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+  catch(e){ return fallback; }
+}
+function escapeHtml(s){
+  return String(s??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+function escapeJs(s){
+  return String(s??"").replaceAll("\\","\\\\").replaceAll("'","\\'").replaceAll("\\n"," ");
+}
+function escapeTemplate(s){
+  return String(s??"").replaceAll("\\","\\\\").replaceAll("`","\\`").replaceAll("${","\\${");
+}
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  generateKeywords();
+  generatePost();
+  renderGroups();
+  renderLogs();
+  updateStats();
+});
+</script>
+</body>
+</html>
