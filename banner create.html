@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI Banner Generator</title>
+<style>
+body{font-family:sans-serif;background:#111;color:#fff;text-align:center}
+.container{max-width:900px;margin:auto;padding:20px}
+input,select,button{padding:10px;margin:5px;width:80%}
+canvas{margin-top:20px;border-radius:12px}
+</style>
+</head>
+
+<body>
+<div class="container">
+<h2>🚀 AI Banner Generator</h2>
+
+<select id="template">
+<option value="self">SELF ADS</option>
+<option value="cafe">Cafe</option>
+<option value="car">Car Wash</option>
+<option value="food">Food</option>
+<option value="ev">EV</option>
+</select>
+
+<input id="line1" placeholder="ข้อความหลัก">
+<input id="line2" placeholder="ข้อความรอง">
+<input id="line3" placeholder="ข้อความล่าง">
+
+<br>
+<button onclick="generate()">Generate</button>
+<button onclick="download()">Download JPG</button>
+
+<br>
+<canvas id="canvas" width="1200" height="180"></canvas>
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+function getTemplateStyle(type){
+const styles = {
+self: {bg:"#0ea5e9", accent:"#0284c7"},
+cafe: {bg:"#065f46", accent:"#10b981"},
+car: {bg:"#1e3a8a", accent:"#3b82f6"},
+food: {bg:"#7c2d12", accent:"#fb923c"},
+ev: {bg:"#065f46", accent:"#22c55e"}
+};
+return styles[type];
+}
+
+function generate(){
+const t = document.getElementById("template").value;
+const s = getTemplateStyle(t);
+
+const l1 = document.getElementById("line1").value;
+const l2 = document.getElementById("line2").value;
+const l3 = document.getElementById("line3").value;
+
+// background
+ctx.fillStyle = s.bg;
+ctx.fillRect(0,0,1200,180);
+
+// accent bar
+ctx.fillStyle = s.accent;
+ctx.fillRect(0,0,1200,10);
+
+// text
+ctx.fillStyle = "#fff";
+ctx.font = "bold 36px Arial";
+ctx.fillText(l1, 40, 70);
+
+ctx.font = "32px Arial";
+ctx.fillText(l2, 40, 110);
+
+ctx.font = "26px Arial";
+ctx.fillText(l3, 40, 150);
+
+// CTA button
+ctx.fillStyle = "#fff";
+ctx.fillRect(950,60,200,50);
+
+ctx.fillStyle = "#000";
+ctx.font = "bold 20px Arial";
+ctx.fillText("ติดต่อด้านล่าง", 970, 95);
+}
+
+function download(){
+const link = document.createElement("a");
+link.download = "banner.jpg";
+link.href = canvas.toDataURL("image/jpeg",0.9);
+link.click();
+}
+</script>
+</body>
+</html>
