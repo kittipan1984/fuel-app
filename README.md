@@ -2,7 +2,7 @@ https://kittipan1984.github.io/fuel-app/;
 
 https://fuel-finder.kittipan1984.workers.dev;
 
-https://kittipan1984.github.io/fuel-app/bannercreate.html;
+https://kittipan1984.github.io/fuel-app/banner_create.html;
 
 https://kittipan1984.github.io/fuel-app/growth_machine_full.html;
 
