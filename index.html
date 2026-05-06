@@ -1,5 +1,13 @@
 <!DOCTYPE html>
 <html lang="th">
+  <!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -1762,5 +1770,19 @@ function applySafeBrandDisplay(stations) {
 }
   
   </script>
+  <div style="
+  position:fixed;
+  bottom:10px;
+  right:10px;
+  font-size:12px;
+  background:rgba(0,0,0,0.6);
+  color:white;
+  padding:6px 10px;
+  border-radius:8px;
+  z-index:9999;
+">
+  👀 Visitors:
+  <img src="https://visitor-badge.laobi.icu/badge?page_id=fuel-finder-app" />
+</div>
 </body>
 </html>
